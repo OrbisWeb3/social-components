@@ -28,7 +28,7 @@ const User = ({details, connected = false, height = 44}) => {
 export const UserPfp = ({details, height = 44}) => {
   const { theme } = useContext(GlobalContext);
   return(
-    <>
+    <div className="relative">
       {details && details.profile && details.profile?.pfp ?
         <img className="inline-block rounded-full" src={details.profile.pfp} alt="" style={{height: height, width: height}} />
       :
@@ -38,7 +38,13 @@ export const UserPfp = ({details, height = 44}) => {
           </svg>
         </span>
       }
-    </>
+
+      {details.profile?.pfpIsNft &&
+        <div className="absolute" style={{ top: -5, right: -5 }}>
+          <img className="h-5 w-5" src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
+        </div>
+      }
+    </div>
   )
 }
 
