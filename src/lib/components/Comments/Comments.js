@@ -75,7 +75,7 @@ const Comments = ({orbis = _orbis, context, theme}) => {
           ...comments
         ]
       );
-      
+
     } else {
 
     }
@@ -166,7 +166,10 @@ function Comment({comments, comment, master}) {
 
   return(
     <div className="relative">
-      <span className="absolute top-5 left-5 -ml-px rounded-md" style={{top: 50, bottom: 20, width: 1, backgroundColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main}} aria-hidden="true"></span>
+      {/** Display grey line only for reply */}
+      {comment.content.reply_to != null &&
+        <span className="absolute -ml-px rounded-md" style={{top: 60, bottom: 20, left: 22, width: 1, backgroundColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main}} aria-hidden="true"></span>
+      }
       <Post comment={comment} />
       <div className="ml-10">
         <LoopInternalReplies />
