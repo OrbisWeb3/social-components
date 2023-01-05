@@ -77,7 +77,7 @@ export const UserPopup = ({details}) => {
   const { orbis, user, theme } = useContext(GlobalContext);
 
   return(
-    <div className="absolute text-left py-4 px-5 z-50 rounded-lg overflow-hidden min-w-[310px] max-w-[390px] drop-shadow-lg border" style={{top: 30, background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
+    <div className="absolute text-left py-4 px-5 z-50 rounded-lg overflow-hidden min-w-[310px] max-w-[390px] drop-shadow-lg border" style={{left: 30, top: 25, background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
       {/** Top part */}
       <div className="flex-row flex" style={{alignItems: "center"}}>
         <UserPfp details={details} />
