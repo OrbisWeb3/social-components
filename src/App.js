@@ -52,7 +52,7 @@ function App() {
   }
 
   return (
-    <div className="App" className="flex flex-col" style={{paddingTop: 40, backgroundColor: "#000", justifyContent: "center"}}>
+    <div className="App" className="flex flex-col" style={{paddingTop: 50, padding: 20, backgroundColor: "#000", justifyContent: "center", height: "100%"}}>
       <div className="w-full py-5 mt-10">
         {/** Select pre-defined theme */}
         <div className="flex flex justify-center">
