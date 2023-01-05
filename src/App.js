@@ -52,8 +52,8 @@ function App() {
   }
 
   return (
-    <div className="App" style={{paddingTop: 40, backgroundColor: "#000"}}>
-      <div className="w-1/3 py-5 mt-10">
+    <div className="App" className="flex flex-col" style={{paddingTop: 40, backgroundColor: "#000", justifyContent: "center"}}>
+      <div className="w-full py-5 mt-10">
         {/** Select pre-defined theme */}
         <div className="flex flex justify-center">
           <span className="isolate inline-flex rounded-md shadow-sm">
@@ -63,8 +63,10 @@ function App() {
           </span>
         </div>
       </div>
-      <div style={{padding: 250, paddingTop: 40}}>
-        <Comments theme={theme} context="kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73" />
+      <div className="w-full justify-center flex">
+        <div className="flex" style={{paddingTop: 40, maxWidth: 750, width: "100%"}}>
+          <Comments theme={theme} context="kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73" />
+        </div>
       </div>
     </div>
   );
