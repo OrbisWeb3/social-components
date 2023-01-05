@@ -7,6 +7,11 @@ export function getTimestamp() {
   return cur_timestamp;
 }
 
+/** Wait for x ms in an async function */
+export const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
 /** Returns a short address */
 export function shortAddress(_address) {
   if(!_address) {
