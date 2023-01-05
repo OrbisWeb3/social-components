@@ -1455,6 +1455,12 @@ select {
 .rounded-md {
   border-radius: 0.375rem;
 }
+.rounded-l-md {
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+.rounded-r-md {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
 .rounded-lg {
   border-radius: 0.5rem;
 }

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import ConnectButton from "../ConnectButton";
 import LoadingCircle from "../LoadingCircle";
-import { UserPfp, Username } from "../User";
+import { UserPfp, Username, UserPopup } from "../User";
 import { getTimestamp } from "../../utils";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Logo } from "../../icons"
+import useHover from "../../hooks/useHover";
 
 /** Display postbox or connect CTA */
 export default function Postbox({ showPfp = true, connecting, reply = null, callback, rows = "2", sendStyle = sendStyleMain, defaultPost, setEditPost }) {
   const { orbis, user, context, comments, setComments, theme } = useContext(GlobalContext);
   const [sharing, setSharing] = useState(false);
   const postbox = useRef();
+  const [hoverRef, isHovered] = useHover();
 
   /** If user is editing a post we use the content as the default post */
   useEffect(() => {
@@ -93,8 +95,11 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         <div className="flex items-start w-full">
           {/** (Optional) Show user's pfp */}
           {showPfp &&
-            <div className="flex-shrink-0 mr-2">
+            <div className="flex-shrink-0 mr-2 relative" ref={hoverRef}>
               <UserPfp details={user} />
+              {isHovered &&
+                <UserPopup details={user} />
+              }
             </div>
           }
 
