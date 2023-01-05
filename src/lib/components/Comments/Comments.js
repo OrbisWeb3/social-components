@@ -36,6 +36,7 @@ if (typeof window !== "undefined") {
 const Comments = ({orbis = _orbis, context, theme}) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [user, setUser] = useState();
 
   /** Load posts on load */
@@ -74,9 +75,7 @@ const Comments = ({orbis = _orbis, context, theme}) => {
           ...comments
         ]
       );
-      if(postbox.current) {
-        postbox.current.value = "";
-      }
+      
     } else {
 
     }

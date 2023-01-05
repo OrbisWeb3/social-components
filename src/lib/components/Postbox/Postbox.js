@@ -24,7 +24,6 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
   /** Will cancel the edit post action using the `setEditPost` function passed as a parameter */
   function cancelEdit() {
-    event.preventDefault();
     setEditPost(false);
   }
 

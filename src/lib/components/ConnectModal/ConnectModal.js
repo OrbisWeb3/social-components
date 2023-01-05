@@ -3,6 +3,7 @@ import useOutsideClick from "../../hooks/useOutsideClick";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import LoadingCircle from "../LoadingCircle";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
+import { sleep } from "../../utils";
 
 /** Manage WalletConnect */
 import WalletConnectProvider from "@walletconnect/web3-provider";
