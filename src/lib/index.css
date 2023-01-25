@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
   margin: 0;
 }
@@ -41,21 +37,12 @@ body {
   list-style: none !important;
   margin-left: 0px !important;
 }
-.orbis .link-card-image {
-  background-size: cover;
-  width: 100%;
-  height: 263px;
-  background-position: 50%;
-}
 .orbis .bg-transparent {
   background-color: transparent;
   background: transparent;
 }
 .orbis .text-base {
   font-size: 15px !important;
-}
-iframe {
-  pointer-events: none;
 }
 
 /** Customized Tailwind */

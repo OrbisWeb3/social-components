@@ -3232,4 +3232,4 @@ en.long.minute = {
 TimeAgo.addDefaultLocale(en);
 
 export { Article, Button, Comments, ConnectButton, Inbox, OrbisProvider, User, UserPfp, Username, darkTheme, defaultTheme, useOrbis };
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.modern.js.map

@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+.modalBackground {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  background: rgba(66,74,82,.5);
+}
+
+.modalContainer {
+  position: fixed;
+  z-index: 10;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  overflow-y: auto;
+}
+
+.modalWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+}
+
+.modal {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  padding: 3rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  text-align: left;
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 500;
+  font-family: "Inter";
+  margin-top: 0px !important;
+  margin-bottom: 0.5rem;
+}
+
+.modalDescription {
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  line-height: inherit !important;
+}

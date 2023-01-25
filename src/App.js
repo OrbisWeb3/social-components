@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Comments, defaultTheme, darkTheme } from "./lib";
-import './lib/tailwind.css'
 
 let moonTheme = {
   bg: {

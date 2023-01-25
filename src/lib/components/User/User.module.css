@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+.userContainer {
+  display: block;
+  align-items: center;
+  flex-shrink: 0;
+}
+.userUsernameContainer {
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+.userPfpContainer {
+  position: relative;
+}
+.userPfpContainerImg {
+  display: inline-block;
+  border-radius: 9999px !important;
+}
+.userPfpContainerImgEmpty {
+  display: inline-block;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.userBadge {
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+.loadingContainer {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  margin-top: 0px;
+  margin-bottom: 15px !important;
+}
+.userPopupContainer {
+  position: absolute;
+  padding: 30px;
+  left: -10px;
+  top: -10px;
+}
+.userPopupContent {
+  position: relative;
+  text-align: left;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  z-index: 50;
+  min-width: 310px;
+  max-width: 360px;
+  border-radius: 0.5rem;
+  overflow: visible;
+  --tw-drop-shadow: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+  border: 1px solid;
+}
+.userPopupDetailsContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-left: 0.5rem;
+}
+.userPopupDetailsUsername {
+  display: flex;
+  font-weight: 500;
+}
+.userPopupDetailsBadgeContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+.userPopupDetailsActionsContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+.userPopupCredentialsContainer {
+  display: grid;
+  width: 100%;
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  margin-top: 5px;
+}
+.userPopupCredentialsContainer > div {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.userPopupFooterContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 0.75rem;
+}
+.userPopupFooterContainer p {
+  margin: 0;
+  line-height: inherit !important;
+}
+.userPopupFooterFollowers {
+  display: flex;
+  flex-direction: column;
+  padding-right: 1.5rem;
+  border-right: 1px solid;
+  margin-right: 1.5rem;
+}
+
+.userPopupFooterFollowing {
+  display: flex;
+  flex-direction: column;
+}
+.userPopupFooterFollowTitle {
+  font-size: 13px;
+  margin: 0 !important;
+  margin-bottom: 0px !important;
+}
+.userPopupFooterFollowCount {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 !important;
+  margin-top: 3px !important;
+}
+.userEditContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.userEditPfpContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.userEditPfpOverlay {
+  position: absolute;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFF;
+}
+.userEditButtonContainer {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+}
+.userFieldsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.75rem;
+  align-items: center;
+}
+.userFieldsSaveContainer {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+}

@@ -11,8 +11,6 @@ import Article from "./Article";
 import OrbisProvider from "./OrbisProvider";
 import useOrbis from "../hooks/useOrbis";
 import { defaultTheme, darkTheme } from "../utils/themes";
-import '../index.css'
-import '../tailwind.css'
 
 /** Import TimeAgo globally */
 import TimeAgo from 'javascript-time-ago'
@@ -24,4 +22,6 @@ en.long.minute = {
 }
 TimeAgo.addDefaultLocale(en);
 
-export { Button, User, UserPfp, Username, Comments, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme };
+const Fragment = React.Fragment;
+
+export { TimeAgo, Button, User, UserPfp, Username, Comments, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme };

@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+.badge {
+  position: relative;
+  font-family: "Inter";
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.badge a:hover {
+  text-decoration: underline;
+}
+
+.tooltip {
+  background: #051224;
+  position: absolute;
+  top: 0px;
+  right: -10px;
+  padding: 3px 6px;
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  max-width: 150px;
+  width: max-content;
+  left: 90%;
+  z-index: 1000;
+}

@@ -1,17 +1,19 @@
 {
   "name": "@orbisclub/components",
-  "version": "0.0.40",
+  "version": "0.0.95",
   "description": "A library of social components powered by Orbis. Integrate decentralized discussion feeds in your app in one line of code.",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@magic-ext/connect": "^4.0.0",
-    "@orbisclub/orbis-sdk": "^0.4.9",
+    "@orbisclub/orbis-sdk": "^0.4.10",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@walletconnect/web3-provider": "^1.8.0",
+    "encoding": "^0.1.13",
     "ethereum-blockies-base64": "^1.0.2",
     "ethereumjs-abi": "^0.6.8",
+    "javascript-time-ago": "^2.5.9",
     "magic-sdk": "^11.0.0",
     "marked": "^4.2.5",
     "react": "^18.2.0",
@@ -23,24 +25,25 @@
     "web-vitals": "^2.1.4",
     "web3": "^1.8.1"
   },
+  "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.js",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "module": "dist/index.modern.js",
+  "source": "src/lib/index.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build-modules": "rm -rf dist && NODE_ENV=production babel src/lib --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
+    "build-microbundle": "microbundle-crl --css-modules true --compress false --no-compress --format modern,esm",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": [
     ">0.2%",
@@ -49,6 +52,12 @@
   ],
   "devDependencies": {
     "@babel/cli": "^7.20.7",
-    "@babel/core": "^7.20.12"
-  }
+    "@babel/core": "^7.20.12",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "eslint": "^7.11.0",
+    "microbundle-crl": "^0.13.11"
+  },
+  "files": [
+    "dist"
+  ]
 }

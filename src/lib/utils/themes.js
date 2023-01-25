@@ -18,6 +18,24 @@ export const defaultTheme = {
     main: "#E0E2E5",
     secondary: "#eaeaea",
   },
+  button: {
+    main: {
+      bg: "#4E75F6",
+      color: "#FFF"
+    },
+    secondary: {
+      bg: "#efefef",
+      color: "#333"
+    },
+    green: {
+      bg: "#6ee7b7",
+      color: "#374151"
+    },
+    red: {
+      bg: "#ffc7c7",
+      color: "#a02323"
+    }
+  },
   badges: {
     main: {
       bg: "#E0E2E5",
@@ -30,6 +48,34 @@ export const defaultTheme = {
     twitter: {
       bg: "rgb(88 92 96 / 5%)",
       color: "#1DA1F2"
+    },
+    uniswap: {
+      bg: "#FFE5F1",
+      color: "#FF007A"
+    },
+    thegraph: {
+      bg: "#dfeff9",
+      color: "#226AD8"
+    },
+    sushiswap: {
+      bg: "#efe6ff",
+      color: "#CC63AF"
+    },
+    hop: {
+      bg: "#FDEFFF",
+      color: "#D064D1"
+    },
+    lido: {
+      bg: "#fee7e2",
+      color: "#273852"
+    },
+    opensea: {
+      bg: "#e3f2ff",
+      color: "#2081E2"
+    },
+    snapshot: {
+      bg: "#FFFBEC",
+      color: "#273852"
     }
   }
 };
@@ -54,6 +100,24 @@ export const darkTheme = {
     main: "#323B49",
     secondary: "#1b182c",
   },
+  button: {
+    main: {
+      bg: "#4E75F6",
+      color: "#FFF"
+    },
+    secondary: {
+      bg: "#efefef",
+      color: "#333"
+    },
+    green: {
+      bg: "#6ee7b7",
+      color: "#374151"
+    },
+    red: {
+      bg: "#ffc7c7",
+      color: "#a02323"
+    }
+  },
   badges: {
     main: {
       bg: "#2D3643",
@@ -66,6 +130,34 @@ export const darkTheme = {
     twitter: {
       bg: "rgb(88 92 96 / 5%)",
       color: "#1DA1F2"
+    },
+    uniswap: {
+      bg: "#FFE5F1",
+      color: "#FF007A"
+    },
+    thegraph: {
+      bg: "#dfeff9",
+      color: "#226AD8"
+    },
+    sushiswap: {
+      bg: "#efe6ff",
+      color: "#CC63AF"
+    },
+    hop: {
+      bg: "#FDEFFF",
+      color: "#D064D1"
+    },
+    lido: {
+      bg: "#fee7e2",
+      color: "#273852"
+    },
+    opensea: {
+      bg: "#e3f2ff",
+      color: "#2081E2"
+    },
+    snapshot: {
+      bg: "#FFFBEC",
+      color: "#273852"
     }
   }
 };
@@ -127,7 +219,8 @@ export function getThemeValue(type, theme, data) {
           return theme?.border?.secondary ? theme.border.secondary : defaultTheme.border.secondary;
         default:
           return null;
-    }
+        }
+        break;
 
     /** Return style for badge */
     case "badges":
@@ -146,6 +239,118 @@ export function getThemeValue(type, theme, data) {
           });
         default:
           return null;
-    }
+      };
+      break;
+    /** Return style for button */
+    case "button":
+      switch (data) {
+        case "primary":
+          return ({
+            background: theme?.button?.main?.bg ? theme.button.main.bg : defaultTheme.button.main.bg,
+            color: theme?.button?.main?.color ? theme.button.main.color : defaultTheme.button.main.color
+          });
+        case "main":
+          return ({
+            background: theme?.button?.main?.bg ? theme.button.main.bg : defaultTheme.button.main.bg,
+            color: theme?.button?.main?.color ? theme.button.main.color : defaultTheme.button.main.color
+          });
+        case "secondary":
+          return ({
+            background: theme?.button?.secondary?.bg ? theme.button.secondary.bg : defaultTheme.button.secondary.bg,
+            color: theme?.button?.secondary?.color ? theme.button.secondary.color : defaultTheme.button.secondary.color
+          });
+        case "green":
+          return ({
+            background: theme?.button?.green?.bg ? theme.button.green.bg : defaultTheme.button.green.bg,
+            color: theme?.button?.green?.color ? theme.button.green.color : defaultTheme.button.green.color
+          });
+        case "green-transparent":
+          return ({
+            background: "transparent",
+            color: theme?.color?.green ? theme.color.green : defaultTheme.color.green
+          });
+        case "red":
+          return ({
+            background: theme?.button?.red?.bg ? theme.button.red.bg : defaultTheme.button.red.bg,
+            color: theme?.button?.red?.color ? theme.button.red.color : defaultTheme.button.red.color
+          });
+      };
+      break;
   }
+}
+
+/** Return the style of a specific element based on the theme */
+export function getStyle(type, theme, data) {
+  switch (type) {
+    case "input":
+      return {
+        borderColor: getThemeValue("input", theme).border,
+        fontSize: 15,
+        color: getThemeValue("input", theme, data).color,
+        backgroundColor: getThemeValue("input", theme, data).background
+      };
+    /** Buttons */
+    case "button-main":
+      return getThemeValue("button", theme, "main");
+    case "button-secondary":
+      return {
+        color: getThemeValue("color", theme, "main"),
+      };
+    case "button":
+      switch (data) {
+        case "main":
+          return getThemeValue("button", theme, "main");
+        case "secondary":
+          return {
+            color: getThemeValue("color", theme, "main"),
+          };
+        case "green":
+          return {
+            color: getThemeValue("color", theme, "main"),
+          };
+      }
+      break;
+    case "badge":
+      switch (data) {
+        case "uniswap":
+          return {
+            backgroundColor: theme?.badges?.uniswap?.bg ? theme.badges.uniswap.bg : defaultTheme.badges.uniswap.bg,
+            color: theme?.badges?.uniswap?.color ? theme.badges.uniswap.color : defaultTheme.badges.uniswap.color
+          };
+        case "thegraph":
+          return {
+            backgroundColor: theme?.badges?.thegraph?.bg ? theme.badges.thegraph.bg : defaultTheme.badges.thegraph.bg,
+            color: theme?.badges?.thegraph?.color ? theme.badges.thegraph.color : defaultTheme.badges.thegraph.color
+          };
+        case "sushiswap":
+          return {
+            backgroundColor: theme?.badges?.sushiswap?.bg ? theme.badges.sushiswap.bg : defaultTheme.badges.sushiswap.bg,
+            color: theme?.badges?.susushiswapshi?.color ? theme.badges.sushiswap.color : defaultTheme.badges.sushiswap.color
+          };
+        case "hop":
+          return {
+            backgroundColor: theme?.badges?.hop?.bg ? theme.badges.hop.bg : defaultTheme.badges.hop.bg,
+            color: theme?.badges?.hop?.color ? theme.badges.hop.color : defaultTheme.badges.hop.color
+          };
+        case "lido":
+          return {
+            backgroundColor: theme?.badges?.lido?.bg ? theme.badges.lido.bg : defaultTheme.badges.lido.bg,
+            color: theme?.badges?.lido?.color ? theme.badges.lido.color : defaultTheme.badges.lido.color
+          };
+        case "opensea":
+          return {
+            backgroundColor: theme?.badges?.opensea?.bg ? theme.badges.opensea.bg : defaultTheme.badges.opensea.bg,
+            color: theme?.badges?.opensea?.color ? theme.badges.opensea.color : defaultTheme.badges.opensea.color
+          };
+        case "snapshot":
+          return {
+            backgroundColor: theme?.badges?.snapshot?.bg ? theme.badges.snapshot.bg : defaultTheme.badges.snapshot.bg,
+            color: theme?.badges?.snapshot?.color ? theme.badges.snapshot.color : defaultTheme.badges.snapshot.color
+          };
+      }
+      break;
+    default:
+      return null;
+  }
+
 }

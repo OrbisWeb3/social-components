@@ -81,6 +81,25 @@ export function cleanBody(post, characterLimit) {
   return body;
 }
 
+/** Retrieve NFTs for a user and network */
+export async function getNFTs(address, page, network) {
+  let res = await fetch('https://app.orbis.club/api/nfts/get', {
+    method: 'POST',
+    body: JSON.stringify({
+      address: address,
+      page: page,
+      network: network
+    })
+  });
+  let nfts = await res.json();
+  if(nfts && nfts.results && nfts.results.length > 0) {
+    return nfts.results;
+  } else {
+    return [];
+  }
+
+}
+
 /** Replace mentions in post */
 function replaceMentions(post) {
   /** Get body from post */

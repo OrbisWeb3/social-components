@@ -1,47 +1,68 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import makeBlockie from 'ethereum-blockies-base64';
 import { GlobalContext } from "../../contexts/GlobalContext";
-import { shortAddress } from "../../utils";
+import { shortAddress, sleep } from "../../utils";
+
+/** Internal components */
 import LoadingCircle from "../LoadingCircle";
-import { CheckIcon } from "../../icons"
+import Button from "../Button";
+import Input from "../Input";
+import Badge from "../Badge";
+import Alert from "../Alert";
+import UpdateProfileModal from "../ProfileModal";
+
+import {
+  CheckIcon,
+  EditIcon,
+  TwitterIcon,
+  GithubIcon,
+  GoogleIcon,
+  OpenSeaIcon,
+  UniswapIcon,
+  TheGraphIcon,
+  SushiIcon,
+  HopIcon,
+  LidoIcon,
+  SnapshotIcon
+} from "../../icons";
 import useHover from "../../hooks/useHover";
 import useDidToAddress from "../../hooks/useDidToAddress";
 import useGetUsername from "../../hooks/useGetUsername";
-import { defaultTheme, getThemeValue } from "../../utils/themes";
+import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
+
+/** Import CSS */
+import styles from './User.module.css';
 
 /** Full component for a user */
 const User = ({details, connected = false, height = 44}) => {
   const { user, theme } = useContext(GlobalContext);
   return(
-    <div className="inline-flex items-center group block flex-shrink-0">
-      <div className="flex items-center">
+    <div className={styles.userContainer}>
         <UserPfp height={height} details={connected ? user : details} />
-        <div className="ml-2 font-medium">
-          <span className="flex font-medium"><Username details={connected ? user : details} /></span>
+        <div className={styles.userUsernameContainer}>
+          <span style={{display: "flex"}}><Username details={connected ? user : details} /></span>
         </div>
-      </div>
     </div>
   )
 }
 
 /** Export only the User Pfp */
-export const UserPfp = ({details, height = 44}) => {
+export const UserPfp = ({details, height = 44, showBadge = true}) => {
   const { theme } = useContext(GlobalContext);
   return(
-    <div className="relative">
+    <div className={styles.userPfpContainer}>
       {details && details.profile && details.profile?.pfp ?
-        <img className="inline-block rounded-full" src={details.profile.pfp} alt="" style={{height: height, width: height}} />
+        <img className={styles.userPfpContainerImg} src={details.profile.pfp} alt="" style={{height: height, width: height}} />
       :
-        <span className="inline-block overflow-hidden rounded-full" style={{height: height, width: height, background: theme?.bg?.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary, color: theme?.color?.tertiary ? theme.color.tertiary : defaultTheme.color.tertiary }}>
-          <svg className="h-full w-full" fill="currentColor" viewBox="0 0 24 24">
+        <span className={styles.userPfpContainerImgEmpty} style={{height: height, width: height, background: theme?.bg?.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary, color: theme?.color?.tertiary ? theme.color.tertiary : defaultTheme.color.tertiary }}>
+          <svg style={{width: "100%", height: "100%"}} fill="currentColor" viewBox="0 0 24 24">
             <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         </span>
       }
 
-      {details.profile?.pfpIsNft &&
-        <div className="absolute" style={{ top: -5, right: -5 }}>
-          <img className="h-5 w-5" src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
+      {showBadge && details.profile?.pfpIsNft &&
+        <div style={{ top: -5, right: -5, position: "absolute" }}>
+          <img style={{height: "1.25rem", width: "1.25rem"}} src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
         </div>
       }
     </div>
@@ -64,7 +85,7 @@ export const UserBadge = ({details}) => {
   const { address, chain } = useDidToAddress(details?.did);
   if(address) {
     return(
-      <div className="text-xs font-medium rounded-lg px-2 py-1" style={{background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color }}>{shortAddress(address)}</div>
+      <div className={styles.userBadge} style={{background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color }}>{details?.metadata?.ensName ? details.metadata.ensName : shortAddress(address)}</div>
     )
   } else {
     return null;
@@ -73,72 +94,412 @@ export const UserBadge = ({details}) => {
 }
 
 /** Modal appearing on request with more details about a specific user */
-export const UserPopup = ({details}) => {
+export const UserPopup = ({details, visible}) => {
   const { orbis, user, theme } = useContext(GlobalContext);
+  const [locked, setLocked] = useState(false);
+  const [vis, setVis] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [pfp, setPfp] = useState(details?.profile?.pfp);
+  const [pfpNftDetails, setPfpNftDetails] = useState(details?.profile?.pfpIsNft);
+
+  useEffect(() => {
+    if(locked == false) {
+      setVis(visible);
+    }
+  }, [visible]);
+
+  function _setIsEditing(vis) {
+    setIsEditing(vis);
+    setLocked(vis);
+  }
+
+  function callbackNftUpdate(url, details) {
+    setPfp(url);
+    setPfpNftDetails(details);
+  }
+
+  if(vis == false) {
+    return null;
+  }
 
   return(
-    <div className="absolute text-left py-4 px-5 z-50 rounded-lg overflow-hidden min-w-[310px] max-w-[390px] drop-shadow-lg border" style={{left: 30, top: 25, background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
-      {/** Top part */}
-      <div className="flex-row flex" style={{alignItems: "center"}}>
-        <UserPfp details={details} />
-        <div className="flex flex-col flex-1 align-top ml-2 justify-start">
-          <span className="flex text-base font-medium" style={{color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}}><Username details={details} /></span>
-          <span className="mt-1 flex"><UserBadge details={details} /></span>
-        </div>
-        <div className="flex justify-end">
-          {(user && user.did == details.did) ?
-            <button className="inline-flex flex items-center rounded-full border border-transparent bg-[#4E75F6] px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer">
-              Edit
-              <svg width="13" height="11" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
-                <path d="M15.2984 1.20163C14.5295 0.432789 13.283 0.432789 12.5141 1.20163L11.6463 2.06949L14.4305 4.85373L15.2984 3.98587C16.0672 3.21702 16.0672 1.97048 15.2984 1.20163Z" fill="white"/>
-                <path d="M13.635 5.64922L10.8508 2.86499L4.55015 9.16562C4.08755 9.62821 3.74751 10.1988 3.56075 10.8258L2.96091 12.8394C2.90195 13.0374 2.95621 13.2517 3.10225 13.3977C3.2483 13.5438 3.46264 13.598 3.66059 13.5391L5.67426 12.9392C6.30123 12.7525 6.8718 12.4124 7.33439 11.9498L13.635 5.64922Z" fill="white"/>
-                <path d="M2.9375 3.43749C1.69486 3.43749 0.6875 4.44485 0.6875 5.68749V13.5625C0.6875 14.8051 1.69486 15.8125 2.9375 15.8125H10.8125C12.0551 15.8125 13.0625 14.8051 13.0625 13.5625V9.62499C13.0625 9.31433 12.8107 9.06249 12.5 9.06249C12.1893 9.06249 11.9375 9.31433 11.9375 9.62499V13.5625C11.9375 14.1838 11.4338 14.6875 10.8125 14.6875H2.9375C2.31618 14.6875 1.8125 14.1838 1.8125 13.5625V5.68749C1.8125 5.06617 2.31618 4.56249 2.9375 4.56249H6.875C7.18566 4.56249 7.4375 4.31065 7.4375 3.99999C7.4375 3.68933 7.18566 3.43749 6.875 3.43749H2.9375Z" fill="white"/>
-              </svg>
-            </button>
-          :
-            <Follow did={details.did} />
-          }
-        </div>
+    <div className={styles.userPopupContainer}>
+      <div className={styles.userPopupContent} style={{background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
+
+        {/** Show form if editing or profile details */}
+        {isEditing ?
+          <UserEditProfile setIsEditing={_setIsEditing} setShowProfileModal={setShowProfileModal} pfp={pfp} pfpNftDetails={pfpNftDetails} />
+        :
+          <>
+            {/** Top part with CTA and profile picture */}
+            <div style={{alignItems: "center", display: "flex", flexDirection: "row"}}>
+              <UserPfp details={details} />
+              <div className={styles.userPopupDetailsContainer}>
+                <span className={styles.userPopupDetailsUsername} style={{color: theme?.color?.main ? theme.color.main : defaultTheme.color.main, fontSize: 15}}><Username details={details} /></span>
+                <span className={styles.userPopupDetailsBadgeContainer}>
+                  <UserBadge details={details} />
+
+                  {/** Show Twitter Badge */}
+                  {details?.twitter_details &&
+                    <a href={"https://twitter.com/" + details?.twitter_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
+                      <TwitterIcon />
+                    </a>
+                  }
+
+                  {/** Show Twitter Badge */}
+                  {details?.github_details &&
+                    <a href={"https://github.com/" + details?.github_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
+                      <GithubIcon />
+                    </a>
+                  }
+                </span>
+              </div>
+              <div className={styles.userPopupDetailsActionsContainer}>
+                {(user && user.did == details.did) ?
+                  <Button color="primary" onClick={() => _setIsEditing(true)}>Edit<EditIcon /></Button>
+                :
+                  <Follow did={details.did} />
+                }
+              </div>
+            </div>
+
+            {/** Display description if available part */}
+            {details?.profile?.description &&
+              <div style={{marginTop: "0.5rem"}}>
+                <p style={{ fontSize: 15, lineHeight: "inherit", color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>{details.profile.description}</p>
+              </div>
+            }
+
+            {/** On-chain credentials */}
+            <UserCredentials details={details} />
+
+            {/** Third part */}
+            <div className={styles.userPopupFooterContainer}>
+              {/** Followers */}
+              <div className={styles.userPopupFooterFollowers} style={{ borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
+                <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Followers</p>
+                <p className={styles.userPopupFooterFollowCount} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_followers}</p>
+              </div>
+
+              {/** Following */}
+              <div className={styles.userPopupFooterFollowing}>
+                <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Following</p>
+                <p className={styles.userPopupFooterFollowCount} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_following}</p>
+              </div>
+            </div>
+          </>
+        }
       </div>
 
-      {/** Display description if available part */}
-      {details?.profile?.description &&
-        <div className="mt-2">
-          <p className="text-base" style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>{details.profile.description}</p>
-        </div>
+      {/** Show ConnectModal */}
+      {showProfileModal &&
+        <UpdateProfileModal hide={() => setShowProfileModal(false)} callbackNftUpdate={callbackNftUpdate} />
       }
+    </div>
+  )
+}
 
-      {/** Display linked Twiter account if available */}
-      {details?.twitter_details &&
-        <div className="mt-2">
-          <div className="inline-flex items-center rounded-full py-1 px-3 text-sm font-medium" style={{ backgroundColor: getThemeValue("badges", theme, "twitter").background, color: getThemeValue("badges", theme, "twitter").color }}>
-            <svg width="13" height="11" viewBox="0 0 512 417" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-              <path d="M459.584 104.552C459.883 109.053 459.883 113.576 459.883 118.12C459.883 256.936 354.197 417 161.003 417V416.915C103.936 417 48.0427 400.659 0 369.832C8.29867 370.835 16.64 371.325 25.0027 371.347C72.32 371.389 118.272 355.517 155.456 326.291C110.507 325.437 71.0827 296.125 57.3227 253.331C73.0667 256.36 89.28 255.741 104.747 251.539C55.7227 241.64 20.48 198.568 20.48 148.563C20.48 148.115 20.48 147.667 20.48 147.24C35.0933 155.389 51.4347 159.891 68.16 160.381C21.9947 129.555 7.744 68.1573 35.6267 20.1573C88.96 85.7787 167.659 125.672 252.117 129.917C243.648 93.4373 255.232 55.208 282.496 29.544C324.8 -10.2427 391.339 -8.19466 431.125 34.1093C454.656 29.48 477.205 20.84 497.835 8.61601C489.984 32.936 473.579 53.5867 451.648 66.728C472.491 64.232 492.821 58.664 512 50.1733C497.899 71.272 480.149 89.6827 459.584 104.552Z"/>
-            </svg>
+/** Load and display credentials for this user */
+function UserCredentials({details}) {
+  const { orbis, user, theme } = useContext(GlobalContext);
+  const [credentials, setCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(false);
 
-            <a href={"https://twitter.com/" + details?.twitter_details.username} target="_blank" rel="noreferrer">
-              <span>@{details?.twitter_details.username}</span>
-            </a>
+  useEffect(() => {
+    loadCredentials();
+  }, [])
+
+  /** Load credentials for this user with Orbis SDK */
+  async function loadCredentials() {
+    setCredentialsLoading(true);
+    //let { data } = await orbis.getCredentials(details.did);
+
+
+	  let { data, error, status } = await orbis.api.rpc("get_verifiable_credentials", {
+	    q_subject: details.did,
+	    q_min_weight: 10
+	  });
+
+    console.log("User credentials:", data);
+    setCredentials(data);
+    setCredentialsLoading(false);
+  }
+
+  const LoopCredentials = () => {
+    if(credentials && credentials.length > 0) {
+      return credentials.map((credential, key) => {
+        return(
+          <Credential credential={credential} key={key} />
+        );
+      });
+    } else {
+      return(
+        <>
+          <Alert title="User doesn't have any credentials yet." style={{backgroundColor: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main}} />
+        </>
+      )
+    }
+
+  }
+
+  return(
+    <div style={{ marginTop: 15, marginBottom: 15 }}>
+      <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Credentials:</p>
+      <div className={styles.userPopupCredentialsContainer}>
+        {credentialsLoading ?
+          <div className={styles.loadingContainer} style={{ color: getThemeValue("color", theme, "main") }}>
+            <LoadingCircle />
           </div>
-        </div>
-      }
+        :
+          <LoopCredentials />
+        }
 
-      {/** Third part */}
-      <div className="flex flex-row mt-3">
-        {/** Followers */}
-        <div className="flex flex-col pr-6 border-r-[1px] mr-6" style={{ borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
-          <p className="font-normal text-sm" style={{ color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Followers</p>
-          <p className="font-medium text-base mt-px" style={{ color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_followers}</p>
-        </div>
-
-        {/** Following */}
-        <div className="flex flex-col">
-          <p className="font-normal text-sm" style={{ color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Following</p>
-          <p className="font-medium text-base mt-px" style={{ color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_following}</p>
-        </div>
+        {/**
+        <Badge style={getStyle("badge", theme, "uniswap") } tooltip="Has performed at least one swap on Uniswap v3."><UniswapIcon />{">1 Swap"}</Badge>
+        <Badge style={getStyle("badge", theme, "uniswap") } tooltip="Is a liquidity provider on Uniswap v3."><UniswapIcon />{"LP"}</Badge>
+        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is a curator on The Graph."><TheGraphIcon />{"Curator"}</Badge>
+        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is a delegator on The Graph."><TheGraphIcon />{"Delegator"}</Badge>
+        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is an indexer on The Graph."><TheGraphIcon />{"Indexer"}</Badge>
+        <Badge style={getStyle("badge", theme, "sushi") } tooltip="Has performed at least one swap on SushiSwap."><SushiIcon />{">1 Swap"}</Badge>
+        <Badge style={getStyle("badge", theme, "sushi") } tooltip="Is a liquidity provider on SushiSwap."><SushiIcon />{"LP"}</Badge>
+        <Badge style={getStyle("badge", theme, "hop") } tooltip="Bridged assets using Hop Protocol."><HopIcon />{"Bridged"}</Badge>
+        <Badge style={getStyle("badge", theme, "lido") } tooltip="Staked ETH using Lido."><LidoIcon />{"Staked"}</Badge>
+        */}
       </div>
     </div>
   )
+}
+
+/** Display one credential */
+function Credential({credential}) {
+  const { theme } = useContext(GlobalContext);
+
+  function clean(str) {
+    if(str) {
+      return str.toLowerCase().replace(" ", "");
+    }
+  }
+
+  const CredentialIcon = () => {
+    let protocol = credential.content?.credentialSubject?.protocol;
+    console.log("protocol:", protocol);
+    if(protocol) {
+      switch (clean(protocol)) {
+        case "opensea":
+          return <OpenSeaIcon />;
+        case "uniswap":
+          return <UniswapIcon />;
+        case "thegraph":
+          return <TheGraphIcon />;
+        case "lido":
+          return <LidoIcon />;
+        case "sushiswap":
+          return <SushiIcon />;
+        case "hop":
+          return <HopIcon />;
+        case "snapshot":
+          return <SnapshotIcon />
+        default:
+          return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  /** Orbis credentials */
+  if(credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
+    return(
+      <Badge style={getStyle("badge", theme, clean(credential.content?.credentialSubject?.protocol)) } tooltip={credential.content?.credentialSubject.description}><CredentialIcon />{credential.content?.credentialSubject.name}</Badge>
+    )
+  }
+
+  /** Gitcoin credentials */
+  else if(credential.issuer == "did:key:z6mkghvghlobledj1bgrlhs4lpgjavbma1tn2zcryqmyu5lc") {
+    return(
+      <Badge style={{backgroundColor: "#FFF"}}><GitcoinProvider credential={credential} /></Badge>
+    )
+  }
+}
+
+const GitcoinProvider = ({credential}) => {
+  /** Default provider */
+  let provider = <div className="verified-credential-type">
+    <span>{credential.provider}</span>
+  </div>;
+
+  /** Num Gitcoin Grants contributed to */
+  if(credential.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
+    let numGrantsContributeTo = credential.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
+    provider = <div className="verified-credential-type">
+      <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numGrantsContributeTo}</span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grants</span></span>
+    </div>;
+  }
+
+  /** Value contribution Grants total */
+  if(credential.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
+    let totalContributionAmountGte = credential.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
+    provider = <div className="verified-credential-type">
+      <span className='inline-block break-word'>Contributed more than <span className="primary bold mleft-3">{totalContributionAmountGte} ETH to </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grants</span></span>
+    </div>;
+  }
+
+  /** Num Gitcoin Rounds contributed to */
+  if(credential.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
+    let numRoundsContributedToGte = credential.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
+    provider = <div className="verified-credential-type">
+      <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numRoundsContributedToGte} </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> rounds</span></span>
+    </div>
+  }
+
+  /** Num Gitcoin contributions for GR14 to */
+  if(credential.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
+    let numGr14ContributionsGte = credential.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
+    provider = <div className="verified-credential-type">
+      <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numGr14ContributionsGte} </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grant(s) in GR14</span></span>
+    </div>;
+  }
+
+  /** Amount of Twitter followers GT */
+  if(credential.provider.includes('TwitterFollowerGT')) {
+    let countTwitterFollowers = credential.provider.replace('TwitterFollowerGT', '');
+    provider = <>
+      <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
+      <span>Followers <span className="primary bold">{` > `}</span> {countTwitterFollowers}</span>
+    </>;
+  }
+
+  /** Amount of Twitter followers GTE */
+  if(credential.provider.includes('TwitterFollowerGTE')) {
+    let countTwitterFollowersGte = credential.provider.replace('TwitterFollowerGTE', '');
+    provider = <>
+      <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
+      <span>Followers <span className="primary bold">{` > `}</span> {countTwitterFollowersGte}</span>
+    </>;
+  }
+
+  /** Amount of tweets */
+  if(credential.provider.includes('TwitterTweetGT')) {
+    let countTweets = credential.provider.replace('TwitterTweetGT', '');
+    provider = <>
+      <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
+      <span>Tweets <span className="primary bold">{` > `}</span> {countTweets}</span>
+    </>;
+  }
+
+  /** GTC possession */
+  if(credential.provider.includes('gtcPossessionsGte')) {
+    let countGtc = credential.provider.replace('gtcPossessionsGte#', '');
+    provider = <>
+      <span>Owns at least <span className="primary bold">{countGtc}</span></span>
+      <img src='/img/icons/gtc-logo.webp' height='15' className='mright-4 mleft-4' />
+      <span className="primary bold">GTC</span>
+    </>;
+  }
+
+  switch (credential.provider) {
+    /** User has a Twitter account */
+    case 'Twitter':
+      provider = <>
+        Has a <TwitterIcon style={{marginLeft: 3, marginRight: 3, color: "#1DA1F2"}} /> account
+      </>;
+      break;
+
+    /** User has a Github account */
+    case 'Github':
+      provider = <>Has a <GithubIcon style={{marginLeft: 3, marginRight: 3}} /> account</>;
+      break;
+
+    /** Has starred Github repository */
+    case 'StarredGithubRepoProvider':
+      provider = <>Has stars on <GithubIcon style={{marginLeft: 3, marginRight: 3}} /> repositories</>;
+      break;
+
+    /** Has more than 10 followers */
+    case 'TenOrMoreGithubFollowers':
+      provider = <>Has at least 10 <GithubIcon style={{marginLeft: 3, marginRight: 3}} /> followers</>;
+      break;
+
+    /** Has forked Github repositories */
+    case 'ForkedGithubRepoProvider':
+      provider = <>Forked some <GithubIcon style={{marginLeft: 3, marginRight: 3}} /> repositories</>;
+      break;
+
+    /** User has more than 5 Github repositories */
+    case 'FiveOrMoreGithubRepos':
+      provider = <>Owns at least <span className="primary bold">5</span> <GithubIcon style={{marginLeft: 3, marginRight: 3}} /> repositories</>;
+      break;
+
+    /** User has a Proof of Humanity */
+    case 'Poh':
+      provider = <>Human on Proof of Humanity</>;
+      break;
+
+    /** User has an ENS name */
+    case 'Ens':
+      provider = <>Has an ENS name</>;
+      break;
+
+    /** User has a Discord account */
+    case 'Discord':
+      provider = <>Has a <img src='/img/icons/discord-logo.png' height='17' className='mleft-4 mright-4' /> account</>;
+      break;
+
+    /** User has a Linkedin account */
+    case 'Linkedin':
+      provider = <>Has a <img src='/img/icons/linkedin-logo.png' height='17' className='mleft-4 mright-4' /> account</>;
+      break;
+
+    /** User has a Google account */
+    case 'Google':
+      provider = <>Has a <GoogleIcon style={{marginLeft: 3, marginRight: 3}} /> account</>;
+      break;
+
+    /** User has an Facebook account */
+    case 'Facebook':
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Has a <img src='/img/icons/facebook-logo.png' height='17' className='mleft-4 mright-4' /> account</span>
+      </div>;
+      break;
+
+    /** User has an Facebook profile picture */
+    case 'FacebookProfilePicture':
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Has a <img src='/img/icons/facebook-logo.png' height='17' className='mleft-4 mright-4' /> profile picture</span>
+      </div>;
+      break;
+
+    /** User has an Facebook account */
+    case 'Brightid':
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Verified on <img src='/img/icons/brightid-logo.png' height='17' className='mleft-4 mright-4' /></span>
+      </div>;
+      break;
+
+    /** Wallet with more than one transaction */
+    case "EthGTEOneTxnProvider":
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Wallet with <span className="primary bold mleft-4 mright-4">{` >= 1 `}</span> Txn</span>
+      </div>;
+      break;
+
+    /** Wallet owns more than 1 ETH */
+    case "ethPossessionsGte#1":
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Wallet with <span className="primary bold mleft-4 mright-4">{` >= 1 `}</span> ETH</span>
+      </div>;
+      break;
+
+    /** Voted on Snapshot */
+    case "SnapshotVotesProvider":
+      provider = <div className="verified-credential-type">
+        <span className='inline-block break-word'>Voted on <span className="primary bold mleft-4 mright-4">{`Snapshot`}</span></span>
+      </div>;
+      break;
+  }
+
+  return provider;
 }
 
 /** Follow button component */
@@ -155,17 +516,12 @@ function Follow({did}) {
     async function getFollowing() {
       setLoading(true);
       let { data, error } = await orbis.getIsFollowing(user.did, did);
-      console.log("following data:", data);
       if(data) {
         setFollowing(data);
       }
       setLoading(false);
     }
   }, [user, did]);
-
-  useEffect(() => {
-    console.log("isHovered:", isFollowHovered);
-  }, [isFollowHovered])
 
   /** Join group function */
   async function follow(active) {
@@ -189,7 +545,7 @@ function Follow({did}) {
   /** Returns loading state */
   if(loading) {
     return(
-      <button className="inline-flex flex items-center rounded-full border-2 border-transparent bg-emerald-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-400 text-center"><LoadingCircle color="text-white ml-3" /></button>
+      <Button color="green"><LoadingCircle color="text-white ml-3" /></Button>
     );
   }
 
@@ -197,13 +553,15 @@ function Follow({did}) {
     return(
       <div ref={followHoverRef}>
         {isFollowHovered ?
-          <button className="inline-flex flex items-center rounded-full border-2 border-transparent bg-transparent px-3 py-2 text-sm font-medium bg-red-50 focus:ring-offset-2 cursor-pointer" style={{ backgroundColor: getThemeValue("badges", theme, "red").background, color: getThemeValue("badges", theme, "red").color }}>
+          <Button color="red">
             Unfollow
-          </button>
+          </Button>
         :
-          <button className="inline-flex flex items-center rounded-full border-2 border-transparent bg-transparent px-3 py-2 text-sm font-medium focus:ring-offset-2 cursor-pointer" style={{ color: getThemeValue("color", theme, "green") }}>
-            <CheckIcon color={getThemeValue("color", theme, "green")} className="mr-1 text-emerald-800" />Following
-          </button>
+          <>
+            <Button color="green-transparent">
+              <CheckIcon color={getThemeValue("color", theme, "green")} style={{marginRight: "0.25rem"}} />Following
+            </Button>
+          </>
         }
 
       </div>
@@ -211,8 +569,106 @@ function Follow({did}) {
   }
 
   return(
-    <button className="inline-flex flex items-center rounded-full border-2 border-transparent bg-emerald-300 px-3 py-2 text-sm font-medium text-gray-700h over:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer" onClick={() => follow(true)}>Follow</button>
+    <Button color="green" onClick={() => follow(true)}>Follow</Button>
   );
+}
+
+/** Form to update user profile */
+function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}) {
+  const { orbis, user, setUser, theme } = useContext(GlobalContext);
+  const [username, setUsername] = useState(user?.profile?.username);
+  const [description, setDescription] = useState(user?.profile?.description);
+  const [status, setStatus] = useState(0);
+
+  async function save() {
+    if(status != 0) {
+      console.log("Already saving.");
+      return;
+    }
+    setStatus(1);
+
+    /** Update profile using the Orbis SDK */
+    let profile = {
+      username: username,
+      description: description,
+      pfp: pfp ? pfp : null
+    };
+
+    /** Add pfp nft details if any */
+    if(pfpNftDetails) {
+      profile.pfpIsNft = pfpNftDetails;
+    }
+
+    let res = await orbis.updateProfile(profile);
+    if(res.status == 200) {
+      setStatus(2);
+      let _user = {...user};
+      _user.profile = profile;
+      setUser(_user);
+      await sleep(1500);
+      setIsEditing(false);
+      setStatus(0);
+    } else {
+      setStatus(3);
+    }
+  }
+
+  const SaveButton = () => {
+    switch (status) {
+      /** Submit state */
+      case 0:
+        return(
+          <Button color="primary" onClick={() => save()}>Save</Button>
+        );
+
+      /** Loading state */
+      case 1:
+        return(
+          <Button color="primary"><LoadingCircle /> Saving</Button>
+        );
+      /** Success state */
+      case 2:
+        return(
+          <Button color="green">Saved</Button>
+        );
+      /** Error state */
+      case 3:
+        return(
+          <Button color="red">Error</Button>
+        );
+      default:
+        return null;
+    }
+  }
+
+  return(
+    <>
+      <div className={styles.userEditContainer}>
+        {/** Pfp */}
+        <div className={styles.userEditPfpContainer}>
+          <div style={{position: "relative", width: 44, height: 44}}>
+            <UserPfp details={{profile:{pfp: pfp}}} showBadge={false} />
+
+            {/** Black overlay with edit CTA */}
+            <div className={styles.userEditPfpOverlay} style={{background: "rgba(0,0,0,0.5)", top: 0, width: "100%", height: "100%"}} onClick={() => setShowProfileModal(true)}>
+              <EditIcon />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.userEditButtonContainer} onClick={() => setIsEditing(false)}>
+          <Button>Cancel</Button>
+        </div>
+      </div>
+      <div className={styles.userFieldsContainer}>
+        <Input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter your username" style={getStyle("input", theme, status == 1)} />
+        <Input type="textarea" name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your description" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
+      </div>
+      <div className={styles.userFieldsSaveContainer}>
+        <SaveButton />
+      </div>
+    </>
+  )
 }
 
 export default User;

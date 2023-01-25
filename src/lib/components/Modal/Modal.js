@@ -2,13 +2,14 @@ import React, { useRef, useContext, useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import LoadingCircle from "../LoadingCircle";
-import Modal from "../Modal";
-import Button from "../Button";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { sleep } from "../../utils";
 
+/** Import CSS */
+import styles from './Modal.module.css';
+
 /** Modal for users to connect: Options displayed can be enabled / disabled with the parameters */
-export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide }) {
+export default function Modal({ width = 370, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide, children }) {
   const { orbis, theme } = useContext(GlobalContext);
   const wrapperRef = useRef(null);
 
@@ -16,21 +17,27 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
   useOutsideClick(wrapperRef, () => hide());
 
   return(
-    <Modal hide={() => hide()} title={title} description={description} width={370}>
-      <div style={{display: "flex", flexDirection: "column"}}>
-        {/** Connect with Metamask */}
-        <WalletButton lit={lit} type="metamask" label={<><MetamaskIcon className="mr-2" /> Metamask</>} bg="#F18F62" hoverColor="#F48552" callback={hide} />
+    <div style={{position: "relative", zIndex: 50}} aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div className={styles.modalBackground} style={{background: "#000", opacity: 0.70 }} onClick={() => hide()}></div>
 
-        {/** Connect with WalletConnect */}
-        <WalletButton lit={lit} type="wallet-connect" label={<><WalletConnectIcon className="mr-2" /> WalletConnect</>} bg="#468DEE" hoverColor="#3280EB" callback={hide} />
+      <div className={styles.modalContainer}>
+        <div className={styles.modalWrapper}>
+          <div className={styles.modal} ref={wrapperRef} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main, width: width, maxHeight: '85vh', top: 15, overflow: "scroll" }}>
+            <div style={{textAlign: "center"}}>
+              <h3 className={styles.modalTitle} style={{ color: getThemeValue("color", theme, "main") }}>{title}</h3>
 
-        {/** Connect with Phantom */}
-        <WalletButton lit={lit} type="phantom" label={<><PhantomIcon className="mr-2" /> Phantom</>} bg="#6450E3" hoverColor="#4B34DD" callback={hide} />
-
-        {/** Connect with Email */}
-        <WalletButton lit={lit} type="email" label={<><EmailIcon className="mr-2" /> Email</>} bg="#000" hoverColor="#F48552" callback={hide} />
+              {/** Show description only if available */}
+              {description &&
+                <p className={styles.modalDescription} style={{ fontSize: 15, color: getThemeValue("color", theme, "secondary") }}>{description}</p>
+              }
+            </div>
+            <div style={{display: "flex", flexDirection: "column"}}>
+              {children}
+            </div>
+          </div>
+        </div>
       </div>
-    </Modal>
+    </div>
   )
 }
 
@@ -109,14 +116,14 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
   }
 
   return(
-    <Button style={{width: "100%", justifyContent: "center", backgroundColor: bg, marginTop: "0.75rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", fontWeight: "500", fontSize: 15, color: "#FFF"}} onClick={() => connect()}>{status == 1 ? <LoadingCircle /> : label}</Button>
+    <button type="button" className={`mt-3 inline-flex items-center w-full justify-center rounded-full border border-transparent px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-[${hoverColor}] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-center`} style={{background: bg}} onClick={() => connect()}>{status == 1 ? <LoadingCircle /> : label}</button>
   )
 }
 
 const MetamaskIcon = ({className}) => {
   return(
-    <svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: "0.5rem"}}>
-      <g clipPath="url(#clip0_970_803)">
+    <svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <g clip-path="url(#clip0_970_803)">
       <path d="M25.2066 0L14.2219 8.1279L16.2646 3.3379L25.2066 0Z" fill="#E17726"/>
       <path d="M0.819135 0.00952148L9.73724 3.33842L11.6768 8.19122L0.819135 0.00952148ZM20.786 17.2857L25.6411 17.3781L23.9443 23.1423L18.02 21.5112L20.786 17.2857ZM5.21394 17.2857L7.96964 21.5112L2.05534 23.1424L0.368835 17.3781L5.21394 17.2857Z" fill="#E27625"/>
       <path d="M11.4131 6.95529L11.6115 13.3636L5.67444 13.0935L7.36324 10.5457L7.38464 10.5212L11.4131 6.95529ZM14.5254 6.88379L18.6154 10.5214L18.6366 10.5458L20.3254 13.0936L14.3896 13.3636L14.5254 6.88379ZM8.14354 17.3045L11.3853 19.8304L7.61954 21.6485L8.14354 17.3045ZM17.8571 17.3041L18.3702 21.6486L14.6149 19.8302L17.8571 17.3041Z" fill="#E27625"/>
@@ -141,7 +148,7 @@ const MetamaskIcon = ({className}) => {
 
 const WalletConnectIcon = ({className}) => {
   return(
-    <svg width="28" height="16" viewBox="0 0 28 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: "0.5rem"}}>
+    <svg width="28" height="16" viewBox="0 0 28 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
       <path d="M6.29178 3.1261C10.5489 -1.04203 17.4512 -1.04203 21.7083 3.1261L22.2208 3.62772C22.2714 3.67672 22.3115 3.73538 22.3389 3.80019C22.3664 3.86501 22.3805 3.93468 22.3805 4.00506C22.3805 4.07545 22.3664 4.14511 22.3389 4.20993C22.3115 4.27475 22.2714 4.3334 22.2208 4.38241L20.4682 6.09846C20.4165 6.14859 20.3474 6.17662 20.2755 6.17662C20.2035 6.17662 20.1344 6.14859 20.0828 6.09846L19.3776 5.40813C16.4077 2.5003 11.5924 2.5003 8.62257 5.40813L7.86752 6.14741C7.81589 6.19754 7.74676 6.22557 7.67481 6.22557C7.60285 6.22557 7.53373 6.19754 7.4821 6.14741L5.72943 4.43136C5.67891 4.38235 5.63875 4.3237 5.61132 4.25888C5.58389 4.19406 5.56976 4.12439 5.56976 4.05401C5.56976 3.98363 5.58389 3.91396 5.61132 3.84914C5.63875 3.78432 5.67891 3.72567 5.72943 3.67666L6.29178 3.1261ZM25.3332 6.67495L26.8929 8.20229C26.9435 8.25128 26.9837 8.30993 27.0111 8.37475C27.0386 8.43957 27.0527 8.50925 27.0527 8.57964C27.0527 8.65003 27.0386 8.7197 27.0111 8.78452C26.9837 8.84934 26.9435 8.90799 26.8929 8.95698L19.8594 15.8437C19.7562 15.9439 19.6179 16 19.474 16C19.3301 16 19.1918 15.9439 19.0886 15.8437L14.0965 10.956C14.0707 10.931 14.0361 10.9169 14.0002 10.9169C13.9642 10.9169 13.9296 10.931 13.9038 10.956L8.91172 15.8435C8.80847 15.9437 8.67022 15.9998 8.52631 15.9998C8.3824 15.9998 8.24415 15.9437 8.14089 15.8435L1.10699 8.95716C1.05648 8.90816 1.01631 8.8495 0.988886 8.78469C0.961459 8.71987 0.947327 8.6502 0.947327 8.57982C0.947327 8.50943 0.961459 8.43977 0.988886 8.37495C1.01631 8.31013 1.05648 8.25148 1.10699 8.20247L2.66696 6.67513C2.77021 6.57489 2.90846 6.51881 3.05238 6.51881C3.19629 6.51881 3.33454 6.57489 3.43779 6.67513L8.43005 11.5624C8.45586 11.5875 8.49042 11.6015 8.5264 11.6015C8.56238 11.6015 8.59694 11.5875 8.62275 11.5624L13.6146 6.67495C13.7179 6.57471 13.8561 6.51863 14.0001 6.51863C14.144 6.51863 14.2822 6.57471 14.3855 6.67495L19.3776 11.5626C19.4034 11.5877 19.4379 11.6017 19.4739 11.6017C19.5099 11.6017 19.5444 11.5877 19.5703 11.5626L24.5623 6.67513C24.6656 6.57489 24.8038 6.51881 24.9477 6.51881C25.0917 6.51881 25.2299 6.57489 25.3332 6.67513V6.67495Z" fill="white"/>
     </svg>
   )
@@ -149,19 +156,19 @@ const WalletConnectIcon = ({className}) => {
 
 const PhantomIcon = ({className}) => {
   return(
-    <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: "0.5rem"}}>
-      <g clipPath="url(#clip0_970_832)">
+    <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <g clip-path="url(#clip0_970_832)">
       <path d="M10.5 20C16.0228 20 20.5 15.5228 20.5 10C20.5 4.47715 16.0228 0 10.5 0C4.97715 0 0.5 4.47715 0.5 10C0.5 15.5228 4.97715 20 10.5 20Z" fill="url(#paint0_linear_970_832)"/>
       <path d="M17.6589 10.1217H15.8961C15.8961 6.52916 12.9735 3.61694 9.36812 3.61694C5.80739 3.61694 2.91246 6.45787 2.84161 9.98893C2.76831 13.6389 6.20485 16.8085 9.8683 16.8085H10.3291C13.5589 16.8085 17.8878 14.2891 18.5641 11.2195C18.689 10.6536 18.2405 10.1217 17.6589 10.1217ZM6.74842 10.2818C6.74842 10.7622 6.35408 11.1552 5.87194 11.1552C5.3898 11.1552 4.99548 10.762 4.99548 10.2818V8.86893C4.99548 8.38851 5.3898 7.99557 5.87194 7.99557C6.35408 7.99557 6.74842 8.38851 6.74842 8.86893V10.2818ZM9.79183 10.2818C9.79183 10.7622 9.39754 11.1552 8.91542 11.1552C8.43324 11.1552 8.03895 10.762 8.03895 10.2818V8.86893C8.03895 8.38851 8.43342 7.99557 8.91542 7.99557C9.39754 7.99557 9.79183 8.38851 9.79183 8.86893V10.2818Z" fill="url(#paint1_linear_970_832)"/>
       </g>
       <defs>
       <linearGradient id="paint0_linear_970_832" x1="10.5" y1="0" x2="10.5" y2="20" gradientUnits="userSpaceOnUse">
-      <stop stopColor="#534BB1"/>
-      <stop offset="1" stopColor="#551BF9"/>
+      <stop stop-color="#534BB1"/>
+      <stop offset="1" stop-color="#551BF9"/>
       </linearGradient>
       <linearGradient id="paint1_linear_970_832" x1="10.7128" y1="3.61694" x2="10.7128" y2="16.8085" gradientUnits="userSpaceOnUse">
-      <stop stopColor="white"/>
-      <stop offset="1" stopColor="white" stop-opacity="0.82"/>
+      <stop stop-color="white"/>
+      <stop offset="1" stop-color="white" stop-opacity="0.82"/>
       </linearGradient>
       <clipPath id="clip0_970_832">
       <rect width="20" height="20" fill="white" transform="translate(0.5)"/>
@@ -173,7 +180,7 @@ const PhantomIcon = ({className}) => {
 
 const EmailIcon = ({className}) => {
   return(
-    <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: "0.5rem"}}>
+    <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
       <path d="M0.5 5.6691V14.25C0.5 15.9069 1.84315 17.25 3.5 17.25H18.5C20.1569 17.25 21.5 15.9069 21.5 14.25V5.6691L12.5723 11.1631C11.6081 11.7564 10.3919 11.7564 9.42771 11.1631L0.5 5.6691Z" fill="#FFF"/>
       <path d="M21.5 3.90783V3.75C21.5 2.09315 20.1569 0.75 18.5 0.75H3.5C1.84315 0.75 0.5 2.09315 0.5 3.75V3.90783L10.2139 9.88558C10.696 10.1823 11.304 10.1823 11.7861 9.88558L21.5 3.90783Z" fill="#FFF"/>
     </svg>

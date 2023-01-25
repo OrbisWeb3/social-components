@@ -6,7 +6,10 @@ import User from "../User";
 import LoadingCircle from "../LoadingCircle";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Logo, EmptyStateComments } from "../../icons";
-import { defaultTheme, getThemeValue } from "../../utils/themes";
+import { defaultTheme, getThemeValue } from "../../utils/themes"
+
+/** Import CSS */
+import styles from './Comments.module.css';
 
 /** For Magic */
 import Web3 from 'web3';
@@ -94,26 +97,26 @@ const Comments = ({orbis = _orbis, context, theme}) => {
 
   return(
     <GlobalContext.Provider value={{ user, setUser, orbis, magic, context, comments, setComments, theme }}>
-      <div className="orbis orbis-comments-container shadow rounded-md w-full" style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main }}>
-        <div className="p-4">
+      <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main }}>
+        <div style={{padding: "1rem"}}>
           <Postbox context={context} handleSubmit={handleSubmit} />
         </div>
 
         {/** Loop comments and display them */}
-        <div className="border-t border-b" style={{borderColor: theme?.border?.secondary ? theme.border.secondary : defaultTheme.border.secondary}}>
+        <div className={styles.commentsContainer} style={{ borderColor: theme?.border?.secondary ? theme.border.secondary : defaultTheme.border.secondary}}>
           {loading ?
-            <div className="w-full justify-center flex p-8" style={{ color: getThemeValue("color", theme, "main") }}>
+            <div className={styles.loadingContainer} style={{ color: getThemeValue("color", theme, "main") }}>
               <LoadingCircle />
             </div>
           :
-            <div className="flow-root p-6">
+            <div style={{padding: "1.5rem"}}>
               {comments.length <= 0 ?
-                <div className="w-full flex flex-col items-center">
-                  <p className="text-base mb-2 mt-2" style={{ color: getThemeValue("color", theme, "secondary") }}>There isn't any comment here yet.</p>
+                <div className={styles.commentsEmptyStateContainer}>
+                  <p style={{ color: getThemeValue("color", theme, "secondary"), fontSize: 15, marginTop: "0.5rem", marginBottom: "0.5rem" }}>Be the first to leave a comment here.</p>
                   <EmptyStateComments />
                 </div>
               :
-                <div role="list">
+                <div>
                   <LoopComments comments={comments} />
                 </div>
               }
@@ -122,9 +125,9 @@ const Comments = ({orbis = _orbis, context, theme}) => {
         </div>
 
         {/** Footer */}
-        <div className="w-full p-6">
-          <a href="https://orbis.club?utm_source=comments_module" rel="noreferrer" target="_blank" className="flex-row flex justify-center items-center hover:underline hover:decoration-gray-300 cursor-pointer underline-offset-4">
-            <span className="ml-2 flex text-base mr-2 font-normal" style={{color: getThemeValue("color", theme, "secondary")}}>Open Social with</span>
+        <div className={styles.footerContainer}>
+          <a href="https://orbis.club?utm_source=comments_module" rel="noreferrer" target="_blank" className={styles.footerOpenSocialContainer}>
+            <span style={{color: getThemeValue("color", theme, "secondary"), marginRight: 5, fontSize: 15}}>Open Social with</span>
             <Logo className="flex" color={getThemeValue("color", theme, "main")} />
           </a>
         </div>
@@ -165,13 +168,13 @@ function Comment({comments, comment, master}) {
   }
 
   return(
-    <div className="relative">
+    <div style={{position: "relative"}}>
       {/** Display grey line only for reply */}
       {comment.content.reply_to != null &&
-        <span className="absolute -ml-px rounded-md" style={{top: 60, bottom: 20, left: 22, width: 1, backgroundColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main}} aria-hidden="true"></span>
+        <span className={styles.greyLine} style={{top: 60, bottom: 20, left: 22, width: 1, backgroundColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main}} aria-hidden="true"></span>
       }
       <Post comment={comment} />
-      <div className="ml-10">
+      <div style={{marginLeft: "2.5rem"}} className="ml-10">
         <LoopInternalReplies />
       </div>
     </div>

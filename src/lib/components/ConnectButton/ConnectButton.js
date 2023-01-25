@@ -3,9 +3,13 @@ import LoadingCircle from "../LoadingCircle";
 import { BoltIcon } from "../../icons";
 import ConnectModal from "../ConnectModal";
 import { GlobalContext } from "../../contexts/GlobalContext";
+import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
+
+/** Import CSS */
+import styles from './ConnectButton.module.css';
 
 export default function ConnectButton({ lit = false }) {
-  const { orbis, user, setUser } = useContext(GlobalContext);
+  const { orbis, user, theme, setUser } = useContext(GlobalContext);
   const [connecting, setConnecting] = useState(false);
   const [connectModalVis, setConnectModalVis] = useState(false);
 
@@ -29,7 +33,7 @@ export default function ConnectButton({ lit = false }) {
 
   return(
     <>
-      <button className="w-full inline-flex justify-center items-center border border-transparent bg-[#4E75F6] px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-[#3E67F0] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-full" onClick={() => setConnectModalVis(true)}>{connecting ? <LoadingCircle /> : <BoltIcon className="mr-1" /> }Connect</button>
+      <button className={styles.connectBtn} style={{...getStyle("button-main", theme, "main"), width: "100%", textAlign: "center"}} onClick={() => setConnectModalVis(true)}>{connecting ? <LoadingCircle /> : <BoltIcon style={{marginRight: "0.25rem"}} /> }Connect</button>
 
       {/** Show ConnectModal */}
       {connectModalVis &&
