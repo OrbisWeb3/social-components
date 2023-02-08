@@ -620,6 +620,7 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
       let _user = {...user};
       _user.profile = profile;
       console.log("Updating user to: ", _user);
+      
       setUser(_user);
       await sleep(1500);
       setIsEditing(false);
