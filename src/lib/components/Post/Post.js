@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { UserPfp, Username, UserPopup, UserBadge } from "../User";
 import Postbox from "../Postbox";
+import Button from "../Button";
 import LoadingCircle from "../LoadingCircle";
 import useHover from "../../hooks/useHover";
+import useOrbis from "../../hooks/useOrbis";
 import useOutsideClick from "../../hooks/useOutsideClick";
 
 import ReactTimeAgo from 'react-time-ago'
@@ -18,8 +20,8 @@ import styles from './Post.module.css';
 import { marked } from 'marked';
 
 /** Display the post details */
-const Post = ({comment, characterLimit = null}) => {
-  const { orbis, user, theme } = useContext(GlobalContext);
+export default function Post({post, characterLimit = null}) {
+  const { user, setUser, orbis, theme } = useOrbis();
   const [editPost, setEditPost] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [reply, setReply] = useState();
@@ -35,7 +37,7 @@ const Post = ({comment, characterLimit = null}) => {
 
   /** If user is connected we check if it has reacted to this post */
   async function getUserReaction() {
-    let { data, error } = await orbis.getReaction(comment.stream_id, user.did);
+    let { data, error } = await orbis.getReaction(post.stream_id, user.did);
 
     if(data) {
       setUserReaction(data.type);
@@ -45,7 +47,7 @@ const Post = ({comment, characterLimit = null}) => {
   /** To like a post */
   async function like(type) {
     if(!user) {
-      alert("You must be connected to react to comments.");
+      alert("You must be connected to react to posts.");
       return;
     }
 
@@ -53,7 +55,7 @@ const Post = ({comment, characterLimit = null}) => {
     setUserReaction(type);
 
     /** React to the post using the SDK */
-    let res = await orbis.react(comment.stream_id, type);
+    let res = await orbis.react(post.stream_id, type);
 
     /** Check results */
     switch(res.status) {
@@ -77,23 +79,23 @@ const Post = ({comment, characterLimit = null}) => {
     <div>
       <div className={styles.postContainer} >
         <div style={{position: "relative"}} ref={hoverRef}>
-          <UserPfp details={comment.creator_details} />
-          <UserPopup visible={isHovered} details={comment.creator_details} />
+          <UserPfp details={post.creator_details} />
+          <UserPopup visible={isHovered} details={post.creator_details} />
         </div>
         <div className={styles.postDetailsContainer}>
           <div className={styles.postDetailsContainerMetadata}>
             <div className={styles.postDetailsContainerUser}>
-              <span className={styles.postDetailsContainerUsername} style={{fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}}><Username details={comment.creator_details} /></span>
-              <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={comment.creator_details} /></div>
+              <span className={styles.postDetailsContainerUsername} style={{fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}}><Username details={post.creator_details} /></span>
+              <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={post.creator_details} /></div>
             </div>
             <p className={styles.postDetailsContainerTimestamp} style={{fontSize: 12, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>
-              <ReactTimeAgo style={{display: "flex", fontSize: 12}} date={comment.timestamp * 1000} locale="en-US" />
+              <ReactTimeAgo style={{display: "flex", fontSize: 12}} date={post.timestamp * 1000} locale="en-US" />
               <div className={styles.hideMobile}>
                 <span style={{marginLeft: "0.5rem", marginRight: "0.5rem"}}>·</span>
-                <a style={{textDecoration: "none", color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} href={"https://cerscan.com/mainnet/stream/" + comment.stream_id} rel="noreferrer" target="_blank">Proof</a>
+                <a style={{textDecoration: "none", color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} href={"https://cerscan.com/mainnet/stream/" + post.stream_id} rel="noreferrer" target="_blank">Proof</a>
               </div>
               {/** Show action if user is connected */}
-              {user && user.did == comment.creator &&
+              {user && user.did == post.creator &&
                 <>
                   <span style={{marginLeft: "0.5rem", marginRight: "0.5rem"}}>·</span>
                   <div style={{alignItems: "center", display: "flex"}}>
@@ -104,7 +106,7 @@ const Post = ({comment, characterLimit = null}) => {
 
                     {/** Show postmenu for user */}
                     {postMenuVis &&
-                      <PostMenu stream_id={comment.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
+                      <PostMenu stream_id={post.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
                     }
                   </div>
                 </>
@@ -115,20 +117,15 @@ const Post = ({comment, characterLimit = null}) => {
           {/** Post content */}
           {editPost ?
             <div style={{ marginTop: "0.5rem" }}>
-              <Postbox showPfp={false} defaultPost={comment} reply={reply} callback={callbackShared} rows="1" ctaTitle="Edit" ctaStyle={styles.postReplyCta} setEditPost={setEditPost} />
+              <Postbox showPfp={false} defaultPost={post} reply={reply} callback={callbackShared} rows="1" ctaTitle="Edit" ctaStyle={styles.postReplyCta} setEditPost={setEditPost} />
             </div>
           :
             <div style={{display: "flex", flexDirection: "column"}}>
-              <div className={styles.postContent} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}} dangerouslySetInnerHTML={{__html: marked.parse(comment.content.body)}}></div>
-
-              {/** If post has metadata display them */}
-              {(comment.indexing_metadata?.urlMetadata && comment.creator_details?.a_r > 15) &&
-                <LinkCard metadata={comment.indexing_metadata.urlMetadata} />
-              }
+              <PostBody post={post} characterLimit={characterLimit} />
             </div>
           }
 
-          {/** Comment CTAs */}
+          {/** post CTAs */}
           <div className={styles.postActionsContainer}>
             {/** Reply button */}
             {reply != null ?
@@ -137,7 +134,7 @@ const Post = ({comment, characterLimit = null}) => {
                 Reply
               </button>
             :
-              <button type="button" className={styles.postActionButton} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} onClick={() => setReply(comment)}>
+              <button type="button" className={styles.postActionButton} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} onClick={() => setReply(post)}>
                 <ReplyIcon type="line" />
                 Reply
               </button>
@@ -160,8 +157,8 @@ const Post = ({comment, characterLimit = null}) => {
             </span>
 
             {/** Like count
-            {(userReaction == "like" || comment.count_likes > 0) &&
-              <span style={{marginRight: 2}}>{userReaction == "like" ? comment.count_likes + 1 : comment.count_likes}</span>
+            {(userReaction == "like" || post.count_likes > 0) &&
+              <span style={{marginRight: 2}}>{userReaction == "like" ? post.count_likes + 1 : post.count_likes}</span>
             }
             */}
             {/** Downvote button
@@ -182,6 +179,54 @@ const Post = ({comment, characterLimit = null}) => {
         </div>
       </div>
     </div>
+  )
+}
+
+/** Body of the post */
+const PostBody = ({post, characterLimit}) => {
+  const { theme } = useOrbis();
+  const [charLimit, setCharLimit] = useState(characterLimit);
+  const [body, setBody] = useState(post?.content?.body);
+
+  useEffect(() => {
+    let _body = post.content.body;
+    let mentions = post.content.mentions;
+    if(mentions && mentions.length > 0) {
+      mentions.forEach((mention, i) => {
+        _body = _body.replaceAll(mention.username, "**"+mention.username+"**");
+      });
+    }
+
+    setBody(_body);
+
+  }, [post])
+
+  const Body = () => {
+    return(
+      <div className={styles.postContent} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}} dangerouslySetInnerHTML={{__html: marked.parse(charLimit ? body?.substring(0, charLimit) + "..." : body )}}></div>
+    )
+  };
+
+  return(
+    <>
+      <Body />
+
+      {(charLimit && post.content?.body?.length > charLimit) ?
+        <>
+          {/** Display view more button if over body content over the character limit */}
+          <div className={styles.postViewMoreCtaContainer}>
+            <Button color="secondary" style={{marginRight: 5}} onClick={() => setCharLimit(null)}>View more</Button>
+          </div>
+        </>
+        :
+        <>
+          {/** If post has metadata display them */}
+          {(post.indexing_metadata?.urlMetadata && post.creator_details?.a_r > 15) &&
+            <LinkCard metadata={post.indexing_metadata.urlMetadata} />
+          }
+        </>
+      }
+    </>
   )
 }
 
@@ -319,8 +364,5 @@ const LikeIcon = ({type}) => {
           <path d="M7.65298 13.9149L7.6476 13.9121L7.62912 13.9024C7.61341 13.8941 7.59102 13.8822 7.56238 13.8667C7.50511 13.8358 7.42281 13.7907 7.31906 13.732C7.11164 13.6146 6.81794 13.4425 6.46663 13.2206C5.76556 12.7777 4.82731 12.1314 3.88539 11.3197C2.04447 9.73318 0 7.35227 0 4.5C0 2.01472 2.01472 0 4.5 0C5.9144 0 7.17542 0.652377 8 1.67158C8.82458 0.652377 10.0856 0 11.5 0C13.9853 0 16 2.01472 16 4.5C16 7.35227 13.9555 9.73318 12.1146 11.3197C11.1727 12.1314 10.2344 12.7777 9.53337 13.2206C9.18206 13.4425 8.88836 13.6146 8.68094 13.732C8.57719 13.7907 8.49489 13.8358 8.43762 13.8667C8.40898 13.8822 8.38659 13.8941 8.37088 13.9024L8.3524 13.9121L8.34702 13.9149L8.34531 13.9158C8.13 14.03 7.87 14.03 7.65529 13.9161L7.65298 13.9149Z"/>
         </svg>
       );
-
   }
 }
-
-export default Post;

@@ -2,22 +2,36 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import ConnectButton from "../ConnectButton";
 import LoadingCircle from "../LoadingCircle";
 import Button from "../Button";
-import { UserPfp, Username, UserPopup } from "../User";
+import Input from "../Input";
+import Alert from "../Alert";
+import User, { UserPfp, Username, UserPopup } from "../User";
 import { getTimestamp } from "../../utils";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Logo } from "../../icons"
 import useHover from "../../hooks/useHover";
+import useOrbis from "../../hooks/useOrbis";
 
 /** Import CSS */
 import styles from './Postbox.module.css';
 
+/** Init mentions object */
+let mentions = [];
+
 /** Display postbox or connect CTA */
 export default function Postbox({ showPfp = true, connecting, reply = null, callback, rows = "2", defaultPost, setEditPost, ctaTitle = "Comment", ctaStyle = styles.postboxShareContainerBtn, placeholder = "Add your comment..." }) {
-  const { orbis, user, context, comments, setComments, theme } = useContext(GlobalContext);
+  const { user, setUser, orbis, theme, context } = useOrbis();
+  const { comments, setComments } = useContext(GlobalContext);
   const [sharing, setSharing] = useState(false);
-  const postbox = useRef();
   const [hoverRef, isHovered] = useHover();
+  const [body, setBody] = useState("");
+  const postbox = useRef();
+
+  /** Manage mentions */
+  const [mentionsBoxVis, setMentionsBoxVis] = useState(false);
+  const [focusOffset, setFocusOffset] = useState(null);
+  const [focusNode, setFocusNode] = useState(null);
+
 
   /** If user is editing a post we use the content as the default post */
   useEffect(() => {
@@ -35,7 +49,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
   /** Share a post on orbis */
   const handleSubmit = async (event) => {
-
+    console.log("Submitting form.");
     event.preventDefault();
 
     if(sharing) {
@@ -46,7 +60,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
     // Get the form data from the event object
     const formData = new FormData(event.target);
-    let body = formData.get("body");
+    //let body = formData.get("body");
 
     /** Create a post on Orbis */
     let master = null;
@@ -57,14 +71,17 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
     }
     let _content = {
       body: body,
-      context: context,
+      context: context ? context : null,
       master: master,
-      reply_to: reply ? reply.stream_id : null
+      reply_to: reply ? reply.stream_id : null,
+      mentions: mentions
     }
+    console.log("_content to share:", _content);
 
     let res = await orbis.createPost(_content);
+    console.log("res:", res);
 
-    /** Return resuls */
+    /** Return results */
     if(res.status == 200) {
       setComments(
         [
@@ -86,12 +103,96 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
       if(callback) {
         callback();
       }
-    } else {
 
+      /** Reset postbox */
+      setBody(null);
+      mentions = [];
+      if(postbox.current) {
+        postbox.current.textContent = "";
+        //postbox.current.focus();
+      }
+    } else {
+      console.log("Error submitting form:", res);
     }
 
     setSharing(false);
   }
+
+  /** Track input to use mention box */
+  async function handleInput(e) {
+    let inputValue = e.currentTarget.innerText;
+    let keyCode = e.nativeEvent.data;
+
+    /** Manage custom actions for some keycodes */
+    switch(keyCode) {
+      /** Pressing @ will trigger the opening of the mentions box */
+      case "@":
+        if(user.nonces && user.nonces?.global <= 0 && user.a_r <= 1) {
+          return;
+        } else {
+          setMentionsBoxVis(true);
+        }
+        console.log("Should show mention box!");
+
+        break;
+
+      /** Hide mentions box when pressed enter */
+      case " ":
+        //setMentionsBoxVis(false);
+        postbox?.current.focus();
+        break;
+
+      default:
+        setMentionsBoxVis(false);
+        break;
+    }
+
+    /** Save current position of the caret to make sure we paste at the correct location. */
+    setBody(inputValue);
+    saveCaretPos(document.getSelection());
+  }
+
+  /** Save the position of the caret */
+  function saveCaretPos(_sel) {
+    setFocusOffset(_sel.focusOffset);
+    setFocusNode(_sel.focusNode);
+  };
+
+  function addMention(mention) {
+    console.log("Adding user:", mention);
+    /** Position caret at the correct position */
+    restoreCaretPos();
+
+    /** Save username to did  */
+    let _mentionName = mention.profile?.username?.replaceAll(" ", "");
+    mentions.push({
+        username: "@" + _mentionName,
+        did: mention.did
+    });
+
+    /** Add mention tag */
+    var _mentionTag = "<span style='color: "+ getThemeValue("color", theme, "active") +"; font-weight: " + 500 + ";' class='mention' contentEditable='false' data-did='" + mention.did + "'>@" + _mentionName + "</span>&nbsp;";
+
+    /** Remove last character from content to avoid having two '@' */
+    document.execCommand("delete", null, false);
+
+    /** Use paste to add mention tag */
+    document.execCommand("insertHTML", false, _mentionTag);
+    console.log("Trying to paste mention:", _mentionTag);
+    //setBody(body +  <span style={{color: "blue"}}>{_mentionName}</span> + " ")
+
+    /** Hide mentions box */
+    setMentionsBoxVis(false);
+  }
+
+  /** Restore the caret position after mention is added */
+  function restoreCaretPos() {
+    /** Focus on textarea */
+    postbox.current.focus();
+
+    var sel = document.getSelection();
+    sel.collapse(focusNode, focusOffset);
+  };
 
   if(user) {
     return(
@@ -100,12 +201,13 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         {showPfp &&
           <div className={styles.postboxUserContainer} ref={hoverRef}>
             <UserPfp details={user} />
-            <UserPopup visible={true} details={user} />
+            <UserPopup visible={isHovered} details={user} />
           </div>
         }
 
         {/** Show Postbox */}
         <div className={styles.postboxContainer}>
+          {/** Form container */}
           <form style={{width: "100%"}} onSubmit={(event) => handleSubmit(event)}>
             <div className={styles.postbox} style={{ borderColor: getThemeValue("input", theme).border, backgroundColor: getThemeValue("input", theme, sharing).background}}>
               {/** Show reply if any */}
@@ -115,7 +217,22 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                   <div className={styles.postboxReplyBadge} style={{background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color }}><Username details={reply.creator_details} /></div>
                 </div>
               }
-              <textarea autofocus ref={postbox} rows={rows} name="body" id="body" className={styles.postboxInput} style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color}} placeholder={placeholder} disabled={sharing}></textarea>
+              <div
+                contentEditable={true}
+                autoFocus={true}
+                data-placeholder={placeholder}
+                ref={postbox}
+                rows={rows}
+                name="body"
+                id="postbox-area"
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                className={styles.postboxInput}
+                style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color}}
+                placeholder={placeholder}
+                disabled={sharing}
+                onInput={(e) => handleInput(e)}
+              ></div>
               {/** Submit button container */}
               <div className={styles.postboxShareContainer}>
                 {sharing ?
@@ -134,6 +251,11 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
               </div>
             </div>
           </form>
+
+          {/** Show mentions box */}
+          {mentionsBoxVis &&
+            <MentionsBox add={addMention} />
+          }
         </div>
       </div>
     )
@@ -146,6 +268,76 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
       </div>
     );
   }
+}
+
+/** Mentions Box Container */
+const MentionsBox = ({add}) => {
+  const { orbis, user, theme } = useContext(GlobalContext);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    if(search && search.length >= 2) {
+      searchUsers();
+    }
+
+    async function searchUsers() {
+      setLoading(true);
+      let { data, error, status } = await orbis.getProfilesByUsername(search);
+      setLoading(false);
+
+      if(error) {
+        console.log("Error querying Orbis usernames: ", error);
+      }
+
+      if(data) {
+        setUsers(data);
+      } else {
+        setUsers([]);
+      }
+    }
+  }, [search])
+
+  const LoopUsers = () => {
+    if(!search || search == "" || search.length < 2) {
+      return null;
+    }
+    if(loading) {
+      return(
+        <div className={styles.loadingContainer} style={{ color: getThemeValue("color", theme, "main") }}>
+          <LoadingCircle />
+        </div>
+      )
+    } else {
+      if(users.length > 0) {
+        return users.map((_user, key) => {
+          return(
+            <div className={styles.userResultContainer} onClick={() => add(_user.details)} style={{fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}} key={key}>
+              <User details={_user.details} key={key} isLink={false} />
+            </div>
+          )
+        });
+      } else {
+        return <p>No users</p>
+      }
+    }
+  }
+
+  return(
+    <div className={styles.mentionsBoxContainer} style={{background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
+      <div className={styles.mentionsBoxInputContainer}>
+        <Input autofocus={true} type="text" name="username" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search username" style={{...getStyle("input", theme, status == 1), borderRadius: 0, borderWidth: 0, borderBottomWidth: 1}} />
+      </div>
+      {(search && search.length >= 2) ?
+        <div className={styles.userResults} style={{ borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
+          <LoopUsers />
+        </div>
+      :
+        <p className={styles.mentionsBoxEmptyState} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>Search by username to mention someone.</p>
+      }
+    </div>
+  )
 }
 
 const SendIcon = () => {

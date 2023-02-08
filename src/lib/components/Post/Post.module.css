@@ -4,7 +4,6 @@
   display: flex;
   align-items: flex-start;
   position: relative;
-  padding-bottom: 1.75rem;
 }
 
 .postDetailsContainer {
@@ -72,6 +71,13 @@
   margin: 0px;
   font-size: 15px;
   line-height: inherit !important;
+}
+.postViewMoreCtaContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.2rem;
+  margin-left: -47px;
 }
 .postActionsContainer {
   display: flex;
@@ -186,7 +192,7 @@
 }
 .postContent :where(strong):not(:where([class~="not-prose"] *)) {
   color: var(--tw-prose-bold);
-  font-weight: 600;
+  font-weight: 500;
 }
 .postContent :where(a strong):not(:where([class~="not-prose"] *)) {
   color: inherit;

@@ -5,42 +5,31 @@ import Post from "../Post";
 import User from "../User";
 import LoadingCircle from "../LoadingCircle";
 import { GlobalContext } from "../../contexts/GlobalContext";
+import OrbisProvider from "../OrbisProvider";
+import useOrbis from "../../hooks/useOrbis";
 import { Logo, EmptyStateComments } from "../../icons";
 import { defaultTheme, getThemeValue } from "../../utils/themes"
 
 /** Import CSS */
 import styles from './Comments.module.css';
 
-/** For Magic */
-import Web3 from 'web3';
-import { Magic } from 'magic-sdk';
-import { ConnectExtension } from '@magic-ext/connect';
-
-/** Initialize the Orbis class object */
-let _orbis = new Orbis({
-  useLit: false
-});
-
-/** Initialize Magic */
-let magic;
-let web3;
-if (typeof window !== "undefined") {
-  magic = new Magic('pk_live_2E6B3B065093108E', {
-    network: 'mainnet',
-    extensions: [new ConnectExtension()]
-  });
-  web3 = new Web3(magic.rpcProvider);
-};
+export default function Comments({context, theme = defaultTheme, characterLimit = null}) {
+  return(
+    <OrbisProvider context={context} theme={theme}>
+      <CommentsContent characterLimit={characterLimit} />
+    </OrbisProvider>
+  )
+}
 
 /*export interface CommentsProps {
   label: string;
 }*/
 
-const Comments = ({orbis = _orbis, context, theme}) => {
+const CommentsContent = ({characterLimit}) => {
+  const { user, setUser, orbis, theme, context } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const [user, setUser] = useState();
 
   /** Load posts on load */
   useEffect(() => {
@@ -90,13 +79,12 @@ const Comments = ({orbis = _orbis, context, theme}) => {
   async function loadPosts() {
     setLoading(true);
     let { data, error } = await orbis.getPosts({context: context}, 0);
-    console.log("data", data);
     setComments(data);
     setLoading(false);
   }
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, orbis, magic, context, comments, setComments, theme }}>
+    <GlobalContext.Provider value={{ user, setUser, orbis, context, comments, setComments }}>
       <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main }}>
         <div style={{padding: "1rem"}}>
           <Postbox context={context} handleSubmit={handleSubmit} />
@@ -109,18 +97,16 @@ const Comments = ({orbis = _orbis, context, theme}) => {
               <LoadingCircle />
             </div>
           :
-            <div style={{padding: "1.5rem"}}>
+            <>
               {comments.length <= 0 ?
                 <div className={styles.commentsEmptyStateContainer}>
                   <p style={{ color: getThemeValue("color", theme, "secondary"), fontSize: 15, marginTop: "0.5rem", marginBottom: "0.5rem" }}>Be the first to leave a comment here.</p>
                   <EmptyStateComments />
                 </div>
               :
-                <div>
-                  <LoopComments comments={comments} />
-                </div>
+                <LoopComments comments={comments} characterLimit={characterLimit} />
               }
-            </div>
+            </>
           }
         </div>
 
@@ -137,11 +123,11 @@ const Comments = ({orbis = _orbis, context, theme}) => {
 };
 
 /** Loop through all posts and display them one by one */
-function LoopComments({comments}) {
+function LoopComments({comments, characterLimit}) {
   return comments.map((comment, key) => {
     if((!comment.content.reply_to || comment.content.reply_to == "") && !comment.content.master || comment.content.master == "") {
       return(
-        <Comment comments={comments} comment={comment} master={comment.content.master} key={key} />
+        <Comment comments={comments} comment={comment} master={comment.content.master} characterLimit={characterLimit} key={key} />
       )
     } else {
       return null
@@ -150,7 +136,7 @@ function LoopComments({comments}) {
 }
 
 /** One comment component is also looping through the other replies to see if it has any internal replies */
-function Comment({comments, comment, master}) {
+function Comment({comments, comment, master, characterLimit}) {
   const { theme } = useContext(GlobalContext);
 
   function LoopInternalReplies() {
@@ -173,12 +159,10 @@ function Comment({comments, comment, master}) {
       {comment.content.reply_to != null &&
         <span className={styles.greyLine} style={{top: 60, bottom: 20, left: 22, width: 1, backgroundColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main}} aria-hidden="true"></span>
       }
-      <Post comment={comment} />
-      <div style={{marginLeft: "2.5rem"}} className="ml-10">
+      <Post post={comment} characterLimit={characterLimit} />
+      <div style={{marginLeft: "2.5rem", marginTop: "1.75rem"}}>
         <LoopInternalReplies />
       </div>
     </div>
   )
 }
-
-export default Comments;

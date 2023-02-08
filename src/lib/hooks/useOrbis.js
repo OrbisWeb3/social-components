@@ -3,6 +3,12 @@ import { GlobalContext } from "../contexts/GlobalContext";
 
 /** Turns a did:pkh into a clean address and chain object */
 export default function useOrbis() {
-  const { orbis, user, setUser, theme } = useContext(GlobalContext);
-  return { orbis, user, setUser, theme };
+  const { orbis, user, setUser, theme, context } = useContext(GlobalContext);
+  return {
+    orbis,
+    user,
+    setUser,
+    theme,
+    context
+  };
 }

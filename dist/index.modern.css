@@ -3,11 +3,12 @@
 ._1sKPO {
   display: flex;
   font-family: "Inter";
+  font-size: 14px;
   align-items: center;
   border-radius: 9999px;
   border: 1px solid transparent;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   font-weight: 500;
@@ -22,6 +23,20 @@
   margin-right: 0.75rem;
   height: 1.25rem;
   width: 1.25rem;
+}
+
+@-webkit-keyframes _esDdM {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes _esDdM {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
@@ -54,6 +69,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._Kzctc {
+  position: relative;
   font-family: "Inter";
   display: inline-flex;
   align-items: center;
@@ -62,8 +78,8 @@
   padding-bottom: 0.25rem;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
 }
 ._Kzctc a {
   text-decoration: none;
@@ -72,6 +88,39 @@
 
 ._Kzctc a:hover {
   text-decoration: underline;
+}
+
+._3Gosv {
+  background: #051224;
+  position: absolute;
+  top: 0px;
+  right: -10px;
+  padding: 3px 6px;
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  max-width: 150px;
+  width: -webkit-max-content;
+  width: max-content;
+  left: 90%;
+  z-index: 1000;
+}
+
+._3yaol {
+  width: 100%;
+  border-radius: 0.375rem;
+  background: #f8fafc;
+  color: #0f172a;
+  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  text-align: center;
+  font-family: "Inter";
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
@@ -245,9 +294,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._2o7KL {
-  display: block;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  flex-shrink: 0;
+  font-family: "Inter";
 }
 ._1Xs_- {
   margin-left: 0.5rem;
@@ -274,6 +324,13 @@
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
+._3JjLt {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  margin-top: 0px;
+  margin-bottom: 15px !important;
+}
 ._3mkOx {
   position: absolute;
   padding: 30px;
@@ -288,10 +345,10 @@
   padding-left: 1.25rem;
   padding-right: 1.25rem;
   z-index: 50;
-  min-width: 310px;
-  max-width: 360px;
+  min-width: 340px;
+  max-width: 420px;
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible;
   --tw-drop-shadow: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
   -webkit-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
           filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -311,13 +368,25 @@
 }
 ._2siDY {
   display: flex;
+  align-items: center;
   margin-top: 0.25rem;
 }
 ._WjB9N {
   display: flex;
   justify-content: flex-end;
 }
-
+._179TI {
+  display: grid;
+  width: 100%;
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  margin-top: 5px;
+}
+._179TI > div {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
 ._3sTma {
   display: flex;
   flex-direction: row;
@@ -414,6 +483,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._3glYN {
+  position: relative;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -439,6 +509,7 @@
 }
 
 ._3G9kY {
+  position: relative;
   flex: 1;
   min-width: 0px;
 }
@@ -457,6 +528,7 @@
   display: block;
   width: 100%;
   border-width: 0px;
+  min-height: 50px;
   resize: none;
   background: transparent;
   padding: 12px;
@@ -471,6 +543,10 @@
 }
 
 ._beLGF::placeholder {
+  color: #A9AFB7;
+}
+[data-placeholder]:empty:before{
+  content: attr(data-placeholder);
   color: #A9AFB7;
 }
 
@@ -524,13 +600,60 @@
   }
 }
 
+._JNMN2 {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+._x-3dD {
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  top: 60px;
+  left: 10px;
+  width: 250px;
+  z-index: 50;
+  border-radius: 0.5rem;
+  overflow: visible;
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  border: 1px solid;
+}
+._AXWLZ {
+  border-radius: 0.5rem 0.5rem 0 0;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+}
+._2mojb {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 13px;
+  font-family: "Inter";
+  padding-left: 25px;
+  padding-right: 25px;
+}
+._UbM_B {
+  padding: 0.5rem;
+}
+._Y9wr7 {
+  display: flex;
+  flex-direction: row;
+  margin-top: 0.5rem;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._3_x9y {
   display: flex;
   align-items: flex-start;
   position: relative;
-  padding-bottom: 1.75rem;
 }
 
 ._3lHql {
@@ -598,6 +721,12 @@
   margin: 0px;
   font-size: 15px;
   line-height: inherit !important;
+}
+._1d8-E {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 0.175rem;
 }
 ._2kUJi {
   display: flex;
@@ -713,7 +842,7 @@
 }
 ._lajK0 :where(strong):not(:where([class~="not-prose"] *)) {
   color: var(--tw-prose-bold);
-  font-weight: 600;
+  font-weight: 500;
 }
 ._lajK0 :where(a strong):not(:where([class~="not-prose"] *)) {
   color: inherit;
@@ -1259,16 +1388,22 @@
   border-bottom-width: 1px;
   border-left-width: 0;
   border-right-width: 0px;
+  padding: 1.5rem;
+}
+._3vbCv > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1.75rem * var(--tw-space-y-reverse));
 }
 ._2mFCC {
-  width: "100%";
+  width: 100%;
   justify-content: center;
   display: flex;
   padding: 2rem;
 }
 
 ._1LQjG {
-  width: "100%";
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1282,7 +1417,7 @@
 
 ._3k7Bt {
   padding: 1.5rem;
-  width: "100%";
+  width: 100%;
 }
 
 ._1gCaM {

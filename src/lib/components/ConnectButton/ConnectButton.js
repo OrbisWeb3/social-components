@@ -4,12 +4,13 @@ import { BoltIcon } from "../../icons";
 import ConnectModal from "../ConnectModal";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
+import useOrbis from "../../hooks/useOrbis";
 
 /** Import CSS */
 import styles from './ConnectButton.module.css';
 
 export default function ConnectButton({ lit = false }) {
-  const { orbis, user, theme, setUser } = useContext(GlobalContext);
+  const { orbis, user, theme, setUser } = useOrbis();
   const [connecting, setConnecting] = useState(false);
   const [connectModalVis, setConnectModalVis] = useState(false);
 

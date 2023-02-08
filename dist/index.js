@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useEffect, useState } from 'react';
 import { Orbis } from '@orbisclub/orbis-sdk';
 export { Orbis } from '@orbisclub/orbis-sdk';
 import 'react-string-replace';
@@ -11,13 +11,6 @@ import { ConnectExtension } from '@magic-ext/connect';
 import TimeAgo from 'javascript-time-ago';
 export { default as TimeAgo } from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
-
-const GlobalContext = React.createContext({
-  orbis: null,
-  user: null,
-  setUser: null,
-  theme: null
-});
 
 const defaultTheme = {
   bg: {
@@ -68,6 +61,50 @@ const defaultTheme = {
     twitter: {
       bg: "rgb(88 92 96 / 5%)",
       color: "#1DA1F2"
+    },
+    uniswap: {
+      bg: "#FFE5F1",
+      color: "#FF007A"
+    },
+    thegraph: {
+      bg: "#dfeff9",
+      color: "#226AD8"
+    },
+    sushiswap: {
+      bg: "#efe6ff",
+      color: "#CC63AF"
+    },
+    hop: {
+      bg: "#FDEFFF",
+      color: "#D064D1"
+    },
+    lido: {
+      bg: "#fee7e2",
+      color: "#273852"
+    },
+    opensea: {
+      bg: "#e3f2ff",
+      color: "#2081E2"
+    },
+    snapshot: {
+      bg: "#FFFBEC",
+      color: "#273852"
+    },
+    active_wallet_mainnet: {
+      bg: "#F8F8F8",
+      color: "#34341F"
+    },
+    active_wallet_polygon: {
+      bg: "#F4EEFF",
+      color: "#8247E5"
+    },
+    active_wallet_arbitrum: {
+      bg: "#E7F5FF",
+      color: "#2D374B"
+    },
+    active_wallet_optimism: {
+      bg: "#FFF8F8",
+      color: "#FF0420"
     }
   }
 };
@@ -120,17 +157,61 @@ const darkTheme = {
     twitter: {
       bg: "rgb(88 92 96 / 5%)",
       color: "#1DA1F2"
+    },
+    uniswap: {
+      bg: "#FFE5F1",
+      color: "#FF007A"
+    },
+    thegraph: {
+      bg: "#dfeff9",
+      color: "#226AD8"
+    },
+    sushiswap: {
+      bg: "#efe6ff",
+      color: "#CC63AF"
+    },
+    hop: {
+      bg: "#FDEFFF",
+      color: "#D064D1"
+    },
+    lido: {
+      bg: "#fee7e2",
+      color: "#273852"
+    },
+    opensea: {
+      bg: "#e3f2ff",
+      color: "#2081E2"
+    },
+    snapshot: {
+      bg: "#FFFBEC",
+      color: "#273852"
+    },
+    active_wallet_mainnet: {
+      bg: "#F8F8F8",
+      color: "#34341F"
+    },
+    active_wallet_polygon: {
+      bg: "#F4EEFF",
+      color: "#8247E5"
+    },
+    active_wallet_arbitrum: {
+      bg: "#E7F5FF",
+      color: "#2D374B"
+    },
+    active_wallet_optimism: {
+      bg: "#FFF8F8",
+      color: "#FF0420"
     }
   }
 };
 function getThemeValue(type, theme, data) {
-  var _theme$bg3, _theme$color, _theme$color2, _theme$border2, _theme$bg4, _theme$bg5, _theme$bg6, _theme$color3, _theme$color4, _theme$color5, _theme$color6, _theme$border3, _theme$border4, _theme$badges, _theme$badges$red, _theme$badges2, _theme$badges2$red, _theme$badges3, _theme$badges3$twitte, _theme$badges4, _theme$badges4$twitte, _theme$button, _theme$button$main, _theme$button2, _theme$button2$main, _theme$button3, _theme$button3$main, _theme$button4, _theme$button4$main, _theme$button5, _theme$button5$second, _theme$button6, _theme$button6$second, _theme$button7, _theme$button7$green, _theme$button8, _theme$button8$green, _theme$color7, _theme$button9, _theme$button9$red, _theme$button10, _theme$button10$red;
+  var _theme$bg, _theme$bg3, _theme$color2, _theme$border2, _theme$bg4, _theme$bg5, _theme$bg6, _theme$border3, _theme$border4, _theme$badges, _theme$badges$red, _theme$badges2, _theme$badges2$red, _theme$badges3, _theme$badges3$twitte, _theme$badges4, _theme$badges4$twitte, _theme$button, _theme$button$main, _theme$button2, _theme$button2$main, _theme$button3, _theme$button3$main, _theme$button4, _theme$button4$main, _theme$button5, _theme$button5$second, _theme$button6, _theme$button6$second, _theme$button7, _theme$button7$green, _theme$button8, _theme$button8$green, _theme$color3, _theme$button9, _theme$button9$red, _theme$button10, _theme$button10$red;
+  let bgMain = theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main;
   let bgTertiary = theme !== null && theme !== void 0 && (_theme$bg3 = theme.bg) !== null && _theme$bg3 !== void 0 && _theme$bg3.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary;
-  let colorGreen = theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.green ? theme.color.green : defaultTheme.color.green;
   switch (type) {
     case "input":
       return {
-        background: data ? bgTertiary : "transparent",
+        background: data ? bgTertiary : bgMain,
         color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main,
         border: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
       };
@@ -146,19 +227,12 @@ function getThemeValue(type, theme, data) {
           return null;
       }
     case "color":
-      switch (data) {
-        case "main":
-          return theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.main ? theme.color.main : defaultTheme.color.main;
-        case "secondary":
-          return theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary;
-        case "tertiary":
-          return theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.tertiary ? theme.color.tertiary : defaultTheme.color.tertiary;
-        case "quattro":
-          return theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.quattro ? theme.color.quattro : defaultTheme.color.quattro;
-        case "green":
-          return colorGreen;
-        default:
-          return null;
+      if (theme && theme["color"] && theme["color"][data]) {
+        return theme["color"][data];
+      } else if (defaultTheme && defaultTheme["color"] && defaultTheme["color"][data]) {
+        return defaultTheme["color"][data];
+      } else {
+        return null;
       }
     case "border":
       switch (data) {
@@ -211,7 +285,7 @@ function getThemeValue(type, theme, data) {
         case "green-transparent":
           return {
             background: "transparent",
-            color: theme !== null && theme !== void 0 && (_theme$color7 = theme.color) !== null && _theme$color7 !== void 0 && _theme$color7.green ? theme.color.green : defaultTheme.color.green
+            color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.green ? theme.color.green : defaultTheme.color.green
           };
         case "red":
           return {
@@ -227,7 +301,7 @@ function getStyle(type, theme, data) {
     case "input":
       return {
         borderColor: getThemeValue("input", theme).border,
-        fontSize: 15,
+        fontSize: 14,
         color: getThemeValue("input", theme, data).color,
         backgroundColor: getThemeValue("input", theme, data).background
       };
@@ -251,9 +325,47 @@ function getStyle(type, theme, data) {
           };
       }
       break;
+    case "badge":
+      if (theme && theme["badges"] && theme["badges"][data]) {
+        return {
+          backgroundColor: theme["badges"][data]["bg"],
+          color: theme["badges"][data]["color"]
+        };
+      } else if (defaultTheme && defaultTheme["badges"] && defaultTheme["badges"][data]) {
+        return {
+          backgroundColor: defaultTheme["badges"][data]["bg"],
+          color: defaultTheme["badges"][data]["color"]
+        };
+      } else {
+        return null;
+      }
     default:
       return null;
   }
+}
+
+const GlobalContext = React.createContext({
+  orbis: null,
+  user: null,
+  magic: null,
+  context: null,
+  setUser: null,
+  theme: defaultTheme
+});
+
+function useOrbis() {
+  const {
+    orbis,
+    user,
+    setUser,
+    theme
+  } = useContext(GlobalContext);
+  return {
+    orbis,
+    user,
+    setUser,
+    theme
+  };
 }
 
 var styles = {"btnPrimary":"_1sKPO"};
@@ -268,7 +380,7 @@ const Button = ({
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   return /*#__PURE__*/React.createElement("button", {
     className: styles.btnPrimary,
     style: {
@@ -348,17 +460,25 @@ const Input = ({
   children,
   placeholder,
   value,
-  onChange
+  onChange,
+  autofocus: _autofocus = false
 }) => {
   const {
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (inputRef.current && _autofocus == true) {
+      inputRef.current.focus();
+    }
+  }, []);
   switch (type) {
     case "text":
       return /*#__PURE__*/React.createElement("input", {
         type: "text",
+        ref: inputRef,
         name: name,
         placeholder: placeholder,
         value: value,
@@ -369,6 +489,7 @@ const Input = ({
     case "textarea":
       return /*#__PURE__*/React.createElement("textarea", {
         rows: 2,
+        ref: inputRef,
         name: name,
         placeholder: placeholder,
         value: value,
@@ -381,22 +502,69 @@ const Input = ({
   }
 };
 
-var styles$3 = {"badge":"_Kzctc"};
+function useHover() {
+  const [value, setValue] = useState(false);
+  const ref = useRef(null);
+  const handleMouseOver = () => setValue(true);
+  const handleMouseOut = () => setValue(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (node) {
+      node.addEventListener("mouseover", handleMouseOver);
+      node.addEventListener("mouseout", handleMouseOut);
+      return () => {
+        node.removeEventListener("mouseover", handleMouseOver);
+        node.removeEventListener("mouseout", handleMouseOut);
+      };
+    }
+  }, [ref.current]);
+  return [ref, value];
+}
+
+var styles$3 = {"badge":"_Kzctc","tooltip":"_3Gosv"};
 
 const Badge = ({
   color,
   style,
+  tooltip,
   children
 }) => {
   const {
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
+  const [hoverRef, isHovered] = useHover();
   return /*#__PURE__*/React.createElement("div", {
     className: styles$3.badge,
+    ref: hoverRef,
     style: style
-  }, children);
+  }, children, isHovered && tooltip && /*#__PURE__*/React.createElement("div", {
+    className: styles$3.tooltip
+  }, tooltip));
+};
+
+var styles$4 = {"emptyState":"_3yaol"};
+
+const Alert = ({
+  color,
+  style,
+  tooltip,
+  title
+}) => {
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$4.emptyState,
+    style: style
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13
+    }
+  }, title));
 };
 
 function useOutsideClick(ref, handler) {
@@ -420,7 +588,7 @@ function useOutsideClick(ref, handler) {
   }, [ref, handler]);
 }
 
-var styles$4 = {"modalBackground":"_2jnSH","modalContainer":"_3DR1S","modalWrapper":"_2EV56","modal":"_3i67k","modalTitle":"_1vj-s","modalDescription":"_1Tgb3"};
+var styles$5 = {"modalBackground":"_2jnSH","modalContainer":"_3DR1S","modalWrapper":"_2EV56","modal":"_3i67k","modalTitle":"_1vj-s","modalDescription":"_1Tgb3"};
 
 function Modal({
   width = 370,
@@ -433,7 +601,7 @@ function Modal({
   const {
     orbis,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const wrapperRef = useRef(null);
   useOutsideClick(wrapperRef, () => hide());
   return /*#__PURE__*/React.createElement("div", {
@@ -445,18 +613,18 @@ function Modal({
     role: "dialog",
     "aria-modal": "true"
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$4.modalBackground,
+    className: styles$5.modalBackground,
     style: {
       background: "#000",
       opacity: 0.70
     },
     onClick: () => hide()
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$4.modalContainer
+    className: styles$5.modalContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$4.modalWrapper
+    className: styles$5.modalWrapper
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$4.modal,
+    className: styles$5.modal,
     ref: wrapperRef,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main,
@@ -470,12 +638,12 @@ function Modal({
       textAlign: "center"
     }
   }, /*#__PURE__*/React.createElement("h3", {
-    className: styles$4.modalTitle,
+    className: styles$5.modalTitle,
     style: {
       color: getThemeValue("color", theme, "main")
     }
   }, title), description && /*#__PURE__*/React.createElement("p", {
-    className: styles$4.modalDescription,
+    className: styles$5.modalDescription,
     style: {
       fontSize: 15,
       color: getThemeValue("color", theme, "secondary")
@@ -486,25 +654,6 @@ function Modal({
       flexDirection: "column"
     }
   }, children)))));
-}
-
-function useHover() {
-  const [value, setValue] = useState(false);
-  const ref = useRef(null);
-  const handleMouseOver = () => setValue(true);
-  const handleMouseOut = () => setValue(false);
-  useEffect(() => {
-    const node = ref.current;
-    if (node) {
-      node.addEventListener("mouseover", handleMouseOver);
-      node.addEventListener("mouseout", handleMouseOut);
-      return () => {
-        node.removeEventListener("mouseover", handleMouseOver);
-        node.removeEventListener("mouseout", handleMouseOut);
-      };
-    }
-  }, [ref.current]);
-  return [ref, value];
 }
 
 function useDidToAddress(did) {
@@ -830,22 +979,373 @@ const EditIcon = () => {
     fill: "currentColor"
   }));
 };
-const TwitterIcon = () => {
+const TwitterIcon = ({
+  style
+}) => {
   return /*#__PURE__*/React.createElement("svg", {
-    width: "13",
-    height: "11",
+    width: "14",
+    height: "12",
     viewBox: "0 0 512 417",
     fill: "currentColor",
     xmlns: "http://www.w3.org/2000/svg",
-    style: {
-      marginRight: "0.25rem"
-    }
+    style: style
   }, /*#__PURE__*/React.createElement("path", {
     d: "M459.584 104.552C459.883 109.053 459.883 113.576 459.883 118.12C459.883 256.936 354.197 417 161.003 417V416.915C103.936 417 48.0427 400.659 0 369.832C8.29867 370.835 16.64 371.325 25.0027 371.347C72.32 371.389 118.272 355.517 155.456 326.291C110.507 325.437 71.0827 296.125 57.3227 253.331C73.0667 256.36 89.28 255.741 104.747 251.539C55.7227 241.64 20.48 198.568 20.48 148.563C20.48 148.115 20.48 147.667 20.48 147.24C35.0933 155.389 51.4347 159.891 68.16 160.381C21.9947 129.555 7.744 68.1573 35.6267 20.1573C88.96 85.7787 167.659 125.672 252.117 129.917C243.648 93.4373 255.232 55.208 282.496 29.544C324.8 -10.2427 391.339 -8.19466 431.125 34.1093C454.656 29.48 477.205 20.84 497.835 8.61601C489.984 32.936 473.579 53.5867 451.648 66.728C472.491 64.232 492.821 58.664 512 50.1733C497.899 71.272 480.149 89.6827 459.584 104.552Z"
   }));
 };
+const GoogleIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 16 16",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: style
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M14.9529 8.36099C14.9529 7.82917 14.9052 7.31781 14.8166 6.8269H7.75293V9.73144H11.7893C11.612 10.6655 11.0802 11.4564 10.2825 11.9882V13.8769H12.7166C14.1347 12.5678 14.9529 10.6451 14.9529 8.36099Z",
+    fill: "#4285F4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M7.75307 15.6907C9.77807 15.6907 11.4758 15.0225 12.7167 13.8771L10.2826 11.9885C9.61444 12.4385 8.76216 12.7112 7.75307 12.7112C5.80307 12.7112 4.14625 11.3953 3.55307 9.62256H1.05762V11.5589C2.29171 14.0066 4.82125 15.6907 7.75307 15.6907Z",
+    fill: "#34A853"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3.55293 9.61569C3.40293 9.16569 3.31429 8.68842 3.31429 8.19069C3.31429 7.69297 3.40293 7.2157 3.55293 6.7657V4.82935H1.05748C0.546112 5.83843 0.25293 6.97706 0.25293 8.19069C0.25293 9.40432 0.546112 10.543 1.05748 11.552L3.00066 10.0384L3.55293 9.61569Z",
+    fill: "#FBBC05"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M7.75307 3.67702C8.85762 3.67702 9.83943 4.05884 10.6235 4.7952L12.7713 2.64748C11.469 1.43385 9.77807 0.690674 7.75307 0.690674C4.82125 0.690674 2.29171 2.37476 1.05762 4.82929L3.55307 6.76565C4.14625 4.99293 5.80307 3.67702 7.75307 3.67702Z",
+    fill: "#EA4335"
+  }));
+};
+const GithubIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 12 12",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: style
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M6.37305 0.746338C3.3343 0.746338 0.873048 3.2699 0.873048 6.38559C0.872424 7.56943 1.2354 8.7234 1.91047 9.68381C2.58554 10.6442 3.53843 11.3623 4.63395 11.7361C4.90895 11.7852 5.0118 11.616 5.0118 11.4677C5.0118 11.334 5.00465 10.8902 5.00465 10.4177C3.62305 10.6788 3.26555 10.0725 3.15555 9.75505C3.0934 9.59264 2.82555 9.09243 2.5918 8.95822C2.3993 8.85277 2.1243 8.59167 2.58465 8.5849C3.01805 8.57757 3.32715 8.99375 3.43055 9.16292C3.92555 10.0156 4.71645 9.77591 5.03215 9.62816C5.08055 9.26161 5.22465 9.01518 5.38305 8.87419C4.1593 8.73321 2.88055 8.24655 2.88055 6.08953C2.88055 5.47598 3.0934 4.96901 3.4443 4.5737C3.3893 4.43272 3.1968 3.85469 3.4993 3.0793C3.4993 3.0793 3.95965 2.93155 5.0118 3.65788C5.45953 3.53047 5.92214 3.46634 6.3868 3.46728C6.8543 3.46728 7.3218 3.53044 7.7618 3.65732C8.8134 2.92422 9.2743 3.07986 9.2743 3.07986C9.5768 3.85526 9.3843 4.43328 9.3293 4.57426C9.67965 4.96901 9.89305 5.46921 9.89305 6.08953C9.89305 8.25388 8.6077 8.73321 7.38395 8.87419C7.58305 9.05014 7.7552 9.38849 7.7552 9.91746C7.7552 10.6714 7.74805 11.2776 7.74805 11.4683C7.74805 11.616 7.85145 11.7919 8.12645 11.7356C9.21821 11.3576 10.1669 10.6381 10.839 9.67844C11.5111 8.71873 11.8727 7.56708 11.873 6.38559C11.873 3.2699 9.4118 0.746338 6.37305 0.746338Z",
+    fill: "currentColor"
+  }));
+};
+const UniswapIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "14",
+    viewBox: "0 0 13 14",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("g", {
+    "clip-path": "url(#clip0_1366_5768)"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3.68764 1.88679C3.5231 1.86141 3.5161 1.85878 3.59399 1.8474C3.74278 1.82465 4.09288 1.85528 4.33444 1.91217C4.89809 2.04521 5.41098 2.38655 5.95888 2.99309L6.10417 3.15413L6.31248 3.12087C7.18946 2.98084 8.08045 3.09199 8.82703 3.43421C9.03271 3.52873 9.35655 3.71603 9.39593 3.76417C9.40994 3.77993 9.43357 3.87795 9.44845 3.98386C9.50446 4.34971 9.47733 4.62891 9.36442 4.83809C9.30316 4.95187 9.29966 4.98775 9.34079 5.08578C9.36046 5.12615 9.39107 5.16019 9.42914 5.18402C9.4672 5.20785 9.51119 5.22051 9.5561 5.22057C9.74165 5.22057 9.94121 4.92299 10.0331 4.50812L10.0699 4.3427L10.1425 4.42498C10.5425 4.87485 10.8558 5.48751 10.9092 5.92338L10.9232 6.03716L10.8567 5.93388C10.76 5.7757 10.6301 5.64042 10.476 5.5374C10.2082 5.36148 9.92458 5.30109 9.17537 5.2617C8.49794 5.22669 8.11459 5.16893 7.73473 5.04552C7.08793 4.83546 6.76235 4.55714 5.99389 3.55587C5.65255 3.11037 5.44249 2.86443 5.23243 2.66663C4.75543 2.21588 4.28718 1.97957 3.68764 1.88767V1.88679Z",
+    fill: "#FF007A"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M9.54938 2.87939C9.56601 2.58181 9.60627 2.38489 9.68854 2.20546C9.70657 2.16012 9.72915 2.11672 9.75593 2.07593C9.76031 2.07593 9.7463 2.12844 9.72442 2.19233C9.66491 2.36738 9.6544 2.60545 9.69642 2.8829C9.74893 3.23474 9.77781 3.2855 10.1515 3.66536C10.3275 3.84391 10.5314 4.06797 10.6058 4.16512L10.7406 4.34016L10.6058 4.21501C10.4412 4.06184 10.0631 3.76251 9.97912 3.71962C9.9231 3.69161 9.91435 3.69161 9.88022 3.72575C9.84783 3.75726 9.84171 3.80452 9.83645 4.02858C9.83033 4.3778 9.78219 4.60186 9.66666 4.82504C9.60452 4.94758 9.59489 4.92132 9.6509 4.78391C9.69291 4.68238 9.69729 4.63687 9.69729 4.29903C9.69729 3.62072 9.61502 3.45705 9.13977 3.17873C8.99641 3.09593 8.84921 3.01999 8.69865 2.95116C8.62446 2.92134 8.55251 2.88624 8.48334 2.84614C8.49647 2.83301 8.96034 2.96779 9.14677 3.03869C9.42509 3.14547 9.4706 3.15859 9.50474 3.14634C9.52662 3.13759 9.538 3.07195 9.5485 2.87939H9.54938ZM4.0065 4.04083C3.67304 3.58396 3.46561 2.8829 3.51112 2.35863L3.52425 2.19671L3.60039 2.20984C3.74393 2.2361 3.98987 2.32712 4.10541 2.39714C4.42137 2.58794 4.55878 2.83913 4.69794 3.48506C4.73908 3.67411 4.79247 3.88767 4.81697 3.96119C4.85636 4.07759 5.0069 4.34979 5.12856 4.52659C5.21608 4.65437 5.15832 4.71477 4.96401 4.69726C4.66731 4.671 4.26557 4.3953 4.0065 4.04083ZM9.14327 7.44288C7.58184 6.81883 7.0322 6.27619 7.0322 5.36156C7.0322 5.22678 7.03657 5.1165 7.0427 5.1165C7.04795 5.1165 7.10834 5.16026 7.17661 5.2154C7.49345 5.46747 7.84792 5.57512 8.82993 5.71779C9.40759 5.80181 9.73143 5.8692 10.0316 5.9681C10.9856 6.28231 11.5747 6.91949 11.7156 7.7886C11.7558 8.04066 11.7331 8.51329 11.6657 8.76273C11.6132 8.95966 11.4539 9.31413 11.4119 9.32814C11.3996 9.33251 11.3882 9.28788 11.3856 9.22661C11.3699 8.90102 11.2036 8.58331 10.9252 8.34525C10.6084 8.0748 10.183 7.85949 9.14327 7.44375V7.44288ZM8.04747 7.70282C8.02913 7.59198 8.00399 7.48237 7.9722 7.37461L7.93194 7.25645L8.00633 7.3396C8.10874 7.45338 8.19013 7.59954 8.2584 7.79472C8.31092 7.94351 8.31617 7.98727 8.31617 8.22884C8.31617 8.46603 8.30917 8.51592 8.26015 8.64895C8.19289 8.84624 8.08016 9.02493 7.93106 9.17059C7.64574 9.45942 7.27901 9.61871 6.7495 9.68523C6.6576 9.69661 6.38977 9.71587 6.15433 9.72812C5.56005 9.75875 5.16882 9.82264 4.81785 9.94518C4.78603 9.95916 4.75191 9.96717 4.7172 9.96881C4.70319 9.95481 4.94301 9.81302 5.13994 9.71849C5.41826 9.58458 5.69571 9.51194 6.31713 9.40953C6.62346 9.35877 6.94117 9.29663 7.02169 9.27212C7.7814 9.04106 8.17263 8.44327 8.04747 7.70282Z",
+    fill: "#FF007A"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8.76189 8.967C8.55446 8.52414 8.50632 8.09614 8.6201 7.69704C8.63235 7.65327 8.65161 7.61914 8.66386 7.61914C8.67524 7.61914 8.72513 7.6454 8.77239 7.67778C8.86867 7.74167 9.05947 7.84933 9.57061 8.1259C10.2078 8.47162 10.5719 8.73857 10.8187 9.0449C11.0349 9.31185 11.1688 9.61731 11.2336 9.98841C11.2703 10.1985 11.2484 10.7061 11.1942 10.9179C11.0226 11.5866 10.6253 12.1117 10.0564 12.4181C9.97322 12.4627 9.89882 12.4995 9.89007 12.4995C9.88219 12.4995 9.91282 12.4233 9.95746 12.3297C10.1491 11.9323 10.171 11.5463 10.0266 11.1166C9.93733 10.8531 9.75703 10.5319 9.39293 9.98841C8.96932 9.35824 8.86604 9.18931 8.76189 8.967ZM2.89605 11.359C3.47634 10.8724 4.19666 10.5276 4.85396 10.4208C5.19251 10.3774 5.53593 10.3907 5.87011 10.4602C6.29022 10.5669 6.66657 10.8068 6.86175 11.0912C7.05255 11.3704 7.13482 11.6128 7.2206 12.1537C7.25386 12.3664 7.29062 12.5809 7.30112 12.629C7.36501 12.9091 7.49017 13.1331 7.64421 13.2452C7.88928 13.4237 8.31289 13.4351 8.72863 13.274C8.77181 13.2541 8.81742 13.24 8.86429 13.232C8.87917 13.2469 8.66999 13.3861 8.52295 13.4596C8.3485 13.5524 8.15335 13.5993 7.9558 13.5961C7.57507 13.5961 7.25911 13.4036 6.99479 13.0115C6.89785 12.8455 6.81133 12.6736 6.73572 12.4968C6.45739 11.8658 6.31998 11.6741 5.99702 11.4632C5.71519 11.2794 5.35197 11.247 5.07889 11.38C4.72005 11.5551 4.62027 12.0102 4.87759 12.299C4.99779 12.4231 5.15506 12.5048 5.32571 12.5318C5.39349 12.5411 5.46247 12.5357 5.52798 12.516C5.59349 12.4963 5.65399 12.4627 5.70538 12.4176C5.75677 12.3724 5.79784 12.3167 5.82581 12.2543C5.85378 12.1918 5.86799 12.1241 5.86748 12.0557C5.86748 11.8658 5.79396 11.7581 5.60929 11.6741C5.35634 11.5612 5.0859 11.6934 5.08677 11.9288C5.08677 12.0295 5.13141 12.0925 5.23294 12.1389C5.2977 12.1677 5.29945 12.1695 5.24606 12.159C5.015 12.1109 4.96074 11.8334 5.14629 11.6496C5.37035 11.429 5.83247 11.5262 5.99089 11.8282C6.05741 11.9551 6.06529 12.2071 6.00752 12.3594C5.87623 12.7008 5.49813 12.8802 5.11303 12.7822C4.85046 12.7156 4.74455 12.6439 4.42859 12.3209C3.87982 11.759 3.66714 11.6496 2.87592 11.5271L2.72363 11.5034L2.89605 11.359Z",
+    fill: "#FF007A"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M0.321446 1.30191C2.15419 3.51276 3.41716 4.42475 3.55719 4.61731C3.67273 4.7766 3.62896 4.92014 3.43116 5.03217C3.2905 5.10284 3.13738 5.14536 2.98041 5.15733C2.85175 5.15733 2.80712 5.10831 2.80712 5.10831C2.73272 5.0383 2.69071 5.05055 2.30823 4.37574C1.98305 3.86964 1.65395 3.36608 1.32097 2.86508C1.29296 2.83883 1.29383 2.83883 2.25484 4.54816C2.40976 4.90438 2.28548 5.03479 2.28548 5.08556C2.28548 5.18884 2.25659 5.2431 2.12881 5.38576C1.91525 5.62208 1.81985 5.88815 1.75071 6.43867C1.67369 7.05572 1.45663 7.49158 0.854465 8.23816C0.50262 8.6749 0.444854 8.75455 0.35558 8.93135C0.24355 9.15278 0.212917 9.27706 0.200663 9.55626C0.187535 9.85297 0.212917 10.0438 0.303941 10.3265C0.382712 10.575 0.466735 10.7378 0.679417 11.0652C0.863217 11.3479 0.968246 11.5579 0.968246 11.6402C0.968246 11.705 0.980499 11.705 1.26583 11.6411C1.94501 11.4888 2.49728 11.221 2.80799 10.891C3.00054 10.6871 3.04518 10.575 3.04693 10.2958C3.04781 10.1138 3.04168 10.0753 2.99179 9.97025C2.91127 9.79958 2.76423 9.65692 2.44039 9.43636C2.01503 9.14753 1.83298 8.91559 1.78397 8.59613C1.74195 8.33356 1.79009 8.14889 2.02466 7.65963C2.26797 7.15199 2.32836 6.93581 2.3695 6.42554C2.39576 6.09558 2.43164 5.96517 2.52704 5.86014C2.62682 5.75161 2.71609 5.71485 2.96291 5.68159C3.36464 5.62645 3.61934 5.52405 3.82939 5.3315C3.91359 5.262 3.98152 5.17489 4.0284 5.07629C4.07528 4.97769 4.09997 4.87002 4.10072 4.76085L4.10947 4.57705L4.00707 4.45976C3.63859 4.03265 0.0746292 0.96582 0.0518731 0.96582C0.0474969 0.96582 0.16828 1.11724 0.321446 1.30191ZM1.17568 9.89236C1.21583 9.82144 1.22777 9.73799 1.20911 9.65866C1.19046 9.57933 1.14258 9.50995 1.07502 9.46437C0.943739 9.37684 0.738058 9.41885 0.738058 9.53176C0.738058 9.56677 0.757314 9.59215 0.801075 9.61403C0.874595 9.65167 0.879847 9.69368 0.822081 9.78033C0.76344 9.86697 0.768692 9.94312 0.83521 9.99563C0.942864 10.0788 1.09515 10.0333 1.17568 9.89236ZM4.36241 5.77875C4.17424 5.83564 3.99131 6.03431 3.93355 6.24262C3.89941 6.36953 3.91954 6.59272 3.97118 6.66098C4.0552 6.77214 4.13573 6.80102 4.35541 6.80015C4.78428 6.79752 5.15713 6.6146 5.20089 6.38528C5.2359 6.19798 5.07223 5.93891 4.84642 5.82426C4.69303 5.76198 4.52472 5.74615 4.36241 5.77875ZM4.8648 6.16823C4.93044 6.07457 4.90156 5.97392 4.78865 5.90565C4.57509 5.77524 4.25038 5.8829 4.25038 6.0842C4.25038 6.18485 4.4193 6.29426 4.57422 6.29426C4.6775 6.29426 4.81929 6.23299 4.8648 6.16823Z",
+    fill: "#FF007A"
+  })), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("clipPath", {
+    id: "clip0_1366_5768"
+  }, /*#__PURE__*/React.createElement("rect", {
+    width: "12.2533",
+    height: "13.1285",
+    fill: "white",
+    transform: "translate(0.0517578 0.52832)"
+  }))));
+};
+const TheGraphIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "12",
+    height: "13",
+    viewBox: "0 0 12 13",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M5.3522 7.2222C3.63402 7.2222 2.2411 5.92886 2.2411 4.33332C2.2411 2.73778 3.63402 1.44444 5.3522 1.44444C7.07047 1.44444 8.4633 2.73778 8.4633 4.33332C8.4633 5.92886 7.07047 7.2222 5.3522 7.2222ZM5.3522 0C7.92951 0 10.0188 1.9401 10.0188 4.33332C10.0188 6.72654 7.92951 8.66664 5.3522 8.66664C2.77489 8.66664 0.685547 6.72654 0.685547 4.33332C0.685547 1.9401 2.77489 0 5.3522 0ZM9.79108 8.87814C10.0948 9.1602 10.0948 9.61743 9.79108 9.89949L6.67988 12.7885C6.37613 13.0705 5.88372 13.0705 5.57997 12.7885C5.27621 12.5064 5.27621 12.0492 5.57997 11.7671L8.69116 8.87814C8.99492 8.59608 9.48732 8.59608 9.79108 8.87814ZM11.5744 0.722219C11.5744 1.12115 11.2262 1.44444 10.7967 1.44444C10.3671 1.44444 10.0189 1.12115 10.0189 0.722219C10.0189 0.323292 10.3671 0 10.7967 0C11.2262 0 11.5744 0.323292 11.5744 0.722219Z",
+    fill: "currentColor"
+  }));
+};
+const SushiIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "11",
+    height: "11",
+    viewBox: "0 0 11 11",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M10.4766 6.86866L8.52596 9.59583C8.24192 9.99351 7.68798 10.1687 6.98252 10.1119C6.00242 10.0266 4.7004 9.50583 3.45525 8.61109C3.04922 8.32284 2.66562 8.00422 2.30778 7.65796C1.64798 7.01715 1.16303 6.35048 0.903332 5.75604C0.619292 5.1027 0.609898 4.52513 0.893938 4.12745L2.84918 1.40028C3.13332 1.0026 3.68251 0.82745 4.39272 0.884218C5.37282 0.964723 6.67009 1.49028 7.91989 2.38038C9.16514 3.27523 10.079 4.34048 10.4672 5.24008C10.5007 5.31725 10.5304 5.39331 10.5563 5.46826C10.7493 6.02735 10.7271 6.51796 10.4766 6.86866Z",
+    fill: "url(#paint0_linear_1387_5021)"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M10.4766 6.86866L8.52596 9.59583C8.24192 9.99351 7.68798 10.1687 6.98252 10.1119C6.00242 10.0266 4.7004 9.50583 3.45525 8.61109C3.04922 8.32284 2.66562 8.00422 2.30778 7.65796C1.64798 7.01715 1.16303 6.35048 0.903332 5.75604C0.619292 5.1027 0.609898 4.52513 0.893938 4.12745L2.84918 1.40028C3.13332 1.0026 3.68251 0.82745 4.39272 0.884218C5.37282 0.964723 6.67009 1.49028 7.91989 2.38038C9.16514 3.27523 10.079 4.34048 10.4672 5.24008C10.5007 5.31725 10.5304 5.39331 10.5563 5.46826C10.7493 6.02735 10.7271 6.51796 10.4766 6.86866Z",
+    fill: "#3B95DA",
+    "fill-opacity": "0.2"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M10.1639 5.37257C9.78989 4.5156 8.91393 3.50712 7.7209 2.6549C6.53252 1.80267 5.29686 1.29611 4.36414 1.22035C3.79595 1.17298 3.34616 1.27722 3.11898 1.59439L3.10939 1.61328C2.89636 1.93055 2.94373 2.38035 3.16626 2.89166C3.5403 3.75338 4.41616 4.76177 5.60464 5.61399C6.79292 6.46622 8.02868 6.97288 8.96131 7.04863C9.51999 7.09116 9.9604 6.99178 10.1923 6.69349L10.2066 6.66985C10.4338 6.35732 10.3865 5.89338 10.1639 5.37257ZM8.41686 5.39156C8.31272 5.53823 8.09969 5.58096 7.83929 5.55722C7.3705 5.51934 6.75505 5.26368 6.15848 4.83762C5.56191 4.41146 5.12161 3.90954 4.93696 3.47874C4.83282 3.23732 4.80444 3.02429 4.90858 2.87742C5.01282 2.73065 5.22585 2.68803 5.4909 2.70702C5.95484 2.74964 6.57515 3.00055 7.16696 3.42671C7.76353 3.85278 8.20383 4.35934 8.38848 4.79025C8.49737 5.03166 8.52575 5.24469 8.41686 5.39156Z",
+    fill: "#F5FAFF"
+  }), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint0_linear_1387_5021",
+    x1: "4.08025",
+    y1: "0.761996",
+    x2: "7.29052",
+    y2: "10.235",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    "stop-color": "#27B0E6"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.107",
+    "stop-color": "#49A1DB"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.288",
+    "stop-color": "#7D8ACA"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.445",
+    "stop-color": "#A279BD"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.572",
+    "stop-color": "#BA6FB6"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.651",
+    "stop-color": "#C26BB3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.678",
+    "stop-color": "#D563AD"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.715",
+    "stop-color": "#E65BA7"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.76",
+    "stop-color": "#F156A3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.824",
+    "stop-color": "#F853A1"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    "stop-color": "#FA52A0"
+  }))));
+};
+const HopIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "12",
+    viewBox: "0 0 13 12",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M11.8306 3.96234L9.31368 0.300906C8.91838 -0.272965 8.02451 0.0316795 8.05374 0.728894C8.08049 1.36444 8.31801 2.03713 8.88643 2.86264C8.8867 2.8631 8.88681 2.86363 8.88675 2.86416C8.88669 2.86468 8.88646 2.86518 8.8861 2.86556C8.88574 2.86595 8.88527 2.86621 8.88475 2.86631C8.88423 2.86641 8.88369 2.86634 8.88321 2.86611C8.65064 2.69274 5.14476 0.0599149 0.97732 1.46177H0.972614C0.512675 1.63416 0.277876 2.01038 0.394285 2.4515C0.502025 2.85992 0.920849 3.10512 1.3372 3.03602C2.2224 2.88865 3.10091 2.81856 3.96482 2.89435C4.82872 2.97014 5.6738 3.19156 6.46067 3.57819C7.24755 3.96481 7.96036 4.51193 8.61547 5.13856C9.35232 5.84271 10.2665 7.34438 10.2665 7.34438C10.3201 7.43955 10.4055 7.51273 10.5078 7.55102C10.6101 7.58931 10.7226 7.59025 10.8255 7.55367C11.0732 7.465 11.1886 7.17943 11.0955 6.93448C10.9013 6.42245 10.6635 5.92801 10.3849 5.45658C10.3845 5.45613 10.3843 5.45555 10.3842 5.45494C10.3842 5.45434 10.3845 5.45375 10.3849 5.4533C10.3853 5.45284 10.3858 5.45255 10.3864 5.45247C10.387 5.45239 10.3876 5.45253 10.3881 5.45286C10.6962 5.56878 10.9813 5.71317 11.3186 5.63416C11.5938 5.56952 11.8353 5.38228 11.9475 5.12023C12.0287 4.93336 12.0606 4.72876 12.0402 4.52603C12.0197 4.32329 11.9475 4.1292 11.8306 3.96234Z",
+    fill: "url(#paint0_linear_1387_5025)"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M0.214582 7.98084L2.74561 11.6628C3.14189 12.2384 4.01917 11.9229 3.99217 11.2249C3.96741 10.5864 3.73038 9.911 3.15923 9.08128C3.1575 9.0788 3.15923 9.07558 3.1622 9.07731C3.39527 9.25069 6.90215 11.8833 11.0678 10.4817C11.0695 10.4818 11.0712 10.4818 11.0728 10.4817C11.5327 10.3098 11.7663 9.93428 11.6509 9.49267C11.5434 9.0845 11.1246 8.8393 10.7085 8.90865C9.82302 9.05725 8.94475 9.12586 8.0806 9.05007C7.21645 8.97428 6.37162 8.75286 5.58499 8.36648C4.79837 7.9801 4.0853 7.43248 3.43019 6.8061C2.6936 6.10195 1.77917 4.60028 1.77917 4.60028C1.72372 4.50139 1.6339 4.42628 1.52675 4.38921C1.4196 4.35214 1.30258 4.35568 1.19787 4.39917C0.962076 4.49824 0.861271 4.77688 0.951673 5.01564C1.14557 5.526 1.38271 6.01885 1.66053 6.48883C1.66081 6.48931 1.66094 6.48986 1.6609 6.49041C1.66086 6.49097 1.66065 6.4915 1.6603 6.49193C1.65994 6.49236 1.65947 6.49267 1.65894 6.49283C1.6584 6.49298 1.65784 6.49297 1.65731 6.49279C1.3492 6.37688 1.06288 6.23248 0.726781 6.31149C0.451611 6.3749 0.209876 6.56313 0.0986689 6.82443C0.0175708 7.01103 -0.0143554 7.2153 0.00593671 7.41774C0.0262289 7.62019 0.0980624 7.81405 0.214582 7.98084Z",
+    fill: "url(#paint1_linear_1387_5025)"
+  }), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint0_linear_1387_5025",
+    x1: "12.6645",
+    y1: "11.0479",
+    x2: "-2.09241",
+    y2: "-7.12647",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0.15",
+    "stop-color": "#B32EFF"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.42",
+    "stop-color": "#CE60D3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.65",
+    "stop-color": "#E185B3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.84",
+    "stop-color": "#EE9C9F"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.96",
+    "stop-color": "#F2A498"
+  })), /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint1_linear_1387_5025",
+    x1: "-0.620094",
+    y1: "0.895755",
+    x2: "14.1373",
+    y2: "19.0706",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    offset: "0.15",
+    "stop-color": "#B32EFF"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.42",
+    "stop-color": "#CE60D3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.65",
+    "stop-color": "#E185B3"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.84",
+    "stop-color": "#EE9C9F"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "0.96",
+    "stop-color": "#F2A498"
+  }))));
+};
+const LidoIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "10",
+    height: "13",
+    viewBox: "0 0 10 13",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M5.19363 0L8.16325 4.64914L5.19363 6.37967L2.22461 4.64914L5.19363 0ZM3.13368 4.42893L5.19363 1.20309L7.25418 4.42893L5.19363 5.63022L3.13368 4.42893Z",
+    fill: "#273852"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M5.18935 7.40144L1.74509 5.39429L1.65088 5.5413C1.24536 6.17602 1.018 6.90812 0.99262 7.6609C0.967241 8.41368 1.14478 9.15943 1.50663 9.82003C1.86849 10.4806 2.40134 11.0317 3.04937 11.4156C3.69739 11.7996 4.43674 12.0021 5.18995 12.0021C5.94315 12.0021 6.6825 11.7996 7.33053 11.4156C7.97855 11.0317 8.5114 10.4806 8.87326 9.82003C9.23511 9.15943 9.41265 8.41368 9.38727 7.6609C9.3619 6.90812 9.13453 6.17602 8.72901 5.5413L8.6348 5.39429L5.18935 7.40204V7.40144Z",
+    fill: "#273852"
+  }));
+};
+const OpenSeaIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "14",
+    height: "14",
+    viewBox: "0 0 14 14",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M14 7C14 10.8658 10.8658 14 7 14C3.13422 14 0 10.8658 0 7C0 3.13422 3.13422 0 7 0C10.8666 0 14 3.13422 14 7Z",
+    fill: "#2081E2"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3.45336 7.2353L3.48356 7.18783L5.30454 4.33914C5.33115 4.29743 5.39372 4.30174 5.41385 4.34705C5.71807 5.02883 5.98057 5.87676 5.8576 6.40464C5.8051 6.62184 5.66126 6.91598 5.49943 7.18783C5.47859 7.22739 5.45557 7.26623 5.43111 7.30362C5.41961 7.32089 5.40019 7.33095 5.37933 7.33095H3.50658C3.45623 7.33095 3.42675 7.2763 3.45336 7.2353Z",
+    fill: "#F4FAFF"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M11.5702 7.76459V8.21551C11.5702 8.2414 11.5543 8.26442 11.5313 8.27448C11.3904 8.33489 10.9078 8.5564 10.7071 8.83545C10.1951 9.54816 9.80385 10.5672 8.92931 10.5672H5.28088C3.9878 10.5672 2.93994 9.51581 2.93994 8.21838V8.17668C2.93994 8.14215 2.96798 8.11411 3.00251 8.11411H5.03637C5.07664 8.11411 5.10612 8.15151 5.10254 8.19106C5.08814 8.32338 5.1126 8.4586 5.17517 8.58157C5.29599 8.82682 5.54627 8.98001 5.81668 8.98001H6.82354V8.19394H5.82818C5.77713 8.19394 5.74693 8.13496 5.77641 8.09325C5.78719 8.07671 5.79943 8.05946 5.81236 8.04004C5.90658 7.90627 6.04107 7.69843 6.17484 7.46181C6.26617 7.30216 6.35463 7.1317 6.42583 6.96054C6.44022 6.92961 6.45172 6.89796 6.46322 6.86703C6.48264 6.81238 6.50279 6.76132 6.51717 6.71026C6.53156 6.6671 6.54305 6.6218 6.55456 6.57936C6.58837 6.43408 6.60275 6.28018 6.60275 6.12053C6.60275 6.05796 6.59988 5.99251 6.59412 5.92994C6.59124 5.86162 6.58262 5.79329 6.57398 5.72497C6.56822 5.66456 6.55744 5.60487 6.54594 5.5423C6.53156 5.45096 6.51141 5.36035 6.4884 5.269L6.48049 5.23449C6.46322 5.17191 6.44885 5.11223 6.42871 5.04967C6.37189 4.85332 6.30645 4.66202 6.2374 4.48295C6.21223 4.41174 6.18346 4.34342 6.15469 4.2751C6.11227 4.17226 6.06911 4.07877 6.02956 3.9903C6.00943 3.95002 5.99217 3.91334 5.9749 3.87595C5.95549 3.83351 5.93535 3.79108 5.91521 3.75082C5.90083 3.71989 5.88428 3.69112 5.87277 3.66235L5.7498 3.43509C5.73254 3.40416 5.76131 3.36748 5.7951 3.37683L6.56464 3.58539H6.5668C6.56822 3.58539 6.56895 3.58612 6.56967 3.58612L6.67107 3.61416L6.78255 3.64582L6.82354 3.65731V3.19992C6.82354 2.97912 7.00046 2.80005 7.2191 2.80005C7.32841 2.80005 7.42766 2.84464 7.49886 2.91727C7.57005 2.98992 7.61464 3.08916 7.61464 3.19992V3.87883L7.69664 3.90183C7.70311 3.904 7.70957 3.90687 7.71533 3.91119C7.73547 3.92629 7.76423 3.94858 7.80091 3.97592C7.82968 3.99892 7.86061 4.02698 7.898 4.05575C7.97207 4.11543 8.06054 4.19239 8.15763 4.28086C8.18352 4.30314 8.20869 4.32616 8.2317 4.34918C8.35685 4.46568 8.49709 4.60233 8.63086 4.75336C8.66825 4.79579 8.70493 4.83894 8.74233 4.88424C8.77972 4.93027 8.81928 4.97558 8.85379 5.0209C8.89911 5.08131 8.94801 5.14387 8.99045 5.20932C9.01058 5.24025 9.0336 5.27189 9.05301 5.30281C9.10767 5.38551 9.15586 5.47111 9.20189 5.55669C9.22131 5.59624 9.24144 5.63939 9.2587 5.68182C9.30976 5.79617 9.35004 5.91268 9.37592 6.02919C9.38383 6.05436 9.38959 6.08169 9.39247 6.10615V6.1119C9.4011 6.14641 9.40398 6.18309 9.40685 6.22049C9.41836 6.33988 9.4126 6.45926 9.38672 6.57936C9.37592 6.63043 9.36155 6.67861 9.34428 6.72968C9.32702 6.77858 9.30976 6.82964 9.28747 6.87783C9.24432 6.97779 9.19325 7.07776 9.13284 7.17125C9.11342 7.20578 9.09041 7.24246 9.06739 7.27698C9.04222 7.31365 9.01633 7.34817 8.99332 7.38198C8.96168 7.42513 8.92788 7.47043 8.89336 7.51071C8.86243 7.55315 8.83079 7.59558 8.79627 7.63297C8.74808 7.68979 8.70205 7.74373 8.65386 7.79551C8.6251 7.82931 8.59418 7.86383 8.56252 7.89476C8.53161 7.92927 8.49996 7.9602 8.47119 7.98897C8.42301 8.03716 8.38274 8.07455 8.34893 8.10547L8.26983 8.17812C8.25832 8.18819 8.24321 8.19394 8.22739 8.19394H7.61464V8.98001H8.38561C8.55821 8.98001 8.72219 8.91887 8.85452 8.80668C8.89983 8.76713 9.0976 8.59596 9.33133 8.33778C9.33924 8.32914 9.34932 8.32267 9.36083 8.3198L11.4903 7.70418C11.5299 7.69267 11.5702 7.72287 11.5702 7.76459Z",
+    fill: "#F4FAFF"
+  }));
+};
+const SnapshotIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "11",
+    height: "13",
+    viewBox: "0 0 11 13",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3.68888 3.86153C5.14764 2.62147 6.57116 1.39829 8.01717 0.201734C8.1799 0.0670755 8.4426 -0.0582657 8.70052 0.028882C8.81678 0.201734 8.7332 0.510835 8.63905 0.697064C7.94766 2.06451 7.22605 3.41695 6.51818 4.77627C6.42375 4.9576 6.35303 5.15102 6.24248 5.40516C6.92585 5.40516 7.52659 5.40515 8.12733 5.40516C8.91068 5.40518 9.69455 5.38999 10.477 5.41664C10.6579 5.4228 10.9883 5.41664 10.9883 5.67091C11.0421 5.75193 10.9003 6.03197 10.7752 6.14525C10.2115 6.65572 9.62226 7.13854 9.04228 7.63141C7.01861 9.35112 4.99985 11.0766 2.96191 12.7796C2.80147 12.9136 2.56886 13.0946 2.2758 12.9416C2.14072 12.6408 2.25288 12.4651 2.34676 12.2789C3.06864 10.8472 3.81741 9.4287 4.55676 8.00556C4.61158 7.90003 4.65805 7.79023 4.75024 7.59283C3.97816 7.59283 3.27717 7.59284 2.57618 7.59283C1.91746 7.59283 1.25791 7.61107 0.600503 7.58195C0.396558 7.57292 0.209874 7.57519 0.0502941 7.34987C-0.109253 7.12454 0.147767 6.88872 0.307145 6.74902C1.41209 5.78049 2.53984 4.83747 3.68888 3.86153Z",
+    fill: "#FFA804"
+  }));
+};
+const EthereumIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "7",
+    height: "13",
+    viewBox: "0 0 7 13",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3.5 0L0 6.65854L3.5 9.03659L7 6.65854L3.5 0ZM0 7.45122L3.5 13L7 7.45122L3.5 9.82927L0 7.45122Z",
+    fill: "currentColor"
+  }));
+};
+const PolygonIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "12",
+    height: "10",
+    viewBox: "0 0 12 10",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9.08616 3.05638C8.86684 2.93769 8.58486 2.93769 8.3342 3.05638L6.57963 4.03561L5.38903 4.65875L3.6658 5.63798C3.44648 5.75668 3.16449 5.75668 2.91384 5.63798L1.56658 4.86647C1.34726 4.74777 1.1906 4.51039 1.1906 4.24332V2.75964C1.1906 2.52226 1.31593 2.28487 1.56658 2.1365L2.91384 1.39466C3.13316 1.27596 3.41514 1.27596 3.6658 1.39466L5.01305 2.16617C5.23238 2.28487 5.38903 2.52226 5.38903 2.78932V3.76855L6.57963 3.11573V2.10682C6.57963 1.86944 6.45431 1.63205 6.20366 1.48368L3.69713 0.0890208C3.47781 -0.0296736 3.19582 -0.0296736 2.94517 0.0890208L0.375979 1.51335C0.125326 1.63205 0 1.86944 0 2.10682V4.89614C0 5.13353 0.125326 5.37092 0.375979 5.51929L2.91384 6.91395C3.13316 7.03264 3.41514 7.03264 3.6658 6.91395L5.38903 5.96439L6.57963 5.31157L8.30287 4.36202C8.52219 4.24332 8.80418 4.24332 9.05483 4.36202L10.4021 5.10386C10.6214 5.22255 10.7781 5.45994 10.7781 5.727V7.21068C10.7781 7.44807 10.6527 7.68546 10.4021 7.83383L9.08616 8.57567C8.86684 8.69436 8.58486 8.69436 8.3342 8.57567L6.98694 7.83383C6.76762 7.71513 6.61097 7.47775 6.61097 7.21068V6.26113L5.42037 6.91395V7.89318C5.42037 8.13056 5.54569 8.36795 5.79634 8.51632L8.3342 9.91098C8.55352 10.0297 8.83551 10.0297 9.08616 9.91098L11.624 8.51632C11.8433 8.39763 12 8.16024 12 7.89318V5.07418C12 4.8368 11.8747 4.59941 11.624 4.45104L9.08616 3.05638Z",
+    fill: "currentColor"
+  }));
+};
+const ArbitrumIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "15",
+    viewBox: "0 0 13 15",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M6.32812 9.11274L8.27626 12.1703L10.0758 11.1274L7.51736 7.09473L6.32812 9.11274Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M11.7147 9.90071L11.7134 9.06508L8.91777 4.71094L7.88062 6.47084L10.5794 10.8355L11.5552 10.27C11.6509 10.1924 11.7088 10.0783 11.7149 9.9552L11.7147 9.90071Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M0 10.689L1.37798 11.483L5.96345 4.12927L5.18526 4.10876C4.52221 4.09937 3.80789 4.27178 3.48001 4.80692L0.876042 8.84283L0 10.1888V10.689V10.689Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M8.60996 4.12891L6.55885 4.13638L1.91846 11.7939L3.54045 12.7277L3.98147 11.9797L8.60996 4.12891Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12.5792 4.11856C12.5621 3.68962 12.3298 3.297 11.966 3.06837L6.86695 0.135999C6.5071 -0.0451882 6.05756 -0.0454488 5.69701 0.135912C5.65443 0.157377 0.738305 3.00858 0.738305 3.00858C0.670262 3.04117 0.60474 3.08001 0.543127 3.12416C0.218381 3.35696 0.0204216 3.71864 0 4.11595V10.1888L0.876042 8.84281L0.868395 4.15697C0.869438 4.13985 0.87161 4.1229 0.874565 4.1063C0.894378 3.99603 0.95599 3.89774 1.04863 3.83126C1.07183 3.81475 6.07181 0.920449 6.08772 0.912454C6.20529 0.853449 6.35459 0.852754 6.47225 0.910629L11.5053 3.80563C11.6244 3.88149 11.699 4.01011 11.7057 4.15071V9.95522C11.6996 10.0783 11.6509 10.1924 11.5552 10.2701L10.5794 10.8355L10.0759 11.1273L8.27639 12.1702L6.45139 13.2278C6.35311 13.2633 6.23814 13.2613 6.14073 13.2217L3.98151 11.9798L3.54041 12.7279L5.48089 13.8451C5.54502 13.8816 5.6022 13.9139 5.64913 13.9403C5.72178 13.9811 5.77131 14.0083 5.78878 14.0168C5.92669 14.0838 6.12508 14.1227 6.30392 14.1227C6.46782 14.1227 6.62772 14.0926 6.77901 14.0334L12.0798 10.9636C12.3841 10.7279 12.5631 10.3723 12.5792 9.98729V4.11856Z",
+    fill: "currentColor"
+  }));
+};
+const OptimismIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "7",
+    viewBox: "0 0 13 7",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M2.47789 6.75977C1.74981 6.75977 1.15331 6.58449 0.688289 6.234C0.229446 5.87723 0 5.37025 0 4.71305C0 4.57535 0.0153062 4.40635 0.04587 4.20607C0.125442 3.75544 0.23862 3.21403 0.385452 2.58184C0.801467 0.860615 1.87526 0 3.60672 0C4.07783 0 4.49998 0.0813586 4.87316 0.244124C5.2464 0.400564 5.54006 0.638411 5.7542 0.957617C5.96834 1.27059 6.07544 1.64615 6.07544 2.08428C6.07544 2.21571 6.06013 2.38156 6.02952 2.58184C5.93778 3.1389 5.82764 3.68031 5.69916 4.20607C5.48502 5.06355 5.11487 5.7051 4.58867 6.13072C4.06252 6.55007 3.35893 6.75977 2.47789 6.75977ZM2.60637 5.40781C2.949 5.40781 3.23962 5.30453 3.47824 5.09797C3.72294 4.89146 3.89734 4.57535 4.00135 4.14972C4.14205 3.56138 4.24914 3.04817 4.32253 2.61004C4.34701 2.47856 4.35923 2.344 4.35923 2.20629C4.35923 1.63673 4.06866 1.35195 3.48741 1.35195C3.14479 1.35195 2.85113 1.45523 2.60637 1.66179C2.36775 1.8683 2.19644 2.18442 2.09244 2.61004C1.9823 3.02939 1.87217 3.5426 1.76208 4.14972C1.7376 4.27492 1.72533 4.40635 1.72533 4.54406C1.72533 5.11989 2.019 5.40781 2.60637 5.40781Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.49679 6.66579C6.42948 6.66579 6.37748 6.64387 6.34074 6.60002C6.31017 6.54995 6.301 6.49365 6.31322 6.43103L7.57971 0.328506C7.59192 0.259653 7.62558 0.203306 7.68067 0.159513C7.73571 0.115671 7.79385 0.09375 7.85502 0.09375H10.2962C10.9753 0.09375 11.5198 0.237732 11.9298 0.52565C12.3458 0.813568 12.5538 1.22978 12.5538 1.77432C12.5538 1.93081 12.5355 2.09353 12.4988 2.26252C12.3458 2.98234 12.0369 3.51434 11.5718 3.8586C11.113 4.20282 10.4828 4.37495 9.68132 4.37495H8.44235L8.0202 6.43103C8.00799 6.49988 7.97433 6.55623 7.91924 6.60002C7.8642 6.64387 7.80606 6.66579 7.74489 6.66579H6.49679ZM9.74554 3.07934C10.0025 3.07934 10.2258 3.00735 10.4155 2.86342C10.6113 2.71944 10.7398 2.51288 10.801 2.24374C10.8193 2.13737 10.8285 2.04346 10.8285 1.9621C10.8285 1.7806 10.7765 1.64289 10.6725 1.54898C10.5684 1.44884 10.391 1.39877 10.1402 1.39877H9.0389L8.69014 3.07934H9.74554Z",
+    fill: "currentColor"
+  }));
+};
 
-var styles$5 = {"tabsChainsWraper":"_1shC3","tabsChainsContainer":"_2qXm0","tabsChain":"_3oHDX","loadingContainer":"_18PMf","nftsContainer":"_2hqFr","nftsEmptyState":"_1fFRJ","nftContainer":"_11vPg","nftImageContainer":"_1Ga-A","nftOverlayContainer":"_Ol_Rm","nftOverlayText":"_1v6HO"};
+var styles$6 = {"tabsChainsWraper":"_1shC3","tabsChainsContainer":"_2qXm0","tabsChain":"_3oHDX","loadingContainer":"_18PMf","nftsContainer":"_2hqFr","nftsEmptyState":"_1fFRJ","nftContainer":"_11vPg","nftImageContainer":"_1Ga-A","nftOverlayContainer":"_Ol_Rm","nftOverlayText":"_1v6HO"};
 
 function UpdateProfileModal({
   hide,
@@ -855,7 +1355,7 @@ function UpdateProfileModal({
   const {
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const {
     address,
     chain
@@ -876,7 +1376,7 @@ function UpdateProfileModal({
     }
     if (active) {
       return /*#__PURE__*/React.createElement("div", {
-        className: styles$5.tabsChain,
+        className: styles$6.tabsChain,
         style: {
           background: color,
           color: "#FFF"
@@ -884,7 +1384,7 @@ function UpdateProfileModal({
       }, name);
     } else {
       return /*#__PURE__*/React.createElement("div", {
-        className: styles$5.tabsChain,
+        className: styles$6.tabsChain,
         style: {
           cursor: "pointer"
         },
@@ -898,9 +1398,9 @@ function UpdateProfileModal({
     title: "Update your profile picture",
     description: "Pick your favorite NFT or upload your profile picture."
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$5.tabsChainsWraper
+    className: styles$6.tabsChainsWraper
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$5.tabsChainsContainer,
+    className: styles$6.tabsChainsContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary,
       color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.main ? theme.color.main : defaultTheme.color.main
@@ -952,12 +1452,12 @@ function ListNFTs({
   }
   if (loading) {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$5.loadingContainer
+      className: styles$6.loadingContainer
     }, /*#__PURE__*/React.createElement(LoadingCircle, null));
   }
   if (nfts && nfts.length == 0) {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$5.nftsEmptyState
+      className: styles$6.nftsEmptyState
     }, /*#__PURE__*/React.createElement("p", {
       style: {
         fontSize: 13
@@ -965,7 +1465,7 @@ function ListNFTs({
     }, "You don't have any NFT on this network."));
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$5.nftsContainer
+    className: styles$6.nftsContainer
   }, /*#__PURE__*/React.createElement(Loop, null));
 }
 function NFT({
@@ -975,7 +1475,7 @@ function NFT({
 }) {
   const {
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [hoverNft, isNftHovered] = useHover();
   function setAsNft() {
     console.log("Setting NFT as profile picture.");
@@ -994,19 +1494,19 @@ function NFT({
     callback(_imageUrl, nftDetails);
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$5.nftContainer
+    className: styles$6.nftContainer
   }, /*#__PURE__*/React.createElement("div", {
     ref: hoverNft,
-    className: styles$5.nftImageContainer
+    className: styles$6.nftImageContainer
   }, nft.media[0].thumbnail ? /*#__PURE__*/React.createElement("img", {
     src: nft.media[0].thumbnail
   }) : /*#__PURE__*/React.createElement("img", {
     src: nft.media[0].gateway
   }), isNftHovered && /*#__PURE__*/React.createElement("div", {
-    className: styles$5.nftOverlayContainer,
+    className: styles$6.nftOverlayContainer,
     onClick: () => setAsNft()
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$5.nftOverlayText
+    className: styles$6.nftOverlayText
   }, "Use as profile ", /*#__PURE__*/React.createElement("br", null), " picture", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(EditIcon, {
     style: {
       color: "#FFF"
@@ -1038,7 +1538,7 @@ function useGetUsername(details, address, did) {
   }
 }
 
-var styles$6 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userPfpContainer":"_MC4Lq","userPfpContainerImg":"_1FZoV","userPfpContainerImgEmpty":"_164UE","userBadge":"_3tVDt","userPopupContainer":"_3mkOx","userPopupContent":"_3EuST","userPopupDetailsContainer":"_2ioaU","userPopupDetailsUsername":"_18eQ4","userPopupDetailsBadgeContainer":"_2siDY","userPopupDetailsActionsContainer":"_WjB9N","userPopupFooterContainer":"_3sTma","userPopupFooterFollowers":"_2XlLk","userPopupFooterFollowing":"_1Xdku","userPopupFooterFollowTitle":"_PDHd1","userPopupFooterFollowCount":"_DskLZ","userEditContainer":"_2C8TD","userEditPfpContainer":"_3Ehbv","userEditPfpOverlay":"_1LJ5X","userEditButtonContainer":"_2OSys","userFieldsContainer":"_2ymLO","userFieldsSaveContainer":"_I1aJ0"};
+var styles$7 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userPfpContainer":"_MC4Lq","userPfpContainerImg":"_1FZoV","userPfpContainerImgEmpty":"_164UE","userBadge":"_3tVDt","loadingContainer":"_3JjLt","userPopupContainer":"_3mkOx","userPopupContent":"_3EuST","userPopupDetailsContainer":"_2ioaU","userPopupDetailsUsername":"_18eQ4","userPopupDetailsBadgeContainer":"_2siDY","userPopupDetailsActionsContainer":"_WjB9N","userPopupCredentialsContainer":"_179TI","userPopupFooterContainer":"_3sTma","userPopupFooterFollowers":"_2XlLk","userPopupFooterFollowing":"_1Xdku","userPopupFooterFollowTitle":"_PDHd1","userPopupFooterFollowCount":"_DskLZ","userEditContainer":"_2C8TD","userEditPfpContainer":"_3Ehbv","userEditPfpOverlay":"_1LJ5X","userEditButtonContainer":"_2OSys","userFieldsContainer":"_2ymLO","userFieldsSaveContainer":"_I1aJ0"};
 
 const User = ({
   details,
@@ -1048,14 +1548,14 @@ const User = ({
   const {
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userContainer
+    className: styles$7.userContainer
   }, /*#__PURE__*/React.createElement(UserPfp, {
     height: _height,
     details: _connected ? user : details
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userUsernameContainer
+    className: styles$7.userUsernameContainer
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       display: "flex"
@@ -1072,11 +1572,11 @@ const UserPfp = ({
   var _details$profile, _theme$bg, _theme$color, _details$profile2, _details$profile3;
   const {
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPfpContainer
+    className: styles$7.userPfpContainer
   }, details && details.profile && (_details$profile = details.profile) !== null && _details$profile !== void 0 && _details$profile.pfp ? /*#__PURE__*/React.createElement("img", {
-    className: styles$6.userPfpContainerImg,
+    className: styles$7.userPfpContainerImg,
     src: details.profile.pfp,
     alt: "",
     style: {
@@ -1084,7 +1584,7 @@ const UserPfp = ({
       width: _height2
     }
   }) : /*#__PURE__*/React.createElement("span", {
-    className: styles$6.userPfpContainerImgEmpty,
+    className: styles$7.userPfpContainerImgEmpty,
     style: {
       height: _height2,
       width: _height2,
@@ -1129,7 +1629,7 @@ const UserBadge = ({
 }) => {
   const {
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const {
     address,
     chain
@@ -1137,7 +1637,7 @@ const UserBadge = ({
   if (address) {
     var _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main, _details$metadata;
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$6.userBadge,
+      className: styles$7.userBadge,
       style: {
         background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
         color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
@@ -1151,12 +1651,12 @@ const UserPopup = ({
   details,
   visible
 }) => {
-  var _details$profile4, _details$profile5, _theme$bg2, _theme$border, _theme$color2, _details$profile6, _theme$color3, _theme$border2, _theme$color4, _theme$color5, _theme$color6, _theme$color7;
+  var _details$profile4, _details$profile5, _theme$bg2, _theme$border, _theme$color2, _theme$badges3, _theme$badges3$main, _theme$badges4, _theme$badges4$main, _details$profile6, _theme$color3, _theme$border2, _theme$color4, _theme$color5, _theme$color6, _theme$color7;
   const {
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [locked, setLocked] = useState(false);
   const [vis, setVis] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -1180,9 +1680,9 @@ const UserPopup = ({
     return null;
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupContainer
+    className: styles$7.userPopupContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupContent,
+    className: styles$7.userPopupContent,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg2 = theme.bg) !== null && _theme$bg2 !== void 0 && _theme$bg2.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
@@ -1201,9 +1701,9 @@ const UserPopup = ({
   }, /*#__PURE__*/React.createElement(UserPfp, {
     details: details
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupDetailsContainer
+    className: styles$7.userPopupDetailsContainer
   }, /*#__PURE__*/React.createElement("span", {
-    className: styles$6.userPopupDetailsUsername,
+    className: styles$7.userPopupDetailsUsername,
     style: {
       color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main,
       fontSize: 15
@@ -1211,11 +1711,27 @@ const UserPopup = ({
   }, /*#__PURE__*/React.createElement(Username, {
     details: details
   })), /*#__PURE__*/React.createElement("span", {
-    className: styles$6.userPopupDetailsBadgeContainer
+    className: styles$7.userPopupDetailsBadgeContainer
   }, /*#__PURE__*/React.createElement(UserBadge, {
     details: details
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupDetailsActionsContainer
+  }), (details === null || details === void 0 ? void 0 : details.twitter_details) && /*#__PURE__*/React.createElement("a", {
+    href: "https://twitter.com/" + (details === null || details === void 0 ? void 0 : details.twitter_details.username),
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      marginLeft: 10,
+      color: theme !== null && theme !== void 0 && (_theme$badges3 = theme.badges) !== null && _theme$badges3 !== void 0 && (_theme$badges3$main = _theme$badges3.main) !== null && _theme$badges3$main !== void 0 && _theme$badges3$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
+    }
+  }, /*#__PURE__*/React.createElement(TwitterIcon, null)), (details === null || details === void 0 ? void 0 : details.github_details) && /*#__PURE__*/React.createElement("a", {
+    href: "https://github.com/" + (details === null || details === void 0 ? void 0 : details.github_details.username),
+    target: "_blank",
+    rel: "noreferrer",
+    style: {
+      marginLeft: 10,
+      color: theme !== null && theme !== void 0 && (_theme$badges4 = theme.badges) !== null && _theme$badges4 !== void 0 && (_theme$badges4$main = _theme$badges4.main) !== null && _theme$badges4$main !== void 0 && _theme$badges4$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
+    }
+  }, /*#__PURE__*/React.createElement(GithubIcon, null)))), /*#__PURE__*/React.createElement("div", {
+    className: styles$7.userPopupDetailsActionsContainer
   }, user && user.did == details.did ? /*#__PURE__*/React.createElement(Button, {
     color: "primary",
     onClick: () => _setIsEditing(true)
@@ -1231,48 +1747,37 @@ const UserPopup = ({
       lineHeight: "inherit",
       color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
-  }, details.profile.description)), (details === null || details === void 0 ? void 0 : details.twitter_details) && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: "0.5rem"
-    }
-  }, /*#__PURE__*/React.createElement(Badge, {
-    style: {
-      backgroundColor: getThemeValue("badges", theme, "twitter").background,
-      color: getThemeValue("badges", theme, "twitter").color
-    }
-  }, /*#__PURE__*/React.createElement(TwitterIcon, null), /*#__PURE__*/React.createElement("a", {
-    href: "https://twitter.com/" + (details === null || details === void 0 ? void 0 : details.twitter_details.username),
-    target: "_blank",
-    rel: "noreferrer"
-  }, /*#__PURE__*/React.createElement("span", null, "@", details === null || details === void 0 ? void 0 : details.twitter_details.username)))), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupFooterContainer
+  }, details.profile.description)), /*#__PURE__*/React.createElement(UserCredentials, {
+    details: details
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$7.userPopupFooterContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupFooterFollowers,
+    className: styles$7.userPopupFooterFollowers,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
     }
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$6.userPopupFooterFollowTitle,
+    className: styles$7.userPopupFooterFollowTitle,
     style: {
       fontSize: 13,
       color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Followers"), /*#__PURE__*/React.createElement("p", {
-    className: styles$6.userPopupFooterFollowCount,
+    className: styles$7.userPopupFooterFollowCount,
     style: {
       fontSize: 15,
       color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.main ? theme.color.main : defaultTheme.color.main
     }
   }, details.count_followers)), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userPopupFooterFollowing
+    className: styles$7.userPopupFooterFollowing
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$6.userPopupFooterFollowTitle,
+    className: styles$7.userPopupFooterFollowTitle,
     style: {
       fontSize: 13,
       color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Following"), /*#__PURE__*/React.createElement("p", {
-    className: styles$6.userPopupFooterFollowCount,
+    className: styles$7.userPopupFooterFollowCount,
     style: {
       fontSize: 15,
       color: theme !== null && theme !== void 0 && (_theme$color7 = theme.color) !== null && _theme$color7 !== void 0 && _theme$color7.main ? theme.color.main : defaultTheme.color.main
@@ -1282,6 +1787,404 @@ const UserPopup = ({
     callbackNftUpdate: callbackNftUpdate
   }));
 };
+function UserCredentials({
+  details
+}) {
+  var _theme$color8;
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  const [credentials, setCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(false);
+  useEffect(() => {
+    loadCredentials();
+  }, []);
+  async function loadCredentials() {
+    setCredentialsLoading(true);
+    let {
+      data,
+      error,
+      status
+    } = await orbis.api.rpc("get_verifiable_credentials", {
+      q_subject: details.did,
+      q_min_weight: 10
+    });
+    setCredentials(data);
+    setCredentialsLoading(false);
+  }
+  const LoopCredentials = () => {
+    if (credentials && credentials.length > 0) {
+      return credentials.map((credential, key) => {
+        return /*#__PURE__*/React.createElement(UserCredential, {
+          credential: credential,
+          key: key
+        });
+      });
+    } else {
+      var _theme$bg3;
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Alert, {
+        title: "User doesn't have any credentials yet.",
+        style: {
+          backgroundColor: theme !== null && theme !== void 0 && (_theme$bg3 = theme.bg) !== null && _theme$bg3 !== void 0 && _theme$bg3.main ? theme.bg.main : defaultTheme.bg.main
+        }
+      }));
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 15,
+      marginBottom: 15
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: styles$7.userPopupFooterFollowTitle,
+    style: {
+      fontSize: 13,
+      color: theme !== null && theme !== void 0 && (_theme$color8 = theme.color) !== null && _theme$color8 !== void 0 && _theme$color8.secondary ? theme.color.secondary : defaultTheme.color.secondary
+    }
+  }, "Credentials:"), /*#__PURE__*/React.createElement("div", {
+    className: styles$7.userPopupCredentialsContainer
+  }, credentialsLoading ? /*#__PURE__*/React.createElement("div", {
+    className: styles$7.loadingContainer,
+    style: {
+      color: getThemeValue("color", theme, "main")
+    }
+  }, /*#__PURE__*/React.createElement(LoadingCircle, null)) : /*#__PURE__*/React.createElement(LoopCredentials, null)));
+}
+function UserCredential({
+  credential,
+  showTooltip = true
+}) {
+  const {
+    theme
+  } = useOrbis();
+  function clean(str) {
+    if (str) {
+      return str.toLowerCase().replaceAll(" ", "").replaceAll("-", "_");
+    }
+  }
+  const CredentialIcon = () => {
+    var _credential$content, _credential$content$c, _credential$content2, _credential$content2$;
+    let protocol = (_credential$content = credential.content) === null || _credential$content === void 0 ? void 0 : (_credential$content$c = _credential$content.credentialSubject) === null || _credential$content$c === void 0 ? void 0 : _credential$content$c.protocol;
+    if (protocol) {
+      switch (clean(protocol)) {
+        case "opensea":
+          return /*#__PURE__*/React.createElement(OpenSeaIcon, null);
+        case "uniswap":
+          return /*#__PURE__*/React.createElement(UniswapIcon, null);
+        case "thegraph":
+          return /*#__PURE__*/React.createElement(TheGraphIcon, null);
+        case "lido":
+          return /*#__PURE__*/React.createElement(LidoIcon, null);
+        case "sushiswap":
+          return /*#__PURE__*/React.createElement(SushiIcon, null);
+        case "hop":
+          return /*#__PURE__*/React.createElement(HopIcon, null);
+        case "snapshot":
+          return /*#__PURE__*/React.createElement(SnapshotIcon, null);
+        case "nonces":
+          switch ((_credential$content2 = credential.content) === null || _credential$content2 === void 0 ? void 0 : (_credential$content2$ = _credential$content2.credentialSubject) === null || _credential$content2$ === void 0 ? void 0 : _credential$content2$.type) {
+            case "active-wallet-mainnet":
+              return /*#__PURE__*/React.createElement(EthereumIcon, null);
+            case "active-wallet-polygon":
+              return /*#__PURE__*/React.createElement(PolygonIcon, null);
+            case "active-wallet-arbitrum":
+              return /*#__PURE__*/React.createElement(ArbitrumIcon, null);
+            case "active-wallet-optimism":
+              return /*#__PURE__*/React.createElement(OptimismIcon, null);
+            default:
+              return null;
+          }
+        default:
+          return null;
+      }
+    } else {
+      return null;
+    }
+  };
+  if (credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
+    if (credential.content.credentialSubject.protocol == "nonces") {
+      return /*#__PURE__*/React.createElement(Badge, {
+        style: getStyle("badge", theme, clean(credential.content.credentialSubject.type)),
+        tooltip: showTooltip ? credential.content.credentialSubject.description : null
+      }, /*#__PURE__*/React.createElement(CredentialIcon, null), credential.content.credentialSubject.name);
+    } else {
+      var _credential$content3;
+      return /*#__PURE__*/React.createElement(Badge, {
+        style: getStyle("badge", theme, clean((_credential$content3 = credential.content) === null || _credential$content3 === void 0 ? void 0 : _credential$content3.credentialSubject.protocol)),
+        tooltip: showTooltip ? credential.content.credentialSubject.description : null
+      }, /*#__PURE__*/React.createElement(CredentialIcon, null), credential.content.credentialSubject.name);
+    }
+  } else if (credential.issuer == "did:key:z6mkghvghlobledj1bgrlhs4lpgjavbma1tn2zcryqmyu5lc") {
+    return /*#__PURE__*/React.createElement(Badge, {
+      style: {
+        backgroundColor: "#FFF"
+      }
+    }, /*#__PURE__*/React.createElement(GitcoinProvider, {
+      credential: credential
+    }));
+  }
+}
+const GitcoinProvider = ({
+  credential
+}) => {
+  var _credential$content4, _credential$content4$, _credential$content5, _credential$content5$, _credential$content7, _credential$content7$, _credential$content9, _credential$content9$, _credential$content12, _credential$content13, _credential$content16, _credential$content17, _credential$content20, _credential$content21, _credential$content24, _credential$content25, _credential$content28, _credential$content29, _credential$content32, _credential$content33;
+  let provider = /*#__PURE__*/React.createElement("div", {
+    className: "verified-credential-type"
+  }, /*#__PURE__*/React.createElement("span", null, (_credential$content4 = credential.content) === null || _credential$content4 === void 0 ? void 0 : (_credential$content4$ = _credential$content4.credentialSubject) === null || _credential$content4$ === void 0 ? void 0 : _credential$content4$.provider));
+  if ((_credential$content5 = credential.content) !== null && _credential$content5 !== void 0 && (_credential$content5$ = _credential$content5.credentialSubject) !== null && _credential$content5$ !== void 0 && _credential$content5$.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
+    var _credential$content6, _credential$content6$;
+    let numGrantsContributeTo = (_credential$content6 = credential.content) === null || _credential$content6 === void 0 ? void 0 : (_credential$content6$ = _credential$content6.credentialSubject) === null || _credential$content6$ === void 0 ? void 0 : _credential$content6$.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
+    provider = /*#__PURE__*/React.createElement("div", {
+      className: "verified-credential-type"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "inline-block break-word"
+    }, "Contributed to at least ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold mleft-3"
+    }, numGrantsContributeTo), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("img", {
+      src: "/img/icons/gitcoin-logo.png",
+      height: "19",
+      className: "mleft-3 mright-4"
+    }), " grants")));
+  }
+  if ((_credential$content7 = credential.content) !== null && _credential$content7 !== void 0 && (_credential$content7$ = _credential$content7.credentialSubject) !== null && _credential$content7$ !== void 0 && _credential$content7$.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
+    var _credential$content8, _credential$content8$;
+    let totalContributionAmountGte = (_credential$content8 = credential.content) === null || _credential$content8 === void 0 ? void 0 : (_credential$content8$ = _credential$content8.credentialSubject) === null || _credential$content8$ === void 0 ? void 0 : _credential$content8$.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
+    provider = /*#__PURE__*/React.createElement("div", {
+      className: "verified-credential-type"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "inline-block break-word"
+    }, "Contributed more than ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold mleft-3"
+    }, totalContributionAmountGte, " ETH to "), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("img", {
+      src: "/img/icons/gitcoin-logo.png",
+      height: "19",
+      className: "mleft-3 mright-4"
+    }), " grants")));
+  }
+  if ((_credential$content9 = credential.content) !== null && _credential$content9 !== void 0 && (_credential$content9$ = _credential$content9.credentialSubject) !== null && _credential$content9$ !== void 0 && _credential$content9$.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
+    var _credential$content10, _credential$content11;
+    let numRoundsContributedToGte = (_credential$content10 = credential.content) === null || _credential$content10 === void 0 ? void 0 : (_credential$content11 = _credential$content10.credentialSubject) === null || _credential$content11 === void 0 ? void 0 : _credential$content11.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
+    provider = /*#__PURE__*/React.createElement("div", {
+      className: "verified-credential-type"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "inline-block break-word"
+    }, "Contributed to at least ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold mleft-3"
+    }, numRoundsContributedToGte, " "), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("img", {
+      src: "/img/icons/gitcoin-logo.png",
+      height: "19",
+      className: "mleft-3 mright-4"
+    }), " rounds")));
+  }
+  if ((_credential$content12 = credential.content) !== null && _credential$content12 !== void 0 && (_credential$content13 = _credential$content12.credentialSubject) !== null && _credential$content13 !== void 0 && _credential$content13.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
+    var _credential$content14, _credential$content15;
+    let numGr14ContributionsGte = (_credential$content14 = credential.content) === null || _credential$content14 === void 0 ? void 0 : (_credential$content15 = _credential$content14.credentialSubject) === null || _credential$content15 === void 0 ? void 0 : _credential$content15.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
+    provider = /*#__PURE__*/React.createElement("div", {
+      className: "verified-credential-type"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "inline-block break-word"
+    }, "Contributed to at least ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold mleft-3"
+    }, numGr14ContributionsGte, " "), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("img", {
+      src: "/img/icons/gitcoin-logo.png",
+      height: "19",
+      className: "mleft-3 mright-4"
+    }), " grant(s) in GR14")));
+  }
+  if ((_credential$content16 = credential.content) !== null && _credential$content16 !== void 0 && (_credential$content17 = _credential$content16.credentialSubject) !== null && _credential$content17 !== void 0 && _credential$content17.provider.includes('TwitterFollowerGT')) {
+    var _credential$content18, _credential$content19;
+    let countTwitterFollowers = (_credential$content18 = credential.content) === null || _credential$content18 === void 0 ? void 0 : (_credential$content19 = _credential$content18.credentialSubject) === null || _credential$content19 === void 0 ? void 0 : _credential$content19.provider.replace('TwitterFollowerGT', '');
+    provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
+      style: {
+        marginRight: 4,
+        color: "#1DA1F2"
+      }
+    }), /*#__PURE__*/React.createElement("span", null, "Followers ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold"
+    }, ` > `), " ", countTwitterFollowers));
+  }
+  if ((_credential$content20 = credential.content) !== null && _credential$content20 !== void 0 && (_credential$content21 = _credential$content20.credentialSubject) !== null && _credential$content21 !== void 0 && _credential$content21.provider.includes('TwitterFollowerGTE')) {
+    var _credential$content22, _credential$content23;
+    let countTwitterFollowersGte = (_credential$content22 = credential.content) === null || _credential$content22 === void 0 ? void 0 : (_credential$content23 = _credential$content22.credentialSubject) === null || _credential$content23 === void 0 ? void 0 : _credential$content23.provider.replace('TwitterFollowerGTE', '');
+    provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
+      style: {
+        marginRight: 4,
+        color: "#1DA1F2"
+      }
+    }), /*#__PURE__*/React.createElement("span", null, "Followers ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold"
+    }, ` > `), " ", countTwitterFollowersGte));
+  }
+  if ((_credential$content24 = credential.content) !== null && _credential$content24 !== void 0 && (_credential$content25 = _credential$content24.credentialSubject) !== null && _credential$content25 !== void 0 && _credential$content25.provider.includes('TwitterTweetGT')) {
+    var _credential$content26, _credential$content27;
+    let countTweets = (_credential$content26 = credential.content) === null || _credential$content26 === void 0 ? void 0 : (_credential$content27 = _credential$content26.credentialSubject) === null || _credential$content27 === void 0 ? void 0 : _credential$content27.provider.replace('TwitterTweetGT', '');
+    provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
+      style: {
+        marginRight: 4,
+        color: "#1DA1F2"
+      }
+    }), /*#__PURE__*/React.createElement("span", null, "Tweets ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold"
+    }, ` > `), " ", countTweets));
+  }
+  if ((_credential$content28 = credential.content) !== null && _credential$content28 !== void 0 && (_credential$content29 = _credential$content28.credentialSubject) !== null && _credential$content29 !== void 0 && _credential$content29.provider.includes('gtcPossessionsGte')) {
+    var _credential$content30, _credential$content31;
+    let countGtc = (_credential$content30 = credential.content) === null || _credential$content30 === void 0 ? void 0 : (_credential$content31 = _credential$content30.credentialSubject) === null || _credential$content31 === void 0 ? void 0 : _credential$content31.provider.replace('gtcPossessionsGte#', '');
+    provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, "Owns at least ", /*#__PURE__*/React.createElement("span", {
+      className: "primary bold"
+    }, countGtc)), /*#__PURE__*/React.createElement("img", {
+      src: "/img/icons/gtc-logo.webp",
+      height: "15",
+      className: "mright-4 mleft-4"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "primary bold"
+    }, "GTC"));
+  }
+  switch ((_credential$content32 = credential.content) === null || _credential$content32 === void 0 ? void 0 : (_credential$content33 = _credential$content32.credentialSubject) === null || _credential$content33 === void 0 ? void 0 : _credential$content33.provider) {
+    case 'Twitter':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement(TwitterIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3,
+          color: "#1DA1F2"
+        }
+      }), " account");
+      break;
+    case 'Github':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement(GithubIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " account");
+      break;
+    case 'StarredGithubRepoProvider':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has stars on ", /*#__PURE__*/React.createElement(GithubIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " repositories");
+      break;
+    case 'TenOrMoreGithubFollowers':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has at least 10 ", /*#__PURE__*/React.createElement(GithubIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " followers");
+      break;
+    case 'ForkedGithubRepoProvider':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Forked some ", /*#__PURE__*/React.createElement(GithubIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " repositories");
+      break;
+    case 'FiveOrMoreGithubRepos':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Owns at least ", /*#__PURE__*/React.createElement("span", {
+        className: "primary bold"
+      }, "5"), " ", /*#__PURE__*/React.createElement(GithubIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " repositories");
+      break;
+    case 'Poh':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Human on Proof of Humanity");
+      break;
+    case 'Ens':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has an ENS name");
+      break;
+    case 'Discord':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement("img", {
+        src: "/img/icons/discord-logo.png",
+        height: "17",
+        className: "mleft-4 mright-4"
+      }), " account");
+      break;
+    case 'Linkedin':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement("img", {
+        src: "/img/icons/linkedin-logo.png",
+        height: "17",
+        className: "mleft-4 mright-4"
+      }), " account");
+      break;
+    case 'Google':
+      provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement(GoogleIcon, {
+        style: {
+          marginLeft: 3,
+          marginRight: 3
+        }
+      }), " account");
+      break;
+    case 'Facebook':
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Has a ", /*#__PURE__*/React.createElement("img", {
+        src: "/img/icons/facebook-logo.png",
+        height: "17",
+        className: "mleft-4 mright-4"
+      }), " account"));
+      break;
+    case 'FacebookProfilePicture':
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Has a ", /*#__PURE__*/React.createElement("img", {
+        src: "/img/icons/facebook-logo.png",
+        height: "17",
+        className: "mleft-4 mright-4"
+      }), " profile picture"));
+      break;
+    case 'Brightid':
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Verified on ", /*#__PURE__*/React.createElement("img", {
+        src: "/img/icons/brightid-logo.png",
+        height: "17",
+        className: "mleft-4 mright-4"
+      })));
+      break;
+    case "EthGTEOneTxnProvider":
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Wallet with ", /*#__PURE__*/React.createElement("span", {
+        className: "primary bold mleft-4 mright-4"
+      }, ` >= 1 `), " Txn"));
+      break;
+    case "ethPossessionsGte#1":
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Wallet with ", /*#__PURE__*/React.createElement("span", {
+        className: "primary bold mleft-4 mright-4"
+      }, ` >= 1 `), " ETH"));
+      break;
+    case "SnapshotVotesProvider":
+      provider = /*#__PURE__*/React.createElement("div", {
+        className: "verified-credential-type"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "inline-block break-word"
+      }, "Voted on ", /*#__PURE__*/React.createElement("span", {
+        className: "primary bold mleft-4 mright-4"
+      }, `Snapshot`)));
+      break;
+  }
+  return provider;
+};
 function Follow({
   did
 }) {
@@ -1289,7 +2192,7 @@ function Follow({
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [loading, setLoading] = useState(false);
   const [following, setFollowing] = useState(false);
   const [followHoverRef, isFollowHovered] = useHover();
@@ -1360,7 +2263,7 @@ function UserEditProfile({
     user,
     setUser,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [username, setUsername] = useState(user === null || user === void 0 ? void 0 : (_user$profile = user.profile) === null || _user$profile === void 0 ? void 0 : _user$profile.username);
   const [description, setDescription] = useState(user === null || user === void 0 ? void 0 : (_user$profile2 = user.profile) === null || _user$profile2 === void 0 ? void 0 : _user$profile2.description);
   const [status, setStatus] = useState(0);
@@ -1417,9 +2320,9 @@ function UserEditProfile({
     }
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userEditContainer
+    className: styles$7.userEditContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userEditPfpContainer
+    className: styles$7.userEditPfpContainer
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
@@ -1434,7 +2337,7 @@ function UserEditProfile({
     },
     showBadge: false
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userEditPfpOverlay,
+    className: styles$7.userEditPfpOverlay,
     style: {
       background: "rgba(0,0,0,0.5)",
       top: 0,
@@ -1443,10 +2346,10 @@ function UserEditProfile({
     },
     onClick: () => setShowProfileModal(true)
   }, /*#__PURE__*/React.createElement(EditIcon, null)))), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userEditButtonContainer,
+    className: styles$7.userEditButtonContainer,
     onClick: () => setIsEditing(false)
   }, /*#__PURE__*/React.createElement(Button, null, "Cancel"))), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userFieldsContainer
+    className: styles$7.userFieldsContainer
   }, /*#__PURE__*/React.createElement(Input, {
     type: "text",
     name: "username",
@@ -1465,7 +2368,7 @@ function UserEditProfile({
       marginTop: "0.5rem"
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$6.userFieldsSaveContainer
+    className: styles$7.userFieldsSaveContainer
   }, /*#__PURE__*/React.createElement(SaveButton, null)));
 }
 
@@ -1478,7 +2381,7 @@ function ConnectModal({
   const {
     orbis,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const wrapperRef = useRef(null);
   useOutsideClick(wrapperRef, () => hide());
   return /*#__PURE__*/React.createElement(Modal, {
@@ -1542,7 +2445,7 @@ const WalletButton = ({
     magic,
     user,
     setUser
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [status, setStatus] = useState(0);
   async function connect() {
     var _window$phantom, _window$phantom$solan, _window$phantom2;
@@ -1769,7 +2672,7 @@ const EmailIcon = ({
   }));
 };
 
-var styles$7 = {"connectBtn":"_1jNTa"};
+var styles$8 = {"connectBtn":"_1jNTa"};
 
 function ConnectButton({
   lit = false
@@ -1779,7 +2682,7 @@ function ConnectButton({
     user,
     theme,
     setUser
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [connecting, setConnecting] = useState(false);
   const [connectModalVis, setConnectModalVis] = useState(false);
   useEffect(() => {
@@ -1798,7 +2701,7 @@ function ConnectButton({
     }
   }, [user]);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-    className: styles$7.connectBtn,
+    className: styles$8.connectBtn,
     style: {
       ...getStyle("button-main", theme, "main"),
       width: "100%",
@@ -1816,8 +2719,9 @@ function ConnectButton({
   }));
 }
 
-var styles$8 = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3"};
+var styles$9 = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
 
+let mentions = [];
 function Postbox({
   showPfp = true,
   connecting,
@@ -1827,23 +2731,27 @@ function Postbox({
   defaultPost,
   setEditPost,
   ctaTitle = "Comment",
-  ctaStyle = styles$8.postboxShareContainerBtn,
+  ctaStyle = styles$9.postboxShareContainerBtn,
   placeholder = "Add your comment..."
 }) {
   const {
-    orbis,
     user,
-    context,
+    setUser,
+    orbis,
+    theme,
+    context
+  } = useOrbis();
+  const {
     comments,
-    setComments,
-    theme
+    setComments
   } = useContext(GlobalContext);
   const [sharing, setSharing] = useState(false);
-  const postbox = useRef();
   const [hoverRef, isHovered] = useHover();
-  useEffect(() => {
-    console.log("isHovered profile in postbox:", isHovered);
-  }, [isHovered]);
+  const [body, setBody] = useState("");
+  const postbox = useRef();
+  const [mentionsBoxVis, setMentionsBoxVis] = useState(false);
+  const [focusOffset, setFocusOffset] = useState(null);
+  const [focusNode, setFocusNode] = useState(null);
   useEffect(() => {
     if (defaultPost) {
       if (postbox.current) {
@@ -1852,6 +2760,7 @@ function Postbox({
     }
   }, [defaultPost]);
   const handleSubmit = async event => {
+    console.log("Submitting form.");
     event.preventDefault();
     if (sharing) {
       console.log("A request is already being processed.");
@@ -1859,7 +2768,6 @@ function Postbox({
     }
     setSharing(true);
     const formData = new FormData(event.target);
-    let body = formData.get("body");
     let master = null;
     if (reply && reply.content.master) {
       master = reply.content.master;
@@ -1870,9 +2778,11 @@ function Postbox({
       body: body,
       context: context,
       master: master,
-      reply_to: reply ? reply.stream_id : null
+      reply_to: reply ? reply.stream_id : null,
+      mentions: mentions
     };
     let res = await orbis.createPost(_content);
+    console.log("res:", res);
     if (res.status == 200) {
       setComments([{
         timestamp: getTimestamp(),
@@ -1888,15 +2798,69 @@ function Postbox({
       if (callback) {
         callback();
       }
+      setBody(null);
+      mentions = [];
+      if (postbox.current) {
+        postbox.current.textContent = "";
+      }
+    } else {
+      console.log("Error submitting form:", res);
     }
     setSharing(false);
   };
+  async function handleInput(e) {
+    var _user$nonces;
+    let inputValue = e.currentTarget.innerText;
+    let keyCode = e.nativeEvent.data;
+    switch (keyCode) {
+      case "@":
+        if (user.nonces && ((_user$nonces = user.nonces) === null || _user$nonces === void 0 ? void 0 : _user$nonces.global) <= 0 && user.a_r <= 1) {
+          return;
+        } else {
+          setMentionsBoxVis(true);
+        }
+        console.log("Should show mention box!");
+        break;
+      case " ":
+        postbox === null || postbox === void 0 ? void 0 : postbox.current.focus();
+        break;
+      default:
+        setMentionsBoxVis(false);
+        break;
+    }
+    setBody(inputValue);
+    saveCaretPos(document.getSelection());
+  }
+  function saveCaretPos(_sel) {
+    setFocusOffset(_sel.focusOffset);
+    setFocusNode(_sel.focusNode);
+  }
+  function addMention(mention) {
+    var _mention$profile, _mention$profile$user;
+    console.log("Adding user:", mention);
+    restoreCaretPos();
+    let _mentionName = (_mention$profile = mention.profile) === null || _mention$profile === void 0 ? void 0 : (_mention$profile$user = _mention$profile.username) === null || _mention$profile$user === void 0 ? void 0 : _mention$profile$user.replaceAll(" ", "");
+    mentions.push({
+      username: "@" + _mentionName,
+      did: mention.did
+    });
+    var _mentionTag = "<span style='color: " + getThemeValue("color", theme, "active") + "; font-weight: " + 500 + ";' class='mention' contentEditable='false' data-did='" + mention.did + "'>@" + _mentionName + "</span>&nbsp;";
+    document.execCommand("delete", null, false);
+    document.execCommand("insertHTML", false, _mentionTag);
+    console.log("Trying to paste mention:", _mentionTag);
+    setMentionsBoxVis(false);
+  }
+  function restoreCaretPos() {
+    postbox.current.focus();
+    var sel = document.getSelection();
+    sel.collapse(focusNode, focusOffset);
+  }
   if (user) {
     var _theme$color, _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main;
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxGlobalContainer
+      className: styles$9.postboxGlobalContainer
     }, showPfp && /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxUserContainer,
+      className: styles$9.postboxUserContainer,
       ref: hoverRef
     }, /*#__PURE__*/React.createElement(UserPfp, {
       details: user
@@ -1904,48 +2868,53 @@ function Postbox({
       visible: isHovered,
       details: user
     })), /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxContainer
+      className: styles$9.postboxContainer
     }, /*#__PURE__*/React.createElement("form", {
       style: {
         width: "100%"
       },
       onSubmit: event => handleSubmit(event)
     }, /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postbox,
+      className: styles$9.postbox,
       style: {
         borderColor: getThemeValue("input", theme).border,
         backgroundColor: getThemeValue("input", theme, sharing).background
       }
     }, reply && /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxReplyContainer
+      className: styles$9.postboxReplyContainer
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         marginRight: "0.25rem",
         color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.secondary ? theme.color.secondary : defaultTheme.color.secondary
       }
     }, "Replying to:"), /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxReplyBadge,
+      className: styles$9.postboxReplyBadge,
       style: {
         background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
         color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
       }
     }, /*#__PURE__*/React.createElement(Username, {
       details: reply.creator_details
-    }))), /*#__PURE__*/React.createElement("textarea", {
-      autofocus: true,
+    }))), /*#__PURE__*/React.createElement("div", {
+      contentEditable: true,
+      autoFocus: true,
+      "data-placeholder": placeholder,
       ref: postbox,
       rows: rows,
       name: "body",
-      id: "body",
-      className: styles$8.postboxInput,
+      id: "postbox-area",
+      value: body,
+      onChange: e => setBody(e.target.value),
+      className: styles$9.postboxInput,
       style: {
         fontSize: 15,
         color: getThemeValue("input", theme, sharing).color
       },
       placeholder: placeholder,
-      disabled: sharing
+      disabled: sharing,
+      onInput: e => handleInput(e)
     }), /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxShareContainer
+      className: styles$9.postboxShareContainer
     }, sharing ? /*#__PURE__*/React.createElement("button", {
       type: "submit",
       className: ctaStyle,
@@ -1960,10 +2929,12 @@ function Postbox({
       type: "submit",
       className: ctaStyle,
       style: getStyle("button-main", theme, "main")
-    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null))))))));
+    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null)))))), mentionsBoxVis && /*#__PURE__*/React.createElement(MentionsBox, {
+      add: addMention
+    })));
   } else {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$8.postboxConnectContainer
+      className: styles$9.postboxConnectContainer
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         width: "60%"
@@ -1973,6 +2944,107 @@ function Postbox({
     })));
   }
 }
+const MentionsBox = ({
+  add
+}) => {
+  var _theme$bg, _theme$border, _theme$border2, _theme$color3;
+  const {
+    orbis,
+    user,
+    theme
+  } = useContext(GlobalContext);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    if (search && search.length >= 2) {
+      searchUsers();
+    }
+    async function searchUsers() {
+      setLoading(true);
+      let {
+        data,
+        error,
+        status
+      } = await orbis.getProfilesByUsername(search);
+      setLoading(false);
+      if (error) {
+        console.log("Error querying Orbis usernames: ", error);
+      }
+      if (data) {
+        setUsers(data);
+      } else {
+        setUsers([]);
+      }
+    }
+  }, [search]);
+  const LoopUsers = () => {
+    if (!search || search == "" || search.length < 2) {
+      return null;
+    }
+    if (loading) {
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.loadingContainer,
+        style: {
+          color: getThemeValue("color", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement(LoadingCircle, null));
+    } else {
+      if (users.length > 0) {
+        return users.map((_user, key) => {
+          var _theme$color2;
+          return /*#__PURE__*/React.createElement("div", {
+            className: styles$9.userResultContainer,
+            onClick: () => add(_user.details),
+            style: {
+              fontSize: 15,
+              color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main
+            },
+            key: key
+          }, /*#__PURE__*/React.createElement(User, {
+            details: _user.details,
+            key: key,
+            isLink: false
+          }));
+        });
+      } else {
+        return /*#__PURE__*/React.createElement("p", null, "No users");
+      }
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$9.mentionsBoxContainer,
+    style: {
+      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
+      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$9.mentionsBoxInputContainer
+  }, /*#__PURE__*/React.createElement(Input, {
+    autofocus: true,
+    type: "text",
+    name: "username",
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: "Search username",
+    style: {
+      ...getStyle("input", theme, status == 1),
+      borderRadius: 0,
+      borderWidth: 0,
+      borderBottomWidth: 1
+    }
+  })), search && search.length >= 2 ? /*#__PURE__*/React.createElement("div", {
+    className: styles$9.userResults,
+    style: {
+      borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
+    }
+  }, /*#__PURE__*/React.createElement(LoopUsers, null)) : /*#__PURE__*/React.createElement("p", {
+    className: styles$9.mentionsBoxEmptyState,
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
+    }
+  }, "Search by username to mention someone."));
+};
 const SendIcon = () => {
   return /*#__PURE__*/React.createElement("svg", {
     width: "13",
@@ -1989,18 +3061,19 @@ const SendIcon = () => {
   }));
 };
 
-var styles$9 = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
+var styles$a = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
 
-const Post = ({
-  comment,
-  characterLimit: _characterLimit = null
-}) => {
-  var _theme$color, _theme$color2, _theme$color3, _theme$color4, _comment$indexing_met, _comment$creator_deta, _theme$color5, _theme$color6;
+function Post({
+  post,
+  characterLimit = null
+}) {
+  var _theme$color, _theme$color2, _theme$color3, _theme$color4, _theme$color5;
   const {
-    orbis,
     user,
+    setUser,
+    orbis,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [editPost, setEditPost] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [reply, setReply] = useState();
@@ -2016,18 +3089,18 @@ const Post = ({
     let {
       data,
       error
-    } = await orbis.getReaction(comment.stream_id, user.did);
+    } = await orbis.getReaction(post.stream_id, user.did);
     if (data) {
       setUserReaction(data.type);
     }
   }
   async function like(type) {
     if (!user) {
-      alert("You must be connected to react to comments.");
+      alert("You must be connected to react to posts.");
       return;
     }
     setUserReaction(type);
-    let res = await orbis.react(comment.stream_id, type);
+    let res = await orbis.react(post.stream_id, type);
     switch (res.status) {
       case 300:
         console.log("Error reacting to the post:", res);
@@ -2041,40 +3114,40 @@ const Post = ({
     return null;
   }
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postContainer
+    className: styles$a.postContainer
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative"
     },
     ref: hoverRef
   }, /*#__PURE__*/React.createElement(UserPfp, {
-    details: comment.creator_details
+    details: post.creator_details
   }), /*#__PURE__*/React.createElement(UserPopup, {
     visible: isHovered,
-    details: comment.creator_details
+    details: post.creator_details
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postDetailsContainer
+    className: styles$a.postDetailsContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postDetailsContainerMetadata
+    className: styles$a.postDetailsContainerMetadata
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postDetailsContainerUser
+    className: styles$a.postDetailsContainerUser
   }, /*#__PURE__*/React.createElement("span", {
-    className: styles$9.postDetailsContainerUsername,
+    className: styles$a.postDetailsContainerUsername,
     style: {
       fontSize: 15,
       color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.main ? theme.color.main : defaultTheme.color.main
     }
   }, /*#__PURE__*/React.createElement(Username, {
-    details: comment.creator_details
+    details: post.creator_details
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$9.hideMobile,
+    className: styles$a.hideMobile,
     style: {
       marginLeft: "0.5rem"
     }
   }, /*#__PURE__*/React.createElement(UserBadge, {
-    details: comment.creator_details
+    details: post.creator_details
   }))), /*#__PURE__*/React.createElement("p", {
-    className: styles$9.postDetailsContainerTimestamp,
+    className: styles$a.postDetailsContainerTimestamp,
     style: {
       fontSize: 12,
       color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.secondary ? theme.color.secondary : defaultTheme.color.secondary
@@ -2084,10 +3157,10 @@ const Post = ({
       display: "flex",
       fontSize: 12
     },
-    date: comment.timestamp * 1000,
+    date: post.timestamp * 1000,
     locale: "en-US"
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$9.hideMobile
+    className: styles$a.hideMobile
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: "0.5rem",
@@ -2098,10 +3171,10 @@ const Post = ({
       textDecoration: "none",
       color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
     },
-    href: "https://cerscan.com/mainnet/stream/" + comment.stream_id,
+    href: "https://cerscan.com/mainnet/stream/" + post.stream_id,
     rel: "noreferrer",
     target: "_blank"
-  }, "Proof")), user && user.did == comment.creator && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+  }, "Proof")), user && user.did == post.creator && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: "0.5rem",
       marginRight: "0.5rem"
@@ -2118,7 +3191,7 @@ const Post = ({
     },
     onClick: () => setPostMenuVis(true)
   }, /*#__PURE__*/React.createElement(MenuHorizontal, null)), postMenuVis && /*#__PURE__*/React.createElement(PostMenu, {
-    stream_id: comment.stream_id,
+    stream_id: post.stream_id,
     setPostMenuVis: setPostMenuVis,
     setEditPost: setEditPost,
     setIsDeleted: setIsDeleted
@@ -2128,34 +3201,26 @@ const Post = ({
     }
   }, /*#__PURE__*/React.createElement(Postbox, {
     showPfp: false,
-    defaultPost: comment,
+    defaultPost: post,
     reply: reply,
     callback: callbackShared,
     rows: "1",
     ctaTitle: "Edit",
-    ctaStyle: styles$9.postReplyCta,
+    ctaStyle: styles$a.postReplyCta,
     setEditPost: setEditPost
   })) : /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column"
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postContent,
-    style: {
-      fontSize: 15,
-      color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.main ? theme.color.main : defaultTheme.color.main
-    },
-    dangerouslySetInnerHTML: {
-      __html: marked.parse(comment.content.body)
-    }
-  }), ((_comment$indexing_met = comment.indexing_metadata) === null || _comment$indexing_met === void 0 ? void 0 : _comment$indexing_met.urlMetadata) && ((_comment$creator_deta = comment.creator_details) === null || _comment$creator_deta === void 0 ? void 0 : _comment$creator_deta.a_r) > 15 && /*#__PURE__*/React.createElement(LinkCard, {
-    metadata: comment.indexing_metadata.urlMetadata
+  }, /*#__PURE__*/React.createElement(PostBody, {
+    post: post,
+    characterLimit: characterLimit
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postActionsContainer
+    className: styles$a.postActionsContainer
   }, reply != null ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: styles$9.postActionButton,
+    className: styles$a.postActionButton,
     style: {
       color: "#4E75F6"
     },
@@ -2164,11 +3229,11 @@ const Post = ({
     type: "full"
   }), "Reply") : /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: styles$9.postActionButton,
+    className: styles$a.postActionButton,
     style: {
-      color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary
     },
-    onClick: () => setReply(comment)
+    onClick: () => setReply(post)
   }, /*#__PURE__*/React.createElement(ReplyIcon, {
     type: "line"
   }), "Reply"), /*#__PURE__*/React.createElement("span", {
@@ -2178,7 +3243,7 @@ const Post = ({
       display: "flex"
     }
   }, userReaction == "like" ? /*#__PURE__*/React.createElement("button", {
-    className: styles$9.postActionButton,
+    className: styles$a.postActionButton,
     style: {
       color: "#4E75F6"
     },
@@ -2186,9 +3251,9 @@ const Post = ({
   }, /*#__PURE__*/React.createElement(LikeIcon, {
     type: "full"
   }), "Liked") : /*#__PURE__*/React.createElement("button", {
-    className: styles$9.postActionButton,
+    className: styles$a.postActionButton,
     style: {
-      color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.secondary ? theme.color.secondary : defaultTheme.color.secondary
     },
     onClick: () => like("like")
   }, /*#__PURE__*/React.createElement(LikeIcon, {
@@ -2203,8 +3268,53 @@ const Post = ({
     placeholder: "Add your reply...",
     rows: "1",
     ctaTitle: "Reply",
-    ctaStyle: styles$9.postReplyCta
+    ctaStyle: styles$a.postReplyCta
   })))));
+}
+const PostBody = ({
+  post,
+  characterLimit
+}) => {
+  var _post$content, _post$content2, _post$content2$body, _post$indexing_metada, _post$creator_details;
+  const {
+    theme
+  } = useOrbis();
+  const [charLimit, setCharLimit] = useState(characterLimit);
+  const [body, setBody] = useState(post === null || post === void 0 ? void 0 : (_post$content = post.content) === null || _post$content === void 0 ? void 0 : _post$content.body);
+  useEffect(() => {
+    let _body = post.content.body;
+    let mentions = post.content.mentions;
+    if (mentions && mentions.length > 0) {
+      mentions.forEach((mention, i) => {
+        _body = _body.replaceAll(mention.username, "**" + mention.username + "**");
+      });
+    }
+    setBody(_body);
+  }, [post]);
+  const Body = () => {
+    var _theme$color6;
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postContent,
+      style: {
+        fontSize: 15,
+        color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.main ? theme.color.main : defaultTheme.color.main
+      },
+      dangerouslySetInnerHTML: {
+        __html: marked.parse(charLimit ? (body === null || body === void 0 ? void 0 : body.substring(0, charLimit)) + "..." : body)
+      }
+    });
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Body, null), charLimit && ((_post$content2 = post.content) === null || _post$content2 === void 0 ? void 0 : (_post$content2$body = _post$content2.body) === null || _post$content2$body === void 0 ? void 0 : _post$content2$body.length) > charLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: styles$a.postViewMoreCtaContainer
+  }, /*#__PURE__*/React.createElement(Button, {
+    color: "secondary",
+    style: {
+      marginRight: 5
+    },
+    onClick: () => setCharLimit(null)
+  }, "View more"))) : /*#__PURE__*/React.createElement(React.Fragment, null, ((_post$indexing_metada = post.indexing_metadata) === null || _post$indexing_metada === void 0 ? void 0 : _post$indexing_metada.urlMetadata) && ((_post$creator_details = post.creator_details) === null || _post$creator_details === void 0 ? void 0 : _post$creator_details.a_r) > 15 && /*#__PURE__*/React.createElement(LinkCard, {
+    metadata: post.indexing_metadata.urlMetadata
+  })));
 };
 const LinkCard = ({
   metadata
@@ -2214,7 +3324,7 @@ const LinkCard = ({
     theme
   } = useContext(GlobalContext);
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postUrlMetadataContainer,
+    className: styles$a.postUrlMetadataContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main,
@@ -2225,12 +3335,12 @@ const LinkCard = ({
     target: "_blank",
     rel: "noreferrer"
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postUrlMetadataImage,
+    className: styles$a.postUrlMetadataImage,
     style: {
       backgroundImage: "url(" + metadata.image + ")"
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postUrlMetadataDetails,
+    className: styles$a.postUrlMetadataDetails,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.secondary ? theme.border.secondary : defaultTheme.border.secondary
     }
@@ -2308,7 +3418,7 @@ const PostMenu = ({
     }
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$9.postMenuContainer,
+    className: styles$a.postMenuContainer,
     ref: wrapperRef,
     style: {
       right: 10,
@@ -2399,11 +3509,6 @@ const LikeIcon = ({
   }
 };
 
-var styles$a = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
-
-let _orbis = new Orbis({
-  useLit: false
-});
 let magic;
 let web3;
 if (typeof window !== "undefined") {
@@ -2413,16 +3518,73 @@ if (typeof window !== "undefined") {
   });
   web3 = new Web3(magic.rpcProvider);
 }
-const Comments = ({
-  orbis: _orbis2 = _orbis,
+function OrbisProvider({
   context,
-  theme
+  children,
+  theme = defaultTheme,
+  options
+}) {
+  const [user, setUser] = useState();
+  const [orbis, setOrbis] = useState(new Orbis(options ? options : null));
+  const [activeTheme, setActiveTheme] = useState(theme);
+  useEffect(() => {
+    if (theme) {
+      if (typeof theme === 'object') {
+        setActiveTheme(theme);
+      } else {
+        loadStyle();
+      }
+    }
+    async function loadStyle() {
+      var _styleStream$content;
+      console.log("Theme is a stream id, load it: ", theme);
+      let styleStream = await orbis.ceramic.loadStream(theme);
+      setActiveTheme((_styleStream$content = styleStream.content) === null || _styleStream$content === void 0 ? void 0 : _styleStream$content.theme);
+    }
+  }, [theme, orbis]);
+  useEffect(() => {
+    console.log("activeTheme updated to:", activeTheme);
+  }, [activeTheme]);
+  return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
+    value: {
+      user,
+      setUser,
+      orbis,
+      magic,
+      context,
+      theme: activeTheme
+    }
+  }, children);
+}
+
+var styles$b = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
+
+function Comments({
+  context,
+  theme = defaultTheme,
+  characterLimit = null
+}) {
+  return /*#__PURE__*/React.createElement(OrbisProvider, {
+    theme: theme
+  }, /*#__PURE__*/React.createElement(CommentsContent, {
+    context: context,
+    characterLimit: characterLimit
+  }));
+}
+const CommentsContent = ({
+  context,
+  characterLimit
 }) => {
   var _theme$bg, _theme$border;
+  const {
+    user,
+    setUser,
+    orbis,
+    theme
+  } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const [user, setUser] = useState();
   useEffect(() => {
     loadPosts();
   }, [context]);
@@ -2435,7 +3597,7 @@ const Comments = ({
     setSharing(true);
     const formData = new FormData(event.target);
     let body = formData.get("body");
-    let res = await _orbis2.createPost({
+    let res = await orbis.createPost({
       body: body,
       context: context
     });
@@ -2456,10 +3618,9 @@ const Comments = ({
     let {
       data,
       error
-    } = await _orbis2.getPosts({
+    } = await orbis.getPosts({
       context: context
     }, 0);
-    console.log("data", data);
     setComments(data);
     setLoading(false);
   }
@@ -2467,15 +3628,13 @@ const Comments = ({
     value: {
       user,
       setUser,
-      orbis: _orbis2,
-      magic,
+      orbis,
       context,
       comments,
-      setComments,
-      theme
+      setComments
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.commentsGlobalContainer,
+    className: styles$b.commentsGlobalContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main
     }
@@ -2487,21 +3646,17 @@ const Comments = ({
     context: context,
     handleSubmit: handleSubmit
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.commentsContainer,
+    className: styles$b.commentsContainer,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.secondary ? theme.border.secondary : defaultTheme.border.secondary
     }
   }, loading ? /*#__PURE__*/React.createElement("div", {
-    className: styles$a.loadingContainer,
+    className: styles$b.loadingContainer,
     style: {
       color: getThemeValue("color", theme, "main")
     }
-  }, /*#__PURE__*/React.createElement(LoadingCircle, null)) : /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "1.5rem"
-    }
-  }, comments.length <= 0 ? /*#__PURE__*/React.createElement("div", {
-    className: styles$a.commentsEmptyStateContainer
+  }, /*#__PURE__*/React.createElement(LoadingCircle, null)) : /*#__PURE__*/React.createElement(React.Fragment, null, comments.length <= 0 ? /*#__PURE__*/React.createElement("div", {
+    className: styles$b.commentsEmptyStateContainer
   }, /*#__PURE__*/React.createElement("p", {
     style: {
       color: getThemeValue("color", theme, "secondary"),
@@ -2509,15 +3664,16 @@ const Comments = ({
       marginTop: "0.5rem",
       marginBottom: "0.5rem"
     }
-  }, "There isn't any comment here yet."), /*#__PURE__*/React.createElement(EmptyStateComments, null)) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(LoopComments, {
-    comments: comments
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.footerContainer
+  }, "Be the first to leave a comment here."), /*#__PURE__*/React.createElement(EmptyStateComments, null)) : /*#__PURE__*/React.createElement(LoopComments, {
+    comments: comments,
+    characterLimit: characterLimit
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.footerContainer
   }, /*#__PURE__*/React.createElement("a", {
     href: "https://orbis.club?utm_source=comments_module",
     rel: "noreferrer",
     target: "_blank",
-    className: styles$a.footerOpenSocialContainer
+    className: styles$b.footerOpenSocialContainer
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: getThemeValue("color", theme, "secondary"),
@@ -2530,7 +3686,8 @@ const Comments = ({
   })))));
 };
 function LoopComments({
-  comments
+  comments,
+  characterLimit
 }) {
   return comments.map((comment, key) => {
     if ((!comment.content.reply_to || comment.content.reply_to == "") && !comment.content.master || comment.content.master == "") {
@@ -2538,6 +3695,7 @@ function LoopComments({
         comments: comments,
         comment: comment,
         master: comment.content.master,
+        characterLimit: characterLimit,
         key: key
       });
     } else {
@@ -2548,7 +3706,8 @@ function LoopComments({
 function Comment({
   comments,
   comment,
-  master
+  master,
+  characterLimit
 }) {
   var _theme$border2;
   const {
@@ -2571,7 +3730,7 @@ function Comment({
       position: "relative"
     }
   }, comment.content.reply_to != null && /*#__PURE__*/React.createElement("span", {
-    className: styles$a.greyLine,
+    className: styles$b.greyLine,
     style: {
       top: 60,
       bottom: 20,
@@ -2581,16 +3740,17 @@ function Comment({
     },
     "aria-hidden": "true"
   }), /*#__PURE__*/React.createElement(Post, {
-    comment: comment
+    post: comment,
+    characterLimit: characterLimit
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginLeft: "2.5rem"
-    },
-    className: "ml-10"
+      marginLeft: "2.5rem",
+      marginTop: "1.75rem"
+    }
   }, /*#__PURE__*/React.createElement(LoopInternalReplies, null)));
 }
 
-let _orbis$1 = new Orbis();
+let _orbis = new Orbis();
 let magic$1;
 let web3$1;
 if (typeof window !== "undefined") {
@@ -2601,7 +3761,7 @@ if (typeof window !== "undefined") {
   web3$1 = new Web3(magic$1.rpcProvider);
 }
 const Inbox = ({
-  orbis: _orbis2 = _orbis$1,
+  orbis: _orbis2 = _orbis,
   context,
   theme
 }) => {
@@ -3173,51 +4333,6 @@ const LinkCard$1 = ({
   }, metadata.description.length > 155 ? /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description, "...") : /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description))))));
 };
 
-let orbis = new Orbis({
-  useLit: false
-});
-let magic$2;
-let web3$2;
-if (typeof window !== "undefined") {
-  magic$2 = new Magic('pk_live_2E6B3B065093108E', {
-    network: 'mainnet',
-    extensions: [new ConnectExtension()]
-  });
-  web3$2 = new Web3(magic$2.rpcProvider);
-}
-function OrbisProvider({
-  context,
-  children,
-  theme
-}) {
-  const [user, setUser] = useState();
-  return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
-    value: {
-      user,
-      setUser,
-      orbis,
-      magic: magic$2,
-      context,
-      theme
-    }
-  }, children);
-}
-
-function useOrbis() {
-  const {
-    orbis,
-    user,
-    setUser,
-    theme
-  } = useContext(GlobalContext);
-  return {
-    orbis,
-    user,
-    setUser,
-    theme
-  };
-}
-
 en.long.minute = {
   current: "this minute",
   future: {
@@ -3231,5 +4346,5 @@ en.long.minute = {
 };
 TimeAgo.addDefaultLocale(en);
 
-export { Article, Button, Comments, ConnectButton, Inbox, OrbisProvider, User, UserPfp, Username, darkTheme, defaultTheme, useOrbis };
+export { Article, Button, Comments, ConnectButton, Inbox, OrbisProvider, Post, User, UserCredential, UserPfp, Username, darkTheme, defaultTheme, useOrbis };
 //# sourceMappingURL=index.js.map

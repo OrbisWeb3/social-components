@@ -6,13 +6,14 @@ import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { sleep, getNFTs, getTimestamp } from "../../utils";
 import useHover from "../../hooks/useHover";
 import useDidToAddress from "../../hooks/useDidToAddress";
+import useOrbis from "../../hooks/useOrbis";
 import { EditIcon } from "../../icons"
 
 /** Import CSS */
 import styles from './ProfileModal.module.css';
 
 export default function UpdateProfileModal({ hide, callbackNftUpdate }) {
-  const { user, theme } = useContext(GlobalContext);
+  const { user, theme } = useOrbis();
   const { address, chain } = useDidToAddress(user?.did);
   const [chainSelected, setChainSelected] = useState("ethereum")
 
@@ -106,7 +107,7 @@ function ListNFTs({chainSelected, address, callback}) {
 
 /** Returns the details of one NFT */
 function NFT({nft, chain, callback}) {
-  const { theme } = useContext(GlobalContext);
+  const { theme } = useOrbis();
   const [hoverNft, isNftHovered] = useHover();
 
   /** Set NFT as profile picture */

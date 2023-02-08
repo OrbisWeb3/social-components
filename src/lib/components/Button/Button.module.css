@@ -3,11 +3,12 @@
 .btnPrimary {
   display: flex;
   font-family: "Inter";
+  font-size: 14px;
   align-items: center;
   border-radius: 9999px;
   border: 1px solid transparent;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   font-weight: 500;

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
+import useOrbis from "../../hooks/useOrbis";
 
 /** Import CSS */
 import styles from './Button.module.css';
 
 const Button = ({color, style, children, onClick}) => {
-  const { orbis, user, theme } = useContext(GlobalContext);
+  const { orbis, user, theme } = useOrbis();
 
   /** Select correct style based on the `color` parameter passed
   let btnStyle;

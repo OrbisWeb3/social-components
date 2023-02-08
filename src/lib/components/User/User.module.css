@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 .userContainer {
-  display: block;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  flex-shrink: 0;
+  font-family: "Inter";
 }
 .userUsernameContainer {
   margin-left: 0.5rem;
@@ -51,8 +52,8 @@
   padding-left: 1.25rem;
   padding-right: 1.25rem;
   z-index: 50;
-  min-width: 310px;
-  max-width: 360px;
+  min-width: 340px;
+  max-width: 420px;
   border-radius: 0.5rem;
   overflow: visible;
   --tw-drop-shadow: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));

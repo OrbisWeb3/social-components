@@ -64,7 +64,7 @@ function App() {
       </div>
       <div className="w-full justify-center flex">
         <div className="flex" style={{paddingTop: 40, maxWidth: 750, width: "100%"}}>
-          <Comments theme={theme} context="kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73" />
+          <Comments context="kjzl6cwe1jw14ai2gg8e0qmx2j944ppe3s3dgfk003jlb8guuybyg4m77nsrg73" />
         </div>
       </div>
     </div>

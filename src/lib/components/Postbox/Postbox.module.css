@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 .postboxGlobalContainer {
+  position: relative;
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -26,6 +27,7 @@
 }
 
 .postboxContainer {
+  position: relative;
   flex: 1;
   min-width: 0px;
 }
@@ -44,6 +46,7 @@
   display: block;
   width: 100%;
   border-width: 0px;
+  min-height: 50px;
   resize: none;
   background: transparent;
   padding: 12px;
@@ -54,6 +57,10 @@
 }
 
 .postboxInput::placeholder {
+  color: #A9AFB7;
+}
+[data-placeholder]:empty:before{
+  content: attr(data-placeholder);
   color: #A9AFB7;
 }
 
@@ -105,4 +112,52 @@
   .postboxUserContainer {
     display: none;
   }
+}
+
+.loadingContainer {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.mentionsBoxContainer {
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  top: 60px;
+  left: 10px;
+  width: 250px;
+  z-index: 50;
+  border-radius: 0.5rem;
+  overflow: visible;
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  border: 1px solid;
+}
+.mentionsBoxInputContainer {
+  border-radius: 0.5rem 0.5rem 0 0;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+}
+.mentionsBoxEmptyState {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 13px;
+  font-family: "Inter";
+  padding-left: 25px;
+  padding-right: 25px;
+}
+.userResults {
+  padding: 0.5rem;
+}
+.userResultContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 0.5rem;
 }

@@ -1,11 +1,11 @@
 {
   "name": "@orbisclub/components",
-  "version": "0.0.95",
+  "version": "0.1.15",
   "description": "A library of social components powered by Orbis. Integrate decentralized discussion feeds in your app in one line of code.",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@magic-ext/connect": "^4.0.0",
-    "@orbisclub/orbis-sdk": "^0.4.10",
+    "@orbisclub/orbis-sdk": "0.4.18",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -23,7 +23,7 @@
     "react-time-ago": "^7.2.1",
     "tailwindcss": "^3.2.4",
     "web-vitals": "^2.1.4",
-    "web3": "^1.8.1"
+    "web3": "1.7.4"
   },
   "type": "module",
   "main": "dist/index.js",

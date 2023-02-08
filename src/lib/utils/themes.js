@@ -76,6 +76,26 @@ export const defaultTheme = {
     snapshot: {
       bg: "#FFFBEC",
       color: "#273852"
+    },
+    sismo: {
+      bg: "#13203D",
+      color: "#fff"
+    },
+    active_wallet_mainnet: {
+      bg: "#F8F8F8",
+      color: "#34341F"
+    },
+    active_wallet_polygon: {
+      bg: "#F4EEFF",
+      color: "#8247E5"
+    },
+    active_wallet_arbitrum: {
+      bg: "#E7F5FF",
+      color: "#2D374B"
+    },
+    active_wallet_optimism: {
+      bg: "#FFF8F8",
+      color: "#FF0420"
     }
   }
 };
@@ -158,6 +178,26 @@ export const darkTheme = {
     snapshot: {
       bg: "#FFFBEC",
       color: "#273852"
+    },
+    sismo: {
+      bg: "#13203D",
+      color: "#fff"
+    },
+    active_wallet_mainnet: {
+      bg: "#F8F8F8",
+      color: "#34341F"
+    },
+    active_wallet_polygon: {
+      bg: "#F4EEFF",
+      color: "#8247E5"
+    },
+    active_wallet_arbitrum: {
+      bg: "#E7F5FF",
+      color: "#2D374B"
+    },
+    active_wallet_optimism: {
+      bg: "#FFF8F8",
+      color: "#FF0420"
     }
   }
 };
@@ -175,7 +215,7 @@ export function getThemeValue(type, theme, data) {
     /** Return style for inputs */
     case "input":
       return({
-        background: data ? bgTertiary : "transparent",
+        background: data ? bgTertiary : bgMain,
         color: theme?.color?.main ? theme.color.main : defaultTheme.color.main,
         border: theme?.border?.main ? theme.border.main : defaultTheme.border.main,
       });
@@ -195,20 +235,14 @@ export function getThemeValue(type, theme, data) {
 
     /** Return style for colors */
     case "color":
-      switch (data) {
-        case "main":
-          return theme?.color?.main ? theme.color.main : defaultTheme.color.main;
-        case "secondary":
-          return theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary;
-        case "tertiary":
-          return theme?.color?.tertiary ? theme.color.tertiary : defaultTheme.color.tertiary;
-        case "quattro":
-          return theme?.color?.quattro ? theme.color.quattro : defaultTheme.color.quattro;
-        case "green":
-          return colorGreen;
-        default:
-          return null;
-    }
+      if(theme && theme["color"] && theme["color"][data]) {
+        return theme["color"][data];
+      } else if(defaultTheme && defaultTheme["color"] && defaultTheme["color"][data]) {
+        return defaultTheme["color"][data];
+      } else {
+        return null;
+      }
+      break;
 
     /** Return style for borders */
     case "border":
@@ -285,7 +319,7 @@ export function getStyle(type, theme, data) {
     case "input":
       return {
         borderColor: getThemeValue("input", theme).border,
-        fontSize: 15,
+        fontSize: 14,
         color: getThemeValue("input", theme, data).color,
         backgroundColor: getThemeValue("input", theme, data).background
       };
@@ -311,42 +345,18 @@ export function getStyle(type, theme, data) {
       }
       break;
     case "badge":
-      switch (data) {
-        case "uniswap":
-          return {
-            backgroundColor: theme?.badges?.uniswap?.bg ? theme.badges.uniswap.bg : defaultTheme.badges.uniswap.bg,
-            color: theme?.badges?.uniswap?.color ? theme.badges.uniswap.color : defaultTheme.badges.uniswap.color
-          };
-        case "thegraph":
-          return {
-            backgroundColor: theme?.badges?.thegraph?.bg ? theme.badges.thegraph.bg : defaultTheme.badges.thegraph.bg,
-            color: theme?.badges?.thegraph?.color ? theme.badges.thegraph.color : defaultTheme.badges.thegraph.color
-          };
-        case "sushiswap":
-          return {
-            backgroundColor: theme?.badges?.sushiswap?.bg ? theme.badges.sushiswap.bg : defaultTheme.badges.sushiswap.bg,
-            color: theme?.badges?.susushiswapshi?.color ? theme.badges.sushiswap.color : defaultTheme.badges.sushiswap.color
-          };
-        case "hop":
-          return {
-            backgroundColor: theme?.badges?.hop?.bg ? theme.badges.hop.bg : defaultTheme.badges.hop.bg,
-            color: theme?.badges?.hop?.color ? theme.badges.hop.color : defaultTheme.badges.hop.color
-          };
-        case "lido":
-          return {
-            backgroundColor: theme?.badges?.lido?.bg ? theme.badges.lido.bg : defaultTheme.badges.lido.bg,
-            color: theme?.badges?.lido?.color ? theme.badges.lido.color : defaultTheme.badges.lido.color
-          };
-        case "opensea":
-          return {
-            backgroundColor: theme?.badges?.opensea?.bg ? theme.badges.opensea.bg : defaultTheme.badges.opensea.bg,
-            color: theme?.badges?.opensea?.color ? theme.badges.opensea.color : defaultTheme.badges.opensea.color
-          };
-        case "snapshot":
-          return {
-            backgroundColor: theme?.badges?.snapshot?.bg ? theme.badges.snapshot.bg : defaultTheme.badges.snapshot.bg,
-            color: theme?.badges?.snapshot?.color ? theme.badges.snapshot.color : defaultTheme.badges.snapshot.color
-          };
+      if(theme && theme["badges"] && theme["badges"][data]) {
+        return {
+          backgroundColor: theme["badges"][data]["bg"],
+          color: theme["badges"][data]["color"]
+        }
+      } else if(defaultTheme && defaultTheme["badges"] && defaultTheme["badges"][data]) {
+        return {
+          backgroundColor: defaultTheme["badges"][data]["bg"],
+          color: defaultTheme["badges"][data]["color"]
+        }
+      } else {
+        return null
       }
       break;
     default:

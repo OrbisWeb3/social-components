@@ -22,11 +22,17 @@ import {
   SushiIcon,
   HopIcon,
   LidoIcon,
-  SnapshotIcon
+  SnapshotIcon,
+  SismoIcon,
+  EthereumIcon,
+  PolygonIcon,
+  ArbitrumIcon,
+  OptimismIcon
 } from "../../icons";
 import useHover from "../../hooks/useHover";
 import useDidToAddress from "../../hooks/useDidToAddress";
 import useGetUsername from "../../hooks/useGetUsername";
+import useOrbis from "../../hooks/useOrbis";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 
 /** Import CSS */
@@ -34,7 +40,7 @@ import styles from './User.module.css';
 
 /** Full component for a user */
 const User = ({details, connected = false, height = 44}) => {
-  const { user, theme } = useContext(GlobalContext);
+  const { user, theme } = useOrbis();
   return(
     <div className={styles.userContainer}>
         <UserPfp height={height} details={connected ? user : details} />
@@ -47,7 +53,7 @@ const User = ({details, connected = false, height = 44}) => {
 
 /** Export only the User Pfp */
 export const UserPfp = ({details, height = 44, showBadge = true}) => {
-  const { theme } = useContext(GlobalContext);
+  const { theme } = useOrbis();
   return(
     <div className={styles.userPfpContainer}>
       {details && details.profile && details.profile?.pfp ?
@@ -81,7 +87,7 @@ export const Username = ({details}) => {
 
 /** Export only the Badge */
 export const UserBadge = ({details}) => {
-  const { theme } = useContext(GlobalContext);
+  const { theme } = useOrbis();
   const { address, chain } = useDidToAddress(details?.did);
   if(address) {
     return(
@@ -95,7 +101,7 @@ export const UserBadge = ({details}) => {
 
 /** Modal appearing on request with more details about a specific user */
 export const UserPopup = ({details, visible}) => {
-  const { orbis, user, theme } = useContext(GlobalContext);
+  const { orbis, user, theme } = useOrbis();
   const [locked, setLocked] = useState(false);
   const [vis, setVis] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -202,7 +208,7 @@ export const UserPopup = ({details, visible}) => {
 
 /** Load and display credentials for this user */
 function UserCredentials({details}) {
-  const { orbis, user, theme } = useContext(GlobalContext);
+  const { orbis, user, theme } = useOrbis();
   const [credentials, setCredentials] = useState([]);
   const [credentialsLoading, setCredentialsLoading] = useState(false);
 
@@ -221,7 +227,6 @@ function UserCredentials({details}) {
 	    q_min_weight: 10
 	  });
 
-    console.log("User credentials:", data);
     setCredentials(data);
     setCredentialsLoading(false);
   }
@@ -230,7 +235,7 @@ function UserCredentials({details}) {
     if(credentials && credentials.length > 0) {
       return credentials.map((credential, key) => {
         return(
-          <Credential credential={credential} key={key} />
+          <UserCredential credential={credential} key={key} />
         );
       });
     } else {
@@ -254,36 +259,23 @@ function UserCredentials({details}) {
         :
           <LoopCredentials />
         }
-
-        {/**
-        <Badge style={getStyle("badge", theme, "uniswap") } tooltip="Has performed at least one swap on Uniswap v3."><UniswapIcon />{">1 Swap"}</Badge>
-        <Badge style={getStyle("badge", theme, "uniswap") } tooltip="Is a liquidity provider on Uniswap v3."><UniswapIcon />{"LP"}</Badge>
-        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is a curator on The Graph."><TheGraphIcon />{"Curator"}</Badge>
-        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is a delegator on The Graph."><TheGraphIcon />{"Delegator"}</Badge>
-        <Badge style={getStyle("badge", theme, "thegraph") } tooltip="Is an indexer on The Graph."><TheGraphIcon />{"Indexer"}</Badge>
-        <Badge style={getStyle("badge", theme, "sushi") } tooltip="Has performed at least one swap on SushiSwap."><SushiIcon />{">1 Swap"}</Badge>
-        <Badge style={getStyle("badge", theme, "sushi") } tooltip="Is a liquidity provider on SushiSwap."><SushiIcon />{"LP"}</Badge>
-        <Badge style={getStyle("badge", theme, "hop") } tooltip="Bridged assets using Hop Protocol."><HopIcon />{"Bridged"}</Badge>
-        <Badge style={getStyle("badge", theme, "lido") } tooltip="Staked ETH using Lido."><LidoIcon />{"Staked"}</Badge>
-        */}
       </div>
     </div>
   )
 }
 
 /** Display one credential */
-function Credential({credential}) {
-  const { theme } = useContext(GlobalContext);
+export function UserCredential({credential, showTooltip = true}) {
+  const { theme } = useOrbis();
 
   function clean(str) {
     if(str) {
-      return str.toLowerCase().replace(" ", "");
+      return str.toLowerCase().replaceAll(" ", "").replaceAll("-", "_");
     }
   }
 
   const CredentialIcon = () => {
     let protocol = credential.content?.credentialSubject?.protocol;
-    console.log("protocol:", protocol);
     if(protocol) {
       switch (clean(protocol)) {
         case "opensea":
@@ -299,7 +291,23 @@ function Credential({credential}) {
         case "hop":
           return <HopIcon />;
         case "snapshot":
-          return <SnapshotIcon />
+          return <SnapshotIcon />;
+        case "sismo":
+          return <SismoIcon />;
+        case "nonces":
+          switch (credential.content?.credentialSubject?.type) {
+            case "active-wallet-mainnet":
+              return <EthereumIcon />;
+            case "active-wallet-polygon":
+              return <PolygonIcon />;
+            case "active-wallet-arbitrum":
+              return <ArbitrumIcon />;
+            case "active-wallet-optimism":
+              return <OptimismIcon />;
+            default:
+              return null;
+          }
+          return <SnapshotIcon />;
         default:
           return null;
       }
@@ -309,10 +317,17 @@ function Credential({credential}) {
   }
 
   /** Orbis credentials */
-  if(credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
-    return(
-      <Badge style={getStyle("badge", theme, clean(credential.content?.credentialSubject?.protocol)) } tooltip={credential.content?.credentialSubject.description}><CredentialIcon />{credential.content?.credentialSubject.name}</Badge>
-    )
+  if(credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
+    if(credential.content.credentialSubject.protocol == "nonces") {
+      return(
+        <Badge style={getStyle("badge", theme, clean(credential.content.credentialSubject.type))} tooltip={showTooltip ? credential.content.credentialSubject.description : null}><CredentialIcon />{credential.content.credentialSubject.name}</Badge>
+      )
+    } else {
+      return(
+        <Badge style={getStyle("badge", theme, clean(credential.content?.credentialSubject.protocol)) } tooltip={showTooltip ? credential.content.credentialSubject.description : null}><CredentialIcon />{credential.content.credentialSubject.name}</Badge>
+      )
+    }
+
   }
 
   /** Gitcoin credentials */
@@ -326,44 +341,44 @@ function Credential({credential}) {
 const GitcoinProvider = ({credential}) => {
   /** Default provider */
   let provider = <div className="verified-credential-type">
-    <span>{credential.provider}</span>
+    <span>{credential.content?.credentialSubject?.provider}</span>
   </div>;
 
   /** Num Gitcoin Grants contributed to */
-  if(credential.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
-    let numGrantsContributeTo = credential.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
+  if(credential.content?.credentialSubject?.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
+    let numGrantsContributeTo = credential.content?.credentialSubject?.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
     provider = <div className="verified-credential-type">
       <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numGrantsContributeTo}</span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grants</span></span>
     </div>;
   }
 
   /** Value contribution Grants total */
-  if(credential.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
-    let totalContributionAmountGte = credential.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
+  if(credential.content?.credentialSubject?.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
+    let totalContributionAmountGte = credential.content?.credentialSubject?.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
     provider = <div className="verified-credential-type">
       <span className='inline-block break-word'>Contributed more than <span className="primary bold mleft-3">{totalContributionAmountGte} ETH to </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grants</span></span>
     </div>;
   }
 
   /** Num Gitcoin Rounds contributed to */
-  if(credential.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
-    let numRoundsContributedToGte = credential.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
+  if(credential.content?.credentialSubject?.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
+    let numRoundsContributedToGte = credential.content?.credentialSubject?.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
     provider = <div className="verified-credential-type">
       <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numRoundsContributedToGte} </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> rounds</span></span>
     </div>
   }
 
   /** Num Gitcoin contributions for GR14 to */
-  if(credential.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
-    let numGr14ContributionsGte = credential.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
+  if(credential.content?.credentialSubject?.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
+    let numGr14ContributionsGte = credential.content?.credentialSubject?.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
     provider = <div className="verified-credential-type">
       <span className='inline-block break-word'>Contributed to at least <span className="primary bold mleft-3">{numGr14ContributionsGte} </span><span><img src='/img/icons/gitcoin-logo.png' height='19' className='mleft-3 mright-4' /> grant(s) in GR14</span></span>
     </div>;
   }
 
   /** Amount of Twitter followers GT */
-  if(credential.provider.includes('TwitterFollowerGT')) {
-    let countTwitterFollowers = credential.provider.replace('TwitterFollowerGT', '');
+  if(credential.content?.credentialSubject?.provider.includes('TwitterFollowerGT')) {
+    let countTwitterFollowers = credential.content?.credentialSubject?.provider.replace('TwitterFollowerGT', '');
     provider = <>
       <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
       <span>Followers <span className="primary bold">{` > `}</span> {countTwitterFollowers}</span>
@@ -371,8 +386,8 @@ const GitcoinProvider = ({credential}) => {
   }
 
   /** Amount of Twitter followers GTE */
-  if(credential.provider.includes('TwitterFollowerGTE')) {
-    let countTwitterFollowersGte = credential.provider.replace('TwitterFollowerGTE', '');
+  if(credential.content?.credentialSubject?.provider.includes('TwitterFollowerGTE')) {
+    let countTwitterFollowersGte = credential.content?.credentialSubject?.provider.replace('TwitterFollowerGTE', '');
     provider = <>
       <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
       <span>Followers <span className="primary bold">{` > `}</span> {countTwitterFollowersGte}</span>
@@ -380,8 +395,8 @@ const GitcoinProvider = ({credential}) => {
   }
 
   /** Amount of tweets */
-  if(credential.provider.includes('TwitterTweetGT')) {
-    let countTweets = credential.provider.replace('TwitterTweetGT', '');
+  if(credential.content?.credentialSubject?.provider.includes('TwitterTweetGT')) {
+    let countTweets = credential.content?.credentialSubject?.provider.replace('TwitterTweetGT', '');
     provider = <>
       <TwitterIcon style={{marginRight: 4, color: "#1DA1F2"}} />
       <span>Tweets <span className="primary bold">{` > `}</span> {countTweets}</span>
@@ -389,8 +404,8 @@ const GitcoinProvider = ({credential}) => {
   }
 
   /** GTC possession */
-  if(credential.provider.includes('gtcPossessionsGte')) {
-    let countGtc = credential.provider.replace('gtcPossessionsGte#', '');
+  if(credential.content?.credentialSubject?.provider.includes('gtcPossessionsGte')) {
+    let countGtc = credential.content?.credentialSubject?.provider.replace('gtcPossessionsGte#', '');
     provider = <>
       <span>Owns at least <span className="primary bold">{countGtc}</span></span>
       <img src='/img/icons/gtc-logo.webp' height='15' className='mright-4 mleft-4' />
@@ -398,7 +413,7 @@ const GitcoinProvider = ({credential}) => {
     </>;
   }
 
-  switch (credential.provider) {
+  switch (credential.content?.credentialSubject?.provider) {
     /** User has a Twitter account */
     case 'Twitter':
       provider = <>
@@ -504,7 +519,7 @@ const GitcoinProvider = ({credential}) => {
 
 /** Follow button component */
 function Follow({did}) {
-  const { orbis, user, theme } = useContext(GlobalContext);
+  const { orbis, user, theme } = useOrbis();
   const [loading, setLoading] = useState(false);
   const [following, setFollowing] = useState(false);
   const [followHoverRef, isFollowHovered] = useHover();
@@ -575,7 +590,7 @@ function Follow({did}) {
 
 /** Form to update user profile */
 function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}) {
-  const { orbis, user, setUser, theme } = useContext(GlobalContext);
+  const { orbis, user, setUser, theme } = useOrbis();
   const [username, setUsername] = useState(user?.profile?.username);
   const [description, setDescription] = useState(user?.profile?.description);
   const [status, setStatus] = useState(0);
@@ -604,6 +619,7 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
       setStatus(2);
       let _user = {...user};
       _user.profile = profile;
+      console.log("Updating user to: ", _user);
       setUser(_user);
       await sleep(1500);
       setIsEditing(false);

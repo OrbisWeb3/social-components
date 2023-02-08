@@ -1,5 +1,6 @@
 import React, { useRef, useContext, useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import useOrbis from "../../hooks/useOrbis";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import LoadingCircle from "../LoadingCircle";
 import Modal from "../Modal";
@@ -9,7 +10,7 @@ import { sleep } from "../../utils";
 
 /** Modal for users to connect: Options displayed can be enabled / disabled with the parameters */
 export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide }) {
-  const { orbis, theme } = useContext(GlobalContext);
+  const { orbis, theme } = useOrbis();
   const wrapperRef = useRef(null);
 
   /** Is triggered when clicked outside the component */
@@ -36,7 +37,7 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
 
 /** Will render one connect button based on its type */
 const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
-  const { orbis, magic, user, setUser } = useContext(GlobalContext);
+  const { orbis, magic, user, setUser } = useOrbis();
   const [status, setStatus] = useState(0);
 
   async function connect() {
