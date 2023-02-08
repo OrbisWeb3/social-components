@@ -78,8 +78,8 @@ export const defaultTheme = {
       color: "#273852"
     },
     sismo: {
-      bg: "#13203D",
-      color: "#fff"
+      bg: "#F1F4FF",
+      color: "#13203D"
     },
     active_wallet_mainnet: {
       bg: "#F8F8F8",
@@ -180,8 +180,8 @@ export const darkTheme = {
       color: "#273852"
     },
     sismo: {
-      bg: "#13203D",
-      color: "#fff"
+      bg: "#F1F4FF",
+      color: "#13203D"
     },
     active_wallet_mainnet: {
       bg: "#F8F8F8",

@@ -4,6 +4,7 @@
   "description": "A library of social components powered by Orbis. Integrate decentralized discussion feeds in your app in one line of code.",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
+    "@babel/runtime": "^7.20.13",
     "@magic-ext/connect": "^4.0.0",
     "@orbisclub/orbis-sdk": "0.4.18",
     "@testing-library/jest-dom": "^5.16.5",
@@ -38,7 +39,7 @@
     ]
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start  --openssl-legacy-provider",
     "build": "react-scripts build",
     "build-modules": "rm -rf dist && NODE_ENV=production babel src/lib --out-dir dist --copy-files --ignore __tests__,spec.js,test.js,__snapshots__",
     "build-microbundle": "microbundle-crl --css-modules true --compress false --no-compress --format modern,esm",

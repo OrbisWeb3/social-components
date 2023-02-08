@@ -5,6 +5,7 @@ specifiers:
   '@babel/core': ^7.20.12
   '@babel/plugin-proposal-class-properties': ^7.18.6
   '@babel/preset-react': ^7.18.6
+  '@babel/runtime': ^7.20.13
   '@magic-ext/connect': ^4.0.0
   '@orbisclub/orbis-sdk': 0.4.18
   '@testing-library/jest-dom': ^5.16.5
@@ -30,6 +31,7 @@ specifiers:
 
 dependencies:
   '@babel/preset-react': 7.18.6_@babel+core@7.20.12
+  '@babel/runtime': 7.20.13
   '@magic-ext/connect': 4.0.0
   '@orbisclub/orbis-sdk': 0.4.18_encoding@0.1.13
   '@testing-library/jest-dom': 5.16.5
