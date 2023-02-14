@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import ConnectButton from "../ConnectButton";
 import LoadingCircle from "../LoadingCircle";
+import AccessRulesModal from "../AccessRulesModal";
 import Button from "../Button";
 import Input from "../Input";
 import Alert from "../Alert";
 import User, { UserPfp, Username, UserPopup } from "../User";
 import { getTimestamp } from "../../utils";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
-import { GlobalContext } from "../../contexts/GlobalContext";
-import { Logo } from "../../icons"
+import { CommentsContext } from "../../contexts/CommentsContext";
+import { Logo, LockIcon, UnlockIcon, SendIcon } from "../../icons";
 import useHover from "../../hooks/useHover";
 import useOrbis from "../../hooks/useOrbis";
 
@@ -20,11 +21,12 @@ let mentions = [];
 
 /** Display postbox or connect CTA */
 export default function Postbox({ showPfp = true, connecting, reply = null, callback, rows = "2", defaultPost, setEditPost, ctaTitle = "Comment", ctaStyle = styles.postboxShareContainerBtn, placeholder = "Add your comment..." }) {
-  const { user, setUser, orbis, theme, context } = useOrbis();
-  const { comments, setComments } = useContext(GlobalContext);
+  const { user, setUser, orbis, theme, context, accessRules, hasAccess } = useOrbis();
+  const { comments, setComments } = useContext(CommentsContext);
   const [sharing, setSharing] = useState(false);
   const [hoverRef, isHovered] = useHover();
   const [body, setBody] = useState("");
+  const [accessRulesModalVis, setAccessRulesModalVis] = useState(false);
   const postbox = useRef();
 
   /** Manage mentions */
@@ -37,10 +39,11 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
   useEffect(() => {
     if(defaultPost) {
       if(postbox.current) {
-        postbox.current.value = defaultPost.content.body;
+        postbox.current.textContent = defaultPost.content.body;
+        setBody(defaultPost.content.body);
       }
     }
-  }, [defaultPost])
+  }, [defaultPost, postbox])
 
   /** Will cancel the edit post action using the `setEditPost` function passed as a parameter */
   function cancelEdit() {
@@ -69,50 +72,65 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
     } else if(reply) {
       master = reply.stream_id;
     }
-    let _content = {
-      body: body,
-      context: context ? context : null,
-      master: master,
-      reply_to: reply ? reply.stream_id : null,
-      mentions: mentions
-    }
-    console.log("_content to share:", _content);
 
-    let res = await orbis.createPost(_content);
-    console.log("res:", res);
 
-    /** Return results */
-    if(res.status == 200) {
-      setComments(
-        [
-          {
-            timestamp: getTimestamp(),
-            creator_details: user,
-            creator: user.did,
-            stream_id: res.doc,
-            content: _content,
-            count_likes: 0
-          },
-          ...comments
-        ]
-      );
-      if(postbox.current) {
-        postbox.current.value = "";
+    /** Create new post or edit existing post */
+    if(defaultPost) {
+      let _contentEdit = {...defaultPost.content}
+      _contentEdit.body = body;
+      let res = await orbis.editPost(defaultPost.stream_id, _contentEdit);
+      console.log("res:", res);
+
+      if(callback) {
+        callback(_contentEdit);
+      }
+    } else {
+      let _contentCreate = {
+        body: body,
+        context: context ? context : null,
+        master: master,
+        reply_to: reply ? reply.stream_id : null,
+        mentions: mentions
+      }
+      console.log("_content to share:", _contentCreate);
+
+      let res = await orbis.createPost(_contentCreate);
+
+      /** Return results */
+      if(res.status == 200) {
+        setComments(
+          [
+            {
+              timestamp: getTimestamp(),
+              creator_details: user,
+              creator: user.did,
+              stream_id: res.doc,
+              content: _contentCreate,
+              count_likes: 0
+            },
+            ...comments
+          ]
+        );
+      } else {
+        console.log("Error submitting form:", res);
       }
 
       if(callback) {
         callback();
       }
+    }
 
-      /** Reset postbox */
-      setBody(null);
-      mentions = [];
-      if(postbox.current) {
-        postbox.current.textContent = "";
-        //postbox.current.focus();
-      }
-    } else {
-      console.log("Error submitting form:", res);
+    /** Manage success */
+    if(postbox.current) {
+      postbox.current.value = "";
+    }
+
+    /** Reset postbox */
+    setBody(null);
+    mentions = [];
+    if(postbox.current) {
+      postbox.current.textContent = "";
+      //postbox.current.focus();
     }
 
     setSharing(false);
@@ -200,13 +218,13 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         {/** (Optional) Show user's pfp */}
         {showPfp &&
           <div className={styles.postboxUserContainer} ref={hoverRef}>
-            <UserPfp details={user} />
-            <UserPopup visible={isHovered} details={user} />
+            <UserPfp details={user} hover={true} />
           </div>
         }
 
         {/** Show Postbox */}
         <div className={styles.postboxContainer}>
+
           {/** Form container */}
           <form style={{width: "100%"}} onSubmit={(event) => handleSubmit(event)}>
             <div className={styles.postbox} style={{ borderColor: getThemeValue("input", theme).border, backgroundColor: getThemeValue("input", theme, sharing).background}}>
@@ -217,35 +235,62 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                   <div className={styles.postboxReplyBadge} style={{background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color }}><Username details={reply.creator_details} /></div>
                 </div>
               }
-              <div
-                contentEditable={true}
-                autoFocus={true}
-                data-placeholder={placeholder}
-                ref={postbox}
-                rows={rows}
-                name="body"
-                id="postbox-area"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                className={styles.postboxInput}
-                style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color}}
-                placeholder={placeholder}
-                disabled={sharing}
-                onInput={(e) => handleInput(e)}
-              ></div>
+
+              {/** Display postbox if user has access to the sharing feature */}
+              {hasAccess &&
+                <div
+                  contentEditable={true}
+                  autoFocus={true}
+                  data-placeholder={placeholder}
+                  ref={postbox}
+                  rows={rows}
+                  name="body"
+                  id="postbox-area"
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  className={styles.postboxInput}
+                  style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color}}
+                  placeholder={placeholder}
+                  disabled={sharing}
+                  onInput={(e) => handleInput(e)}></div>
+              }
               {/** Submit button container */}
               <div className={styles.postboxShareContainer}>
+
+                {/** Display access rules details if any */}
+                {(accessRules && accessRules.length > 0) &&
+                  <div className={styles.accessRulesContainer} style={{color: getThemeValue("color", theme, "secondary")}}>
+                    {hasAccess ?
+                      <UnlockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}}  />
+                    :
+                      <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
+                    }
+                    <span>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
+                  </div>
+                }
+
                 {sharing ?
-                  <button type="submit" className={ctaStyle} disabled><LoadingCircle /> Sending</button>
+                  <button type="submit" className={ctaStyle} style={{background: "transparent", color: getThemeValue("color", theme, "main")}}><LoadingCircle /> Sending</button>
                 :
                   <>
-                  {defaultPost &&
-                    <Button color="secondary" style={{marginRight: 5}} onClick={() => setEditPost(false)}>Cancel</Button>
-                  }
-                  <button type="submit" className={ctaStyle} style={getStyle("button-main", theme, "main")}>
-                    {ctaTitle}
-                    <SendIcon />
-                  </button>
+                    {/** Show cancel button if user is editing a post */}
+                    {defaultPost &&
+                      <Button color="secondary" style={{marginRight: 5}} onClick={() => setEditPost(false)}>Cancel</Button>
+                    }
+
+                    {/** Show share button */}
+                    {hasAccess ?
+                      <button type="submit" className={ctaStyle} style={getStyle("button-main", theme, "main")}>
+                        {ctaTitle}
+                        <SendIcon />
+                      </button>
+                    :
+                      <button type="submit" disabled className={ctaStyle} style={{...getStyle("button-main", theme, "main"), opacity: 0.7, marginTop: 10}}>
+                        <LockIcon style={{marginRight: 5}} />
+                        Locked
+                      </button>
+                    }
+
                   </>
                 }
               </div>
@@ -257,6 +302,11 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
             <MentionsBox add={addMention} />
           }
         </div>
+
+        {/** Show access rules modal */}
+        {accessRulesModalVis &&
+          <AccessRulesModal hide={() => setAccessRulesModalVis(false)} />
+        }
       </div>
     )
   } else {
@@ -272,7 +322,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
 /** Mentions Box Container */
 const MentionsBox = ({add}) => {
-  const { orbis, user, theme } = useContext(GlobalContext);
+  const { orbis, user, theme } = useOrbis();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -339,16 +389,3 @@ const MentionsBox = ({add}) => {
     </div>
   )
 }
-
-const SendIcon = () => {
-  return(
-    <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginLeft: "0.25rem"}}>
-      <path d="M1.17363 0.101882C0.997487 0.0769162 0.820681 0.142855 0.7039 0.277068C0.587119 0.411281 0.546253 0.595504 0.595329 0.766509L1.58489 4.21462C1.71408 4.66479 2.1258 4.97498 2.59415 4.97498H6.87496C7.16491 4.97498 7.39996 5.21003 7.39996 5.49998C7.39996 5.78993 7.16491 6.02498 6.87496 6.02498H2.59415C2.1258 6.02498 1.71409 6.33516 1.58489 6.78533L0.595329 10.2335C0.546253 10.4045 0.587119 10.5887 0.7039 10.7229C0.820681 10.8571 0.997487 10.9231 1.17363 10.8981C5.26007 10.3189 8.95462 8.52309 11.8788 5.89013C11.9894 5.79057 12.0525 5.64877 12.0525 5.49999C12.0525 5.3512 11.9894 5.2094 11.8788 5.10984C8.95462 2.47688 5.26007 0.681073 1.17363 0.101882Z" fill="white"/>
-    </svg>
-  )
-}
-
-/** Styles for inputs */
-/** Hover for main button CTA: #3E67F0 */
-let enabledInput = "focus:outline-none block w-full resize-none border-0 pb-3 focus:ring-0 text-base placeholder-[#A9AFB7] bg-transparent";
-let disabledInput = "focus:outline-none block w-full resize-none border-0 pb-3 text-base bg-transparent";

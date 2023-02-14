@@ -63,7 +63,18 @@
   content: attr(data-placeholder);
   color: #A9AFB7;
 }
-
+.accessRulesContainer {
+  font-family: "Inter";
+  margin-bottom: -10px;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  font-size: 14px;
+}
+.hoverLink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 .postboxShareContainer {
   display: flex;
   justify-content: flex-end;

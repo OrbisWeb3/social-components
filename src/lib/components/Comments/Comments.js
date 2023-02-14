@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Orbis } from "@orbisclub/orbis-sdk";
 import Postbox from "../Postbox";
 import Post from "../Post";
 import User from "../User";
 import LoadingCircle from "../LoadingCircle";
 import { GlobalContext } from "../../contexts/GlobalContext";
+import { CommentsContext } from "../../contexts/CommentsContext";
 import OrbisProvider from "../OrbisProvider";
 import useOrbis from "../../hooks/useOrbis";
 import { Logo, EmptyStateComments } from "../../icons";
@@ -13,9 +13,9 @@ import { defaultTheme, getThemeValue } from "../../utils/themes"
 /** Import CSS */
 import styles from './Comments.module.css';
 
-export default function Comments({context, theme = defaultTheme, characterLimit = null}) {
+export default function Comments({context, theme = defaultTheme, options, characterLimit = null}) {
   return(
-    <OrbisProvider context={context} theme={theme}>
+    <OrbisProvider context={context} theme={theme} options={options} >
       <CommentsContent characterLimit={characterLimit} />
     </OrbisProvider>
   )
@@ -26,7 +26,7 @@ export default function Comments({context, theme = defaultTheme, characterLimit 
 }*/
 
 const CommentsContent = ({characterLimit}) => {
-  const { user, setUser, orbis, theme, context } = useOrbis();
+  const { user, setUser, orbis, theme, context, accessRules } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -84,7 +84,7 @@ const CommentsContent = ({characterLimit}) => {
   }
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, orbis, context, comments, setComments }}>
+    <CommentsContext.Provider value={{ comments, setComments }}>
       <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main }}>
         <div style={{padding: "1rem"}}>
           <Postbox context={context} handleSubmit={handleSubmit} />
@@ -112,13 +112,13 @@ const CommentsContent = ({characterLimit}) => {
 
         {/** Footer */}
         <div className={styles.footerContainer}>
-          <a href="https://orbis.club?utm_source=comments_module" rel="noreferrer" target="_blank" className={styles.footerOpenSocialContainer}>
+          <a href="https://useorbis.com?utm_source=comments_module" rel="noreferrer" target="_blank" className={styles.footerOpenSocialContainer}>
             <span style={{color: getThemeValue("color", theme, "secondary"), marginRight: 5, fontSize: 15}}>Open Social with</span>
             <Logo className="flex" color={getThemeValue("color", theme, "main")} />
           </a>
         </div>
       </div>
-    </GlobalContext.Provider>
+    </CommentsContext.Provider>
   );
 };
 
@@ -137,7 +137,7 @@ function LoopComments({comments, characterLimit}) {
 
 /** One comment component is also looping through the other replies to see if it has any internal replies */
 function Comment({comments, comment, master, characterLimit}) {
-  const { theme } = useContext(GlobalContext);
+  const { theme } = useOrbis();
 
   function LoopInternalReplies() {
     return comments.map((_comment, key) => {

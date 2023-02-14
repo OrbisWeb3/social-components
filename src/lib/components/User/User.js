@@ -39,11 +39,11 @@ import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import styles from './User.module.css';
 
 /** Full component for a user */
-const User = ({details, connected = false, height = 44}) => {
+const User = ({details, connected = false, height = 44, hover = false}) => {
   const { user, theme } = useOrbis();
   return(
     <div className={styles.userContainer}>
-        <UserPfp height={height} details={connected ? user : details} />
+        <UserPfp height={height} details={connected ? user : details} hover={hover} />
         <div className={styles.userUsernameContainer}>
           <span style={{display: "flex"}}><Username details={connected ? user : details} /></span>
         </div>
@@ -52,10 +52,11 @@ const User = ({details, connected = false, height = 44}) => {
 }
 
 /** Export only the User Pfp */
-export const UserPfp = ({details, height = 44, showBadge = true}) => {
+export const UserPfp = ({details, height = 44, showBadge = true, hover = false}) => {
+  const [hoverRef, isHovered] = useHover();
   const { theme } = useOrbis();
   return(
-    <div className={styles.userPfpContainer}>
+    <div className={styles.userPfpContainer} ref={hoverRef}>
       {details && details.profile && details.profile?.pfp ?
         <img className={styles.userPfpContainerImg} src={details.profile.pfp} alt="" style={{height: height, width: height}} />
       :
@@ -70,6 +71,11 @@ export const UserPfp = ({details, height = 44, showBadge = true}) => {
         <div style={{ top: -5, right: -5, position: "absolute" }}>
           <img style={{height: "1.25rem", width: "1.25rem"}} src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
         </div>
+      }
+
+      {/** If requested show more details on hover */}
+      {hover &&
+        <UserPopup visible={isHovered} details={details} />
       }
     </div>
   )
@@ -96,7 +102,6 @@ export const UserBadge = ({details}) => {
   } else {
     return null;
   }
-
 }
 
 /** Modal appearing on request with more details about a specific user */
@@ -241,7 +246,7 @@ function UserCredentials({details}) {
     } else {
       return(
         <>
-          <Alert title="User doesn't have any credentials yet." style={{backgroundColor: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main}} />
+          <Alert title="User doesn't have any credentials yet." style={{backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main")}} />
         </>
       )
     }
@@ -306,8 +311,20 @@ export function UserCredential({credential, showTooltip = true}) {
               return <OptimismIcon />;
             default:
               return null;
-          }
-          return <SnapshotIcon />;
+          };
+        case "evm":
+          switch (credential.content?.credentialSubject?.type) {
+            case "active-wallet-mainnet":
+              return <EthereumIcon />;
+            case "active-wallet-polygon":
+              return <PolygonIcon />;
+            case "active-wallet-arbitrum":
+              return <ArbitrumIcon />;
+            case "active-wallet-optimism":
+              return <OptimismIcon />;
+            default:
+              return null;
+          };
         default:
           return null;
       }
@@ -318,7 +335,7 @@ export function UserCredential({credential, showTooltip = true}) {
 
   /** Orbis credentials */
   if(credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
-    if(credential.content.credentialSubject.protocol == "nonces") {
+    if(credential.content.credentialSubject.protocol == "nonces" || credential.content.credentialSubject.protocol == "EVM") {
       return(
         <Badge style={getStyle("badge", theme, clean(credential.content.credentialSubject.type))} tooltip={showTooltip ? credential.content.credentialSubject.description : null}><CredentialIcon />{credential.content.credentialSubject.name}</Badge>
       )
@@ -560,7 +577,7 @@ function Follow({did}) {
   /** Returns loading state */
   if(loading) {
     return(
-      <Button color="green"><LoadingCircle color="text-white ml-3" /></Button>
+      <Button color="green"><LoadingCircle /></Button>
     );
   }
 
@@ -620,7 +637,7 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
       let _user = {...user};
       _user.profile = profile;
       console.log("Updating user to: ", _user);
-      
+
       setUser(_user);
       await sleep(1500);
       setIsEditing(false);
@@ -674,7 +691,7 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
         </div>
 
         <div className={styles.userEditButtonContainer} onClick={() => setIsEditing(false)}>
-          <Button>Cancel</Button>
+          <Button color="secondary">Cancel</Button>
         </div>
       </div>
       <div className={styles.userFieldsContainer}>

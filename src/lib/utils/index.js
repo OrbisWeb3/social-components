@@ -109,3 +109,18 @@ function replaceMentions(post) {
   /** Return result */
   return _body
 }
+
+/** Check if the user owns the required credential */
+export function checkCredentialOwnership(user_credentials, cred_identifier) {
+  let has_vc = false;
+
+  /** Check if a user owns the required credential */
+  user_credentials.forEach((user_cred, i) => {
+    if(user_cred.identifier == cred_identifier) {
+      has_vc = true;
+    }
+  });
+
+  /** Return result */
+  return has_vc;
+}

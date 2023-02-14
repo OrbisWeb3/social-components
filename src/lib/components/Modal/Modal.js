@@ -18,7 +18,7 @@ export default function Modal({ width = 370, title = "Connect to join the discus
   useOutsideClick(wrapperRef, () => hide());
 
   return(
-    <div style={{position: "relative", zIndex: 50}} aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div style={{zIndex: 50}} aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className={styles.modalBackground} style={{background: "#000", opacity: 0.70 }} onClick={() => hide()}></div>
 
       <div className={styles.modalContainer}>

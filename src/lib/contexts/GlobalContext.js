@@ -8,5 +8,6 @@ export const GlobalContext = React.createContext({
   magic: null,
   context: null,
   setUser: null,
-  theme: defaultTheme
+  theme: defaultTheme,
+  accessRules: null
 });

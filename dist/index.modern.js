@@ -3,6 +3,7 @@ import { Orbis } from '@orbisclub/orbis-sdk';
 export { Orbis } from '@orbisclub/orbis-sdk';
 import 'react-string-replace';
 import { getAddressFromDid } from '@orbisclub/orbis-sdk/utils/index.js';
+import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import ReactTimeAgo from 'react-time-ago';
 import { marked } from 'marked';
 import Web3 from 'web3';
@@ -24,8 +25,7 @@ const defaultTheme = {
     tertiary: "#d1d5db",
     quattro: "#F1F2F3",
     green: "#35c67b",
-    active: "#4E75F6",
-    twitter: "#1DA1F2"
+    active: "#4E75F6"
   },
   border: {
     main: "#E0E2E5",
@@ -90,6 +90,10 @@ const defaultTheme = {
       bg: "#FFFBEC",
       color: "#273852"
     },
+    sismo: {
+      bg: "#F1F4FF",
+      color: "#13203D"
+    },
     active_wallet_mainnet: {
       bg: "#F8F8F8",
       color: "#34341F"
@@ -120,8 +124,7 @@ const darkTheme = {
     tertiary: "#d1d5db",
     quattro: "#F1F2F3",
     green: "#35c67b",
-    active: "#4E75F6",
-    twitter: "#1DA1F2"
+    active: "#4E75F6"
   },
   border: {
     main: "#323B49",
@@ -185,6 +188,10 @@ const darkTheme = {
     snapshot: {
       bg: "#FFFBEC",
       color: "#273852"
+    },
+    sismo: {
+      bg: "#F1F4FF",
+      color: "#13203D"
     },
     active_wallet_mainnet: {
       bg: "#F8F8F8",
@@ -350,7 +357,8 @@ const GlobalContext = React.createContext({
   magic: null,
   context: null,
   setUser: null,
-  theme: defaultTheme
+  theme: defaultTheme,
+  accessRules: null
 });
 
 function useOrbis() {
@@ -358,13 +366,27 @@ function useOrbis() {
     orbis,
     user,
     setUser,
-    theme
+    credentials,
+    setCredentials,
+    theme,
+    context,
+    accessRules,
+    hasAccess,
+    connecting,
+    magic
   } = useContext(GlobalContext);
   return {
     orbis,
     user,
     setUser,
-    theme
+    credentials,
+    setCredentials,
+    theme,
+    context,
+    accessRules,
+    hasAccess,
+    connecting,
+    magic
   };
 }
 
@@ -422,6 +444,15 @@ async function getNFTs(address, page, network) {
     return [];
   }
 }
+function checkCredentialOwnership(user_credentials, cred_identifier) {
+  let has_vc = false;
+  user_credentials.forEach((user_cred, i) => {
+    if (user_cred.identifier == cred_identifier) {
+      has_vc = true;
+    }
+  });
+  return has_vc;
+}
 
 var styles$1 = {"LoadingCircle":"_1fzax","spin":"_esDdM"};
 
@@ -439,7 +470,7 @@ function LoadingCircle() {
     cy: "12",
     r: "10",
     stroke: "currentColor",
-    "stroke-width": "4"
+    strokeWidth: "4"
   }), /*#__PURE__*/React.createElement("path", {
     style: {
       opacity: 0.75
@@ -680,13 +711,13 @@ const Logo = ({
     cy: "11.5",
     r: "10.4",
     stroke: _color,
-    "stroke-width": "2.2"
+    strokeWidth: "2.2"
   }), /*#__PURE__*/React.createElement("circle", {
     cx: "11.5",
     cy: "22.5",
     r: "6.4",
     stroke: _color,
-    "stroke-width": "2.2"
+    strokeWidth: "2.2"
   }));
 };
 const BoltIcon = ({
@@ -707,6 +738,80 @@ const BoltIcon = ({
     fill: _color2
   }));
 };
+const ReplyIcon = ({
+  type
+}) => {
+  switch (type) {
+    case "line":
+      return /*#__PURE__*/React.createElement("svg", {
+        width: "14",
+        height: "11",
+        viewBox: "0 0 17 13",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: {
+          marginRight: "0.25rem"
+        }
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M6.40127 10.375L0.691272 6.27502C0.556779 6.19554 0.445325 6.08238 0.3679 5.94669C0.290476 5.81101 0.249756 5.65749 0.249756 5.50127C0.249756 5.34505 0.290476 5.19152 0.3679 5.05584C0.445325 4.92015 0.556779 4.80699 0.691272 4.72752L6.40127 0.625016C6.53739 0.544955 6.69226 0.502334 6.85017 0.501478C7.00808 0.500622 7.16341 0.541561 7.30039 0.620141C7.43736 0.69872 7.55111 0.812142 7.63008 0.948893C7.70905 1.08564 7.75043 1.24085 7.75002 1.39877V3.00002C9.62502 3.00002 15.25 3.00002 16.5 13C13.375 7.37502 7.75002 8.00002 7.75002 8.00002V9.60127C7.75002 10.3013 6.99252 10.7238 6.40127 10.3763V10.375Z",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round"
+      }));
+    case "full":
+      return /*#__PURE__*/React.createElement("svg", {
+        width: "15",
+        height: "12",
+        viewBox: "0 0 17 13",
+        fill: "currentColor",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: {
+          marginRight: "0.25rem"
+        }
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M6.40127 10.375L0.691272 6.27502C0.556779 6.19554 0.445325 6.08238 0.3679 5.94669C0.290476 5.81101 0.249756 5.65749 0.249756 5.50127C0.249756 5.34505 0.290476 5.19152 0.3679 5.05584C0.445325 4.92015 0.556779 4.80699 0.691272 4.72752L6.40127 0.625016C6.53739 0.544955 6.69226 0.502334 6.85017 0.501478C7.00808 0.500622 7.16341 0.541561 7.30039 0.620141C7.43736 0.69872 7.55111 0.812142 7.63008 0.948893C7.70905 1.08564 7.75043 1.24085 7.75002 1.39877V3.00002C9.62502 3.00002 15.25 3.00002 16.5 13C13.375 7.37502 7.75002 8.00002 7.75002 8.00002V9.60127C7.75002 10.3013 6.99252 10.7238 6.40127 10.3763V10.375Z",
+        fill: "currentColor"
+      }));
+    default:
+      return null;
+  }
+};
+const LikeIcon = ({
+  type
+}) => {
+  switch (type) {
+    case "line":
+      return /*#__PURE__*/React.createElement("svg", {
+        width: "15",
+        height: "15",
+        viewBox: "0 0 15 15",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: {
+          marginRight: "0.25rem"
+        }
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M13.875 4.84375C13.875 3.08334 12.3884 1.65625 10.5547 1.65625C9.18362 1.65625 8.00666 2.45403 7.5 3.59242C6.99334 2.45403 5.81638 1.65625 4.44531 1.65625C2.61155 1.65625 1.125 3.08334 1.125 4.84375C1.125 9.95831 7.5 13.3438 7.5 13.3438C7.5 13.3438 13.875 9.95831 13.875 4.84375Z",
+        stroke: "currentColor",
+        strokeWidth: "1.5",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }));
+    case "full":
+      return /*#__PURE__*/React.createElement("svg", {
+        width: "15",
+        height: "15",
+        viewBox: "0 0 16 15",
+        fill: "currentColor",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: {
+          marginRight: "0.25rem"
+        }
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M7.65298 13.9149L7.6476 13.9121L7.62912 13.9024C7.61341 13.8941 7.59102 13.8822 7.56238 13.8667C7.50511 13.8358 7.42281 13.7907 7.31906 13.732C7.11164 13.6146 6.81794 13.4425 6.46663 13.2206C5.76556 12.7777 4.82731 12.1314 3.88539 11.3197C2.04447 9.73318 0 7.35227 0 4.5C0 2.01472 2.01472 0 4.5 0C5.9144 0 7.17542 0.652377 8 1.67158C8.82458 0.652377 10.0856 0 11.5 0C13.9853 0 16 2.01472 16 4.5C16 7.35227 13.9555 9.73318 12.1146 11.3197C11.1727 12.1314 10.2344 12.7777 9.53337 13.2206C9.18206 13.4425 8.88836 13.6146 8.68094 13.732C8.57719 13.7907 8.49489 13.8358 8.43762 13.8667C8.40898 13.8822 8.38659 13.8941 8.37088 13.9024L8.3524 13.9121L8.34702 13.9149L8.34531 13.9158C8.13 14.03 7.87 14.03 7.65529 13.9161L7.65298 13.9149Z"
+      }));
+  }
+};
 const MenuHorizontal = ({
   color: _color3 = "#FFF",
   className
@@ -719,8 +824,8 @@ const MenuHorizontal = ({
     xmlns: "http://www.w3.org/2000/svg",
     className: className
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M0.75 1.5C0.75 0.809644 1.30964 0.25 2 0.25C2.69036 0.25 3.25 0.809644 3.25 1.5C3.25 2.19036 2.69036 2.75 2 2.75C1.30964 2.75 0.75 2.19036 0.75 1.5ZM5.75 1.5C5.75 0.809644 6.30964 0.25 7 0.25C7.69036 0.25 8.25 0.809644 8.25 1.5C8.25 2.19036 7.69036 2.75 7 2.75C6.30964 2.75 5.75 2.19036 5.75 1.5ZM10.75 1.5C10.75 0.809644 11.3096 0.25 12 0.25C12.6904 0.25 13.25 0.809644 13.25 1.5C13.25 2.19036 12.6904 2.75 12 2.75C11.3096 2.75 10.75 2.19036 10.75 1.5Z",
     fill: "#798496"
   }));
@@ -737,13 +842,13 @@ const CheckIcon = ({
     xmlns: "http://www.w3.org/2000/svg",
     style: style
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M14.7045 1.15347C15.034 1.4045 15.0976 1.87509 14.8466 2.20457L6.84657 12.7046C6.71541 12.8767 6.51627 12.9838 6.30033 12.9983C6.08439 13.0129 5.87271 12.9334 5.71967 12.7804L1.21967 8.28037C0.926777 7.98748 0.926777 7.5126 1.21967 7.21971C1.51256 6.92682 1.98744 6.92682 2.28033 7.21971L6.17351 11.1129L13.6534 1.29551C13.9045 0.966029 14.3751 0.902435 14.7045 1.15347Z",
     fill: _color4,
     stroke: _color4,
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round"
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
   }));
 };
 const EmptyStateComments = () => {
@@ -777,7 +882,7 @@ const EmptyStateComments = () => {
     cy: "69",
     r: "26.6667",
     stroke: "#B291F4",
-    "stroke-width": "6.66667"
+    strokeWidth: "6.66667"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "124.5",
     y: "42",
@@ -818,7 +923,7 @@ const EmptyStateComments = () => {
     cy: "169",
     r: "26.6667",
     stroke: "#4E75F6",
-    "stroke-width": "6.66667"
+    strokeWidth: "6.66667"
   }), /*#__PURE__*/React.createElement("rect", {
     x: "182.5",
     y: "142",
@@ -847,9 +952,9 @@ const EmptyStateComments = () => {
     width: "463",
     height: "160",
     filterUnits: "userSpaceOnUse",
-    "color-interpolation-filters": "sRGB"
+    colorInterpolationFilters: "sRGB"
   }, /*#__PURE__*/React.createElement("feFlood", {
-    "flood-opacity": "0",
+    floodOpacity: "0",
     result: "BackgroundImageFix"
   }), /*#__PURE__*/React.createElement("feColorMatrix", {
     in: "SourceAlpha",
@@ -905,9 +1010,9 @@ const EmptyStateComments = () => {
     width: "463",
     height: "160",
     filterUnits: "userSpaceOnUse",
-    "color-interpolation-filters": "sRGB"
+    colorInterpolationFilters: "sRGB"
   }, /*#__PURE__*/React.createElement("feFlood", {
-    "flood-opacity": "0",
+    floodOpacity: "0",
     result: "BackgroundImageFix"
   }), /*#__PURE__*/React.createElement("feColorMatrix", {
     in: "SourceAlpha",
@@ -1043,7 +1148,7 @@ const UniswapIcon = () => {
       marginRight: 3
     }
   }, /*#__PURE__*/React.createElement("g", {
-    "clip-path": "url(#clip0_1366_5768)"
+    clipPath: "url(#clip0_1366_5768)"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M3.68764 1.88679C3.5231 1.86141 3.5161 1.85878 3.59399 1.8474C3.74278 1.82465 4.09288 1.85528 4.33444 1.91217C4.89809 2.04521 5.41098 2.38655 5.95888 2.99309L6.10417 3.15413L6.31248 3.12087C7.18946 2.98084 8.08045 3.09199 8.82703 3.43421C9.03271 3.52873 9.35655 3.71603 9.39593 3.76417C9.40994 3.77993 9.43357 3.87795 9.44845 3.98386C9.50446 4.34971 9.47733 4.62891 9.36442 4.83809C9.30316 4.95187 9.29966 4.98775 9.34079 5.08578C9.36046 5.12615 9.39107 5.16019 9.42914 5.18402C9.4672 5.20785 9.51119 5.22051 9.5561 5.22057C9.74165 5.22057 9.94121 4.92299 10.0331 4.50812L10.0699 4.3427L10.1425 4.42498C10.5425 4.87485 10.8558 5.48751 10.9092 5.92338L10.9232 6.03716L10.8567 5.93388C10.76 5.7757 10.6301 5.64042 10.476 5.5374C10.2082 5.36148 9.92458 5.30109 9.17537 5.2617C8.49794 5.22669 8.11459 5.16893 7.73473 5.04552C7.08793 4.83546 6.76235 4.55714 5.99389 3.55587C5.65255 3.11037 5.44249 2.86443 5.23243 2.66663C4.75543 2.21588 4.28718 1.97957 3.68764 1.88767V1.88679Z",
     fill: "#FF007A"
@@ -1054,8 +1159,8 @@ const UniswapIcon = () => {
     d: "M8.76189 8.967C8.55446 8.52414 8.50632 8.09614 8.6201 7.69704C8.63235 7.65327 8.65161 7.61914 8.66386 7.61914C8.67524 7.61914 8.72513 7.6454 8.77239 7.67778C8.86867 7.74167 9.05947 7.84933 9.57061 8.1259C10.2078 8.47162 10.5719 8.73857 10.8187 9.0449C11.0349 9.31185 11.1688 9.61731 11.2336 9.98841C11.2703 10.1985 11.2484 10.7061 11.1942 10.9179C11.0226 11.5866 10.6253 12.1117 10.0564 12.4181C9.97322 12.4627 9.89882 12.4995 9.89007 12.4995C9.88219 12.4995 9.91282 12.4233 9.95746 12.3297C10.1491 11.9323 10.171 11.5463 10.0266 11.1166C9.93733 10.8531 9.75703 10.5319 9.39293 9.98841C8.96932 9.35824 8.86604 9.18931 8.76189 8.967ZM2.89605 11.359C3.47634 10.8724 4.19666 10.5276 4.85396 10.4208C5.19251 10.3774 5.53593 10.3907 5.87011 10.4602C6.29022 10.5669 6.66657 10.8068 6.86175 11.0912C7.05255 11.3704 7.13482 11.6128 7.2206 12.1537C7.25386 12.3664 7.29062 12.5809 7.30112 12.629C7.36501 12.9091 7.49017 13.1331 7.64421 13.2452C7.88928 13.4237 8.31289 13.4351 8.72863 13.274C8.77181 13.2541 8.81742 13.24 8.86429 13.232C8.87917 13.2469 8.66999 13.3861 8.52295 13.4596C8.3485 13.5524 8.15335 13.5993 7.9558 13.5961C7.57507 13.5961 7.25911 13.4036 6.99479 13.0115C6.89785 12.8455 6.81133 12.6736 6.73572 12.4968C6.45739 11.8658 6.31998 11.6741 5.99702 11.4632C5.71519 11.2794 5.35197 11.247 5.07889 11.38C4.72005 11.5551 4.62027 12.0102 4.87759 12.299C4.99779 12.4231 5.15506 12.5048 5.32571 12.5318C5.39349 12.5411 5.46247 12.5357 5.52798 12.516C5.59349 12.4963 5.65399 12.4627 5.70538 12.4176C5.75677 12.3724 5.79784 12.3167 5.82581 12.2543C5.85378 12.1918 5.86799 12.1241 5.86748 12.0557C5.86748 11.8658 5.79396 11.7581 5.60929 11.6741C5.35634 11.5612 5.0859 11.6934 5.08677 11.9288C5.08677 12.0295 5.13141 12.0925 5.23294 12.1389C5.2977 12.1677 5.29945 12.1695 5.24606 12.159C5.015 12.1109 4.96074 11.8334 5.14629 11.6496C5.37035 11.429 5.83247 11.5262 5.99089 11.8282C6.05741 11.9551 6.06529 12.2071 6.00752 12.3594C5.87623 12.7008 5.49813 12.8802 5.11303 12.7822C4.85046 12.7156 4.74455 12.6439 4.42859 12.3209C3.87982 11.759 3.66714 11.6496 2.87592 11.5271L2.72363 11.5034L2.89605 11.359Z",
     fill: "#FF007A"
   }), /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M0.321446 1.30191C2.15419 3.51276 3.41716 4.42475 3.55719 4.61731C3.67273 4.7766 3.62896 4.92014 3.43116 5.03217C3.2905 5.10284 3.13738 5.14536 2.98041 5.15733C2.85175 5.15733 2.80712 5.10831 2.80712 5.10831C2.73272 5.0383 2.69071 5.05055 2.30823 4.37574C1.98305 3.86964 1.65395 3.36608 1.32097 2.86508C1.29296 2.83883 1.29383 2.83883 2.25484 4.54816C2.40976 4.90438 2.28548 5.03479 2.28548 5.08556C2.28548 5.18884 2.25659 5.2431 2.12881 5.38576C1.91525 5.62208 1.81985 5.88815 1.75071 6.43867C1.67369 7.05572 1.45663 7.49158 0.854465 8.23816C0.50262 8.6749 0.444854 8.75455 0.35558 8.93135C0.24355 9.15278 0.212917 9.27706 0.200663 9.55626C0.187535 9.85297 0.212917 10.0438 0.303941 10.3265C0.382712 10.575 0.466735 10.7378 0.679417 11.0652C0.863217 11.3479 0.968246 11.5579 0.968246 11.6402C0.968246 11.705 0.980499 11.705 1.26583 11.6411C1.94501 11.4888 2.49728 11.221 2.80799 10.891C3.00054 10.6871 3.04518 10.575 3.04693 10.2958C3.04781 10.1138 3.04168 10.0753 2.99179 9.97025C2.91127 9.79958 2.76423 9.65692 2.44039 9.43636C2.01503 9.14753 1.83298 8.91559 1.78397 8.59613C1.74195 8.33356 1.79009 8.14889 2.02466 7.65963C2.26797 7.15199 2.32836 6.93581 2.3695 6.42554C2.39576 6.09558 2.43164 5.96517 2.52704 5.86014C2.62682 5.75161 2.71609 5.71485 2.96291 5.68159C3.36464 5.62645 3.61934 5.52405 3.82939 5.3315C3.91359 5.262 3.98152 5.17489 4.0284 5.07629C4.07528 4.97769 4.09997 4.87002 4.10072 4.76085L4.10947 4.57705L4.00707 4.45976C3.63859 4.03265 0.0746292 0.96582 0.0518731 0.96582C0.0474969 0.96582 0.16828 1.11724 0.321446 1.30191ZM1.17568 9.89236C1.21583 9.82144 1.22777 9.73799 1.20911 9.65866C1.19046 9.57933 1.14258 9.50995 1.07502 9.46437C0.943739 9.37684 0.738058 9.41885 0.738058 9.53176C0.738058 9.56677 0.757314 9.59215 0.801075 9.61403C0.874595 9.65167 0.879847 9.69368 0.822081 9.78033C0.76344 9.86697 0.768692 9.94312 0.83521 9.99563C0.942864 10.0788 1.09515 10.0333 1.17568 9.89236ZM4.36241 5.77875C4.17424 5.83564 3.99131 6.03431 3.93355 6.24262C3.89941 6.36953 3.91954 6.59272 3.97118 6.66098C4.0552 6.77214 4.13573 6.80102 4.35541 6.80015C4.78428 6.79752 5.15713 6.6146 5.20089 6.38528C5.2359 6.19798 5.07223 5.93891 4.84642 5.82426C4.69303 5.76198 4.52472 5.74615 4.36241 5.77875ZM4.8648 6.16823C4.93044 6.07457 4.90156 5.97392 4.78865 5.90565C4.57509 5.77524 4.25038 5.8829 4.25038 6.0842C4.25038 6.18485 4.4193 6.29426 4.57422 6.29426C4.6775 6.29426 4.81929 6.23299 4.8648 6.16823Z",
     fill: "#FF007A"
   })), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("clipPath", {
@@ -1078,8 +1183,8 @@ const TheGraphIcon = () => {
       marginRight: 3
     }
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M5.3522 7.2222C3.63402 7.2222 2.2411 5.92886 2.2411 4.33332C2.2411 2.73778 3.63402 1.44444 5.3522 1.44444C7.07047 1.44444 8.4633 2.73778 8.4633 4.33332C8.4633 5.92886 7.07047 7.2222 5.3522 7.2222ZM5.3522 0C7.92951 0 10.0188 1.9401 10.0188 4.33332C10.0188 6.72654 7.92951 8.66664 5.3522 8.66664C2.77489 8.66664 0.685547 6.72654 0.685547 4.33332C0.685547 1.9401 2.77489 0 5.3522 0ZM9.79108 8.87814C10.0948 9.1602 10.0948 9.61743 9.79108 9.89949L6.67988 12.7885C6.37613 13.0705 5.88372 13.0705 5.57997 12.7885C5.27621 12.5064 5.27621 12.0492 5.57997 11.7671L8.69116 8.87814C8.99492 8.59608 9.48732 8.59608 9.79108 8.87814ZM11.5744 0.722219C11.5744 1.12115 11.2262 1.44444 10.7967 1.44444C10.3671 1.44444 10.0189 1.12115 10.0189 0.722219C10.0189 0.323292 10.3671 0 10.7967 0C11.2262 0 11.5744 0.323292 11.5744 0.722219Z",
     fill: "currentColor"
   }));
@@ -1095,19 +1200,19 @@ const SushiIcon = () => {
       marginRight: 3
     }
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M10.4766 6.86866L8.52596 9.59583C8.24192 9.99351 7.68798 10.1687 6.98252 10.1119C6.00242 10.0266 4.7004 9.50583 3.45525 8.61109C3.04922 8.32284 2.66562 8.00422 2.30778 7.65796C1.64798 7.01715 1.16303 6.35048 0.903332 5.75604C0.619292 5.1027 0.609898 4.52513 0.893938 4.12745L2.84918 1.40028C3.13332 1.0026 3.68251 0.82745 4.39272 0.884218C5.37282 0.964723 6.67009 1.49028 7.91989 2.38038C9.16514 3.27523 10.079 4.34048 10.4672 5.24008C10.5007 5.31725 10.5304 5.39331 10.5563 5.46826C10.7493 6.02735 10.7271 6.51796 10.4766 6.86866Z",
     fill: "url(#paint0_linear_1387_5021)"
   }), /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M10.4766 6.86866L8.52596 9.59583C8.24192 9.99351 7.68798 10.1687 6.98252 10.1119C6.00242 10.0266 4.7004 9.50583 3.45525 8.61109C3.04922 8.32284 2.66562 8.00422 2.30778 7.65796C1.64798 7.01715 1.16303 6.35048 0.903332 5.75604C0.619292 5.1027 0.609898 4.52513 0.893938 4.12745L2.84918 1.40028C3.13332 1.0026 3.68251 0.82745 4.39272 0.884218C5.37282 0.964723 6.67009 1.49028 7.91989 2.38038C9.16514 3.27523 10.079 4.34048 10.4672 5.24008C10.5007 5.31725 10.5304 5.39331 10.5563 5.46826C10.7493 6.02735 10.7271 6.51796 10.4766 6.86866Z",
     fill: "#3B95DA",
-    "fill-opacity": "0.2"
+    fillOpacity: "0.2"
   }), /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M10.1639 5.37257C9.78989 4.5156 8.91393 3.50712 7.7209 2.6549C6.53252 1.80267 5.29686 1.29611 4.36414 1.22035C3.79595 1.17298 3.34616 1.27722 3.11898 1.59439L3.10939 1.61328C2.89636 1.93055 2.94373 2.38035 3.16626 2.89166C3.5403 3.75338 4.41616 4.76177 5.60464 5.61399C6.79292 6.46622 8.02868 6.97288 8.96131 7.04863C9.51999 7.09116 9.9604 6.99178 10.1923 6.69349L10.2066 6.66985C10.4338 6.35732 10.3865 5.89338 10.1639 5.37257ZM8.41686 5.39156C8.31272 5.53823 8.09969 5.58096 7.83929 5.55722C7.3705 5.51934 6.75505 5.26368 6.15848 4.83762C5.56191 4.41146 5.12161 3.90954 4.93696 3.47874C4.83282 3.23732 4.80444 3.02429 4.90858 2.87742C5.01282 2.73065 5.22585 2.68803 5.4909 2.70702C5.95484 2.74964 6.57515 3.00055 7.16696 3.42671C7.76353 3.85278 8.20383 4.35934 8.38848 4.79025C8.49737 5.03166 8.52575 5.24469 8.41686 5.39156Z",
     fill: "#F5FAFF"
   }), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
@@ -1118,37 +1223,37 @@ const SushiIcon = () => {
     y2: "10.235",
     gradientUnits: "userSpaceOnUse"
   }, /*#__PURE__*/React.createElement("stop", {
-    "stop-color": "#27B0E6"
+    stopColor: "#27B0E6"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.107",
-    "stop-color": "#49A1DB"
+    stopColor: "#49A1DB"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.288",
-    "stop-color": "#7D8ACA"
+    stopColor: "#7D8ACA"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.445",
-    "stop-color": "#A279BD"
+    stopColor: "#A279BD"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.572",
-    "stop-color": "#BA6FB6"
+    stopColor: "#BA6FB6"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.651",
-    "stop-color": "#C26BB3"
+    stopColor: "#C26BB3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.678",
-    "stop-color": "#D563AD"
+    stopColor: "#D563AD"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.715",
-    "stop-color": "#E65BA7"
+    stopColor: "#E65BA7"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.76",
-    "stop-color": "#F156A3"
+    stopColor: "#F156A3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.824",
-    "stop-color": "#F853A1"
+    stopColor: "#F853A1"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "1",
-    "stop-color": "#FA52A0"
+    stopColor: "#FA52A0"
   }))));
 };
 const HopIcon = () => {
@@ -1176,19 +1281,19 @@ const HopIcon = () => {
     gradientUnits: "userSpaceOnUse"
   }, /*#__PURE__*/React.createElement("stop", {
     offset: "0.15",
-    "stop-color": "#B32EFF"
+    stopColor: "#B32EFF"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.42",
-    "stop-color": "#CE60D3"
+    stopColor: "#CE60D3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.65",
-    "stop-color": "#E185B3"
+    stopColor: "#E185B3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.84",
-    "stop-color": "#EE9C9F"
+    stopColor: "#EE9C9F"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.96",
-    "stop-color": "#F2A498"
+    stopColor: "#F2A498"
   })), /*#__PURE__*/React.createElement("linearGradient", {
     id: "paint1_linear_1387_5025",
     x1: "-0.620094",
@@ -1198,19 +1303,19 @@ const HopIcon = () => {
     gradientUnits: "userSpaceOnUse"
   }, /*#__PURE__*/React.createElement("stop", {
     offset: "0.15",
-    "stop-color": "#B32EFF"
+    stopColor: "#B32EFF"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.42",
-    "stop-color": "#CE60D3"
+    stopColor: "#CE60D3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.65",
-    "stop-color": "#E185B3"
+    stopColor: "#E185B3"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.84",
-    "stop-color": "#EE9C9F"
+    stopColor: "#EE9C9F"
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "0.96",
-    "stop-color": "#F2A498"
+    stopColor: "#F2A498"
   }))));
 };
 const LidoIcon = () => {
@@ -1224,8 +1329,8 @@ const LidoIcon = () => {
       marginRight: 3
     }
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M5.19363 0L8.16325 4.64914L5.19363 6.37967L2.22461 4.64914L5.19363 0ZM3.13368 4.42893L5.19363 1.20309L7.25418 4.42893L5.19363 5.63022L3.13368 4.42893Z",
     fill: "#273852"
   }), /*#__PURE__*/React.createElement("path", {
@@ -1267,6 +1372,36 @@ const SnapshotIcon = () => {
   }, /*#__PURE__*/React.createElement("path", {
     d: "M3.68888 3.86153C5.14764 2.62147 6.57116 1.39829 8.01717 0.201734C8.1799 0.0670755 8.4426 -0.0582657 8.70052 0.028882C8.81678 0.201734 8.7332 0.510835 8.63905 0.697064C7.94766 2.06451 7.22605 3.41695 6.51818 4.77627C6.42375 4.9576 6.35303 5.15102 6.24248 5.40516C6.92585 5.40516 7.52659 5.40515 8.12733 5.40516C8.91068 5.40518 9.69455 5.38999 10.477 5.41664C10.6579 5.4228 10.9883 5.41664 10.9883 5.67091C11.0421 5.75193 10.9003 6.03197 10.7752 6.14525C10.2115 6.65572 9.62226 7.13854 9.04228 7.63141C7.01861 9.35112 4.99985 11.0766 2.96191 12.7796C2.80147 12.9136 2.56886 13.0946 2.2758 12.9416C2.14072 12.6408 2.25288 12.4651 2.34676 12.2789C3.06864 10.8472 3.81741 9.4287 4.55676 8.00556C4.61158 7.90003 4.65805 7.79023 4.75024 7.59283C3.97816 7.59283 3.27717 7.59284 2.57618 7.59283C1.91746 7.59283 1.25791 7.61107 0.600503 7.58195C0.396558 7.57292 0.209874 7.57519 0.0502941 7.34987C-0.109253 7.12454 0.147767 6.88872 0.307145 6.74902C1.41209 5.78049 2.53984 4.83747 3.68888 3.86153Z",
     fill: "#FFA804"
+  }));
+};
+const SismoIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "16",
+    viewBox: "0 0 13 16",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 4
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M9.99893 0.902344L8.3291 3.76109L9.37781 4.37365L11.0476 1.51493L9.99893 0.902344Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.71839 0H5.50391V3.3365H6.71839V0Z",
+    fill: "white"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M2.22256 0.902832L1.16602 1.50178L2.80304 4.38934L3.85955 3.79037L2.22256 0.902832Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M5.50491 12.3906L5.50024 15.7153L6.71475 15.717L6.71939 12.3923L5.50491 12.3906Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M12.2224 8.84066H11.0079C11.0079 6.14071 8.81115 3.94397 6.1112 3.94397C3.41124 3.94397 1.21451 6.14071 1.21451 8.84066H0C0 5.47083 2.74136 2.72949 6.1112 2.72949C9.48103 2.72949 12.2224 5.47083 12.2224 8.84066Z",
+    fill: "currentColor"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M6.11113 12.9991C3.81224 12.9991 1.94238 11.1292 1.94238 8.83036C1.94238 6.53148 3.81224 4.66162 6.11113 4.66162C8.41001 4.66162 10.2799 6.53148 10.2799 8.83036C10.2799 11.1292 8.41001 12.9991 6.11113 12.9991ZM6.11113 5.8761C4.48212 5.8761 3.15686 7.20136 3.15686 8.83036C3.15686 10.4594 4.48212 11.7846 6.11113 11.7846C7.74013 11.7846 9.06536 10.4594 9.06536 8.83036C9.06536 7.20136 7.74013 5.8761 6.11113 5.8761Z",
+    fill: "currentColor"
   }));
 };
 const EthereumIcon = () => {
@@ -1342,6 +1477,59 @@ const OptimismIcon = () => {
   }), /*#__PURE__*/React.createElement("path", {
     d: "M6.49679 6.66579C6.42948 6.66579 6.37748 6.64387 6.34074 6.60002C6.31017 6.54995 6.301 6.49365 6.31322 6.43103L7.57971 0.328506C7.59192 0.259653 7.62558 0.203306 7.68067 0.159513C7.73571 0.115671 7.79385 0.09375 7.85502 0.09375H10.2962C10.9753 0.09375 11.5198 0.237732 11.9298 0.52565C12.3458 0.813568 12.5538 1.22978 12.5538 1.77432C12.5538 1.93081 12.5355 2.09353 12.4988 2.26252C12.3458 2.98234 12.0369 3.51434 11.5718 3.8586C11.113 4.20282 10.4828 4.37495 9.68132 4.37495H8.44235L8.0202 6.43103C8.00799 6.49988 7.97433 6.55623 7.91924 6.60002C7.8642 6.64387 7.80606 6.66579 7.74489 6.66579H6.49679ZM9.74554 3.07934C10.0025 3.07934 10.2258 3.00735 10.4155 2.86342C10.6113 2.71944 10.7398 2.51288 10.801 2.24374C10.8193 2.13737 10.8285 2.04346 10.8285 1.9621C10.8285 1.7806 10.7765 1.64289 10.6725 1.54898C10.5684 1.44884 10.391 1.39877 10.1402 1.39877H9.0389L8.69014 3.07934H9.74554Z",
     fill: "currentColor"
+  }));
+};
+const SendIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "13",
+    height: "11",
+    viewBox: "0 0 13 11",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginLeft: "0.25rem"
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M1.17363 0.101882C0.997487 0.0769162 0.820681 0.142855 0.7039 0.277068C0.587119 0.411281 0.546253 0.595504 0.595329 0.766509L1.58489 4.21462C1.71408 4.66479 2.1258 4.97498 2.59415 4.97498H6.87496C7.16491 4.97498 7.39996 5.21003 7.39996 5.49998C7.39996 5.78993 7.16491 6.02498 6.87496 6.02498H2.59415C2.1258 6.02498 1.71409 6.33516 1.58489 6.78533L0.595329 10.2335C0.546253 10.4045 0.587119 10.5887 0.7039 10.7229C0.820681 10.8571 0.997487 10.9231 1.17363 10.8981C5.26007 10.3189 8.95462 8.52309 11.8788 5.89013C11.9894 5.79057 12.0525 5.64877 12.0525 5.49999C12.0525 5.3512 11.9894 5.2094 11.8788 5.10984C8.95462 2.47688 5.26007 0.681073 1.17363 0.101882Z",
+    fill: "currentColor"
+  }));
+};
+const LockIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "15",
+    height: "18",
+    viewBox: "0 0 18 22",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: style
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M13.5 9.5V5.75C13.5 3.26472 11.4853 1.25 9 1.25C6.51472 1.25 4.5 3.26472 4.5 5.75V9.5M3.75 20.75H14.25C15.4926 20.75 16.5 19.7426 16.5 18.5V11.75C16.5 10.5074 15.4926 9.5 14.25 9.5H3.75C2.50736 9.5 1.5 10.5074 1.5 11.75V18.5C1.5 19.7426 2.50736 20.75 3.75 20.75Z",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }));
+};
+const UnlockIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: style
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M13.5 10.5V6.75C13.5 4.26472 15.5147 2.25 18 2.25C20.4853 2.25 22.5 4.26472 22.5 6.75V10.5M3.75 21.75H14.25C15.4926 21.75 16.5 20.7426 16.5 19.5V12.75C16.5 11.5074 15.4926 10.5 14.25 10.5H3.75C2.50736 10.5 1.5 11.5074 1.5 12.75V19.5C1.5 20.7426 2.50736 21.75 3.75 21.75Z",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
   }));
 };
 
@@ -1543,7 +1731,8 @@ var styles$7 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userP
 const User = ({
   details,
   connected: _connected = false,
-  height: _height = 44
+  height: _height = 44,
+  hover: _hover = false
 }) => {
   const {
     user,
@@ -1553,7 +1742,8 @@ const User = ({
     className: styles$7.userContainer
   }, /*#__PURE__*/React.createElement(UserPfp, {
     height: _height,
-    details: _connected ? user : details
+    details: _connected ? user : details,
+    hover: _hover
   }), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userUsernameContainer
   }, /*#__PURE__*/React.createElement("span", {
@@ -1567,14 +1757,17 @@ const User = ({
 const UserPfp = ({
   details,
   height: _height2 = 44,
-  showBadge: _showBadge = true
+  showBadge: _showBadge = true,
+  hover: _hover2 = false
 }) => {
   var _details$profile, _theme$bg, _theme$color, _details$profile2, _details$profile3;
+  const [hoverRef, isHovered] = useHover();
   const {
     theme
   } = useOrbis();
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPfpContainer
+    className: styles$7.userPfpContainer,
+    ref: hoverRef
   }, details && details.profile && (_details$profile = details.profile) !== null && _details$profile !== void 0 && _details$profile.pfp ? /*#__PURE__*/React.createElement("img", {
     className: styles$7.userPfpContainerImg,
     src: details.profile.pfp,
@@ -1612,7 +1805,10 @@ const UserPfp = ({
       width: "1.25rem"
     },
     src: "https://app.orbis.club/img/icons/nft-verified-" + ((_details$profile3 = details.profile) === null || _details$profile3 === void 0 ? void 0 : _details$profile3.pfpIsNft.chain) + ".png"
-  })));
+  })), _hover2 && /*#__PURE__*/React.createElement(UserPopup, {
+    visible: isHovered,
+    details: details
+  }));
 };
 const Username = ({
   details
@@ -1823,11 +2019,11 @@ function UserCredentials({
         });
       });
     } else {
-      var _theme$bg3;
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Alert, {
         title: "User doesn't have any credentials yet.",
         style: {
-          backgroundColor: theme !== null && theme !== void 0 && (_theme$bg3 = theme.bg) !== null && _theme$bg3 !== void 0 && _theme$bg3.main ? theme.bg.main : defaultTheme.bg.main
+          backgroundColor: getThemeValue("bg", theme, "main"),
+          color: getThemeValue("color", theme, "main")
         }
       }));
     }
@@ -1865,7 +2061,7 @@ function UserCredential({
     }
   }
   const CredentialIcon = () => {
-    var _credential$content, _credential$content$c, _credential$content2, _credential$content2$;
+    var _credential$content, _credential$content$c, _credential$content2, _credential$content2$, _credential$content3, _credential$content3$;
     let protocol = (_credential$content = credential.content) === null || _credential$content === void 0 ? void 0 : (_credential$content$c = _credential$content.credentialSubject) === null || _credential$content$c === void 0 ? void 0 : _credential$content$c.protocol;
     if (protocol) {
       switch (clean(protocol)) {
@@ -1883,8 +2079,23 @@ function UserCredential({
           return /*#__PURE__*/React.createElement(HopIcon, null);
         case "snapshot":
           return /*#__PURE__*/React.createElement(SnapshotIcon, null);
+        case "sismo":
+          return /*#__PURE__*/React.createElement(SismoIcon, null);
         case "nonces":
           switch ((_credential$content2 = credential.content) === null || _credential$content2 === void 0 ? void 0 : (_credential$content2$ = _credential$content2.credentialSubject) === null || _credential$content2$ === void 0 ? void 0 : _credential$content2$.type) {
+            case "active-wallet-mainnet":
+              return /*#__PURE__*/React.createElement(EthereumIcon, null);
+            case "active-wallet-polygon":
+              return /*#__PURE__*/React.createElement(PolygonIcon, null);
+            case "active-wallet-arbitrum":
+              return /*#__PURE__*/React.createElement(ArbitrumIcon, null);
+            case "active-wallet-optimism":
+              return /*#__PURE__*/React.createElement(OptimismIcon, null);
+            default:
+              return null;
+          }
+        case "evm":
+          switch ((_credential$content3 = credential.content) === null || _credential$content3 === void 0 ? void 0 : (_credential$content3$ = _credential$content3.credentialSubject) === null || _credential$content3$ === void 0 ? void 0 : _credential$content3$.type) {
             case "active-wallet-mainnet":
               return /*#__PURE__*/React.createElement(EthereumIcon, null);
             case "active-wallet-polygon":
@@ -1904,15 +2115,15 @@ function UserCredential({
     }
   };
   if (credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
-    if (credential.content.credentialSubject.protocol == "nonces") {
+    if (credential.content.credentialSubject.protocol == "nonces" || credential.content.credentialSubject.protocol == "EVM") {
       return /*#__PURE__*/React.createElement(Badge, {
         style: getStyle("badge", theme, clean(credential.content.credentialSubject.type)),
         tooltip: showTooltip ? credential.content.credentialSubject.description : null
       }, /*#__PURE__*/React.createElement(CredentialIcon, null), credential.content.credentialSubject.name);
     } else {
-      var _credential$content3;
+      var _credential$content4;
       return /*#__PURE__*/React.createElement(Badge, {
-        style: getStyle("badge", theme, clean((_credential$content3 = credential.content) === null || _credential$content3 === void 0 ? void 0 : _credential$content3.credentialSubject.protocol)),
+        style: getStyle("badge", theme, clean((_credential$content4 = credential.content) === null || _credential$content4 === void 0 ? void 0 : _credential$content4.credentialSubject.protocol)),
         tooltip: showTooltip ? credential.content.credentialSubject.description : null
       }, /*#__PURE__*/React.createElement(CredentialIcon, null), credential.content.credentialSubject.name);
     }
@@ -1929,13 +2140,13 @@ function UserCredential({
 const GitcoinProvider = ({
   credential
 }) => {
-  var _credential$content4, _credential$content4$, _credential$content5, _credential$content5$, _credential$content7, _credential$content7$, _credential$content9, _credential$content9$, _credential$content12, _credential$content13, _credential$content16, _credential$content17, _credential$content20, _credential$content21, _credential$content24, _credential$content25, _credential$content28, _credential$content29, _credential$content32, _credential$content33;
+  var _credential$content5, _credential$content5$, _credential$content6, _credential$content6$, _credential$content8, _credential$content8$, _credential$content10, _credential$content11, _credential$content14, _credential$content15, _credential$content18, _credential$content19, _credential$content22, _credential$content23, _credential$content26, _credential$content27, _credential$content30, _credential$content31, _credential$content34, _credential$content35;
   let provider = /*#__PURE__*/React.createElement("div", {
     className: "verified-credential-type"
-  }, /*#__PURE__*/React.createElement("span", null, (_credential$content4 = credential.content) === null || _credential$content4 === void 0 ? void 0 : (_credential$content4$ = _credential$content4.credentialSubject) === null || _credential$content4$ === void 0 ? void 0 : _credential$content4$.provider));
-  if ((_credential$content5 = credential.content) !== null && _credential$content5 !== void 0 && (_credential$content5$ = _credential$content5.credentialSubject) !== null && _credential$content5$ !== void 0 && _credential$content5$.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
-    var _credential$content6, _credential$content6$;
-    let numGrantsContributeTo = (_credential$content6 = credential.content) === null || _credential$content6 === void 0 ? void 0 : (_credential$content6$ = _credential$content6.credentialSubject) === null || _credential$content6$ === void 0 ? void 0 : _credential$content6$.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
+  }, /*#__PURE__*/React.createElement("span", null, (_credential$content5 = credential.content) === null || _credential$content5 === void 0 ? void 0 : (_credential$content5$ = _credential$content5.credentialSubject) === null || _credential$content5$ === void 0 ? void 0 : _credential$content5$.provider));
+  if ((_credential$content6 = credential.content) !== null && _credential$content6 !== void 0 && (_credential$content6$ = _credential$content6.credentialSubject) !== null && _credential$content6$ !== void 0 && _credential$content6$.provider.includes('GitcoinContributorStatistics#numGrantsContributeToGte#')) {
+    var _credential$content7, _credential$content7$;
+    let numGrantsContributeTo = (_credential$content7 = credential.content) === null || _credential$content7 === void 0 ? void 0 : (_credential$content7$ = _credential$content7.credentialSubject) === null || _credential$content7$ === void 0 ? void 0 : _credential$content7$.provider.replace('GitcoinContributorStatistics#numGrantsContributeToGte#', '');
     provider = /*#__PURE__*/React.createElement("div", {
       className: "verified-credential-type"
     }, /*#__PURE__*/React.createElement("span", {
@@ -1948,9 +2159,9 @@ const GitcoinProvider = ({
       className: "mleft-3 mright-4"
     }), " grants")));
   }
-  if ((_credential$content7 = credential.content) !== null && _credential$content7 !== void 0 && (_credential$content7$ = _credential$content7.credentialSubject) !== null && _credential$content7$ !== void 0 && _credential$content7$.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
-    var _credential$content8, _credential$content8$;
-    let totalContributionAmountGte = (_credential$content8 = credential.content) === null || _credential$content8 === void 0 ? void 0 : (_credential$content8$ = _credential$content8.credentialSubject) === null || _credential$content8$ === void 0 ? void 0 : _credential$content8$.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
+  if ((_credential$content8 = credential.content) !== null && _credential$content8 !== void 0 && (_credential$content8$ = _credential$content8.credentialSubject) !== null && _credential$content8$ !== void 0 && _credential$content8$.provider.includes('GitcoinContributorStatistics#totalContributionAmountGte#')) {
+    var _credential$content9, _credential$content9$;
+    let totalContributionAmountGte = (_credential$content9 = credential.content) === null || _credential$content9 === void 0 ? void 0 : (_credential$content9$ = _credential$content9.credentialSubject) === null || _credential$content9$ === void 0 ? void 0 : _credential$content9$.provider.replace('GitcoinContributorStatistics#totalContributionAmountGte#', '');
     provider = /*#__PURE__*/React.createElement("div", {
       className: "verified-credential-type"
     }, /*#__PURE__*/React.createElement("span", {
@@ -1963,9 +2174,9 @@ const GitcoinProvider = ({
       className: "mleft-3 mright-4"
     }), " grants")));
   }
-  if ((_credential$content9 = credential.content) !== null && _credential$content9 !== void 0 && (_credential$content9$ = _credential$content9.credentialSubject) !== null && _credential$content9$ !== void 0 && _credential$content9$.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
-    var _credential$content10, _credential$content11;
-    let numRoundsContributedToGte = (_credential$content10 = credential.content) === null || _credential$content10 === void 0 ? void 0 : (_credential$content11 = _credential$content10.credentialSubject) === null || _credential$content11 === void 0 ? void 0 : _credential$content11.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
+  if ((_credential$content10 = credential.content) !== null && _credential$content10 !== void 0 && (_credential$content11 = _credential$content10.credentialSubject) !== null && _credential$content11 !== void 0 && _credential$content11.provider.includes('GitcoinContributorStatistics#numRoundsContributedToGte#')) {
+    var _credential$content12, _credential$content13;
+    let numRoundsContributedToGte = (_credential$content12 = credential.content) === null || _credential$content12 === void 0 ? void 0 : (_credential$content13 = _credential$content12.credentialSubject) === null || _credential$content13 === void 0 ? void 0 : _credential$content13.provider.replace('GitcoinContributorStatistics#numRoundsContributedToGte#', '');
     provider = /*#__PURE__*/React.createElement("div", {
       className: "verified-credential-type"
     }, /*#__PURE__*/React.createElement("span", {
@@ -1978,9 +2189,9 @@ const GitcoinProvider = ({
       className: "mleft-3 mright-4"
     }), " rounds")));
   }
-  if ((_credential$content12 = credential.content) !== null && _credential$content12 !== void 0 && (_credential$content13 = _credential$content12.credentialSubject) !== null && _credential$content13 !== void 0 && _credential$content13.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
-    var _credential$content14, _credential$content15;
-    let numGr14ContributionsGte = (_credential$content14 = credential.content) === null || _credential$content14 === void 0 ? void 0 : (_credential$content15 = _credential$content14.credentialSubject) === null || _credential$content15 === void 0 ? void 0 : _credential$content15.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
+  if ((_credential$content14 = credential.content) !== null && _credential$content14 !== void 0 && (_credential$content15 = _credential$content14.credentialSubject) !== null && _credential$content15 !== void 0 && _credential$content15.provider.includes('GitcoinContributorStatistics#numGr14ContributionsGte#')) {
+    var _credential$content16, _credential$content17;
+    let numGr14ContributionsGte = (_credential$content16 = credential.content) === null || _credential$content16 === void 0 ? void 0 : (_credential$content17 = _credential$content16.credentialSubject) === null || _credential$content17 === void 0 ? void 0 : _credential$content17.provider.replace('GitcoinContributorStatistics#numGr14ContributionsGte#', '');
     provider = /*#__PURE__*/React.createElement("div", {
       className: "verified-credential-type"
     }, /*#__PURE__*/React.createElement("span", {
@@ -1993,9 +2204,9 @@ const GitcoinProvider = ({
       className: "mleft-3 mright-4"
     }), " grant(s) in GR14")));
   }
-  if ((_credential$content16 = credential.content) !== null && _credential$content16 !== void 0 && (_credential$content17 = _credential$content16.credentialSubject) !== null && _credential$content17 !== void 0 && _credential$content17.provider.includes('TwitterFollowerGT')) {
-    var _credential$content18, _credential$content19;
-    let countTwitterFollowers = (_credential$content18 = credential.content) === null || _credential$content18 === void 0 ? void 0 : (_credential$content19 = _credential$content18.credentialSubject) === null || _credential$content19 === void 0 ? void 0 : _credential$content19.provider.replace('TwitterFollowerGT', '');
+  if ((_credential$content18 = credential.content) !== null && _credential$content18 !== void 0 && (_credential$content19 = _credential$content18.credentialSubject) !== null && _credential$content19 !== void 0 && _credential$content19.provider.includes('TwitterFollowerGT')) {
+    var _credential$content20, _credential$content21;
+    let countTwitterFollowers = (_credential$content20 = credential.content) === null || _credential$content20 === void 0 ? void 0 : (_credential$content21 = _credential$content20.credentialSubject) === null || _credential$content21 === void 0 ? void 0 : _credential$content21.provider.replace('TwitterFollowerGT', '');
     provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
       style: {
         marginRight: 4,
@@ -2005,9 +2216,9 @@ const GitcoinProvider = ({
       className: "primary bold"
     }, ` > `), " ", countTwitterFollowers));
   }
-  if ((_credential$content20 = credential.content) !== null && _credential$content20 !== void 0 && (_credential$content21 = _credential$content20.credentialSubject) !== null && _credential$content21 !== void 0 && _credential$content21.provider.includes('TwitterFollowerGTE')) {
-    var _credential$content22, _credential$content23;
-    let countTwitterFollowersGte = (_credential$content22 = credential.content) === null || _credential$content22 === void 0 ? void 0 : (_credential$content23 = _credential$content22.credentialSubject) === null || _credential$content23 === void 0 ? void 0 : _credential$content23.provider.replace('TwitterFollowerGTE', '');
+  if ((_credential$content22 = credential.content) !== null && _credential$content22 !== void 0 && (_credential$content23 = _credential$content22.credentialSubject) !== null && _credential$content23 !== void 0 && _credential$content23.provider.includes('TwitterFollowerGTE')) {
+    var _credential$content24, _credential$content25;
+    let countTwitterFollowersGte = (_credential$content24 = credential.content) === null || _credential$content24 === void 0 ? void 0 : (_credential$content25 = _credential$content24.credentialSubject) === null || _credential$content25 === void 0 ? void 0 : _credential$content25.provider.replace('TwitterFollowerGTE', '');
     provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
       style: {
         marginRight: 4,
@@ -2017,9 +2228,9 @@ const GitcoinProvider = ({
       className: "primary bold"
     }, ` > `), " ", countTwitterFollowersGte));
   }
-  if ((_credential$content24 = credential.content) !== null && _credential$content24 !== void 0 && (_credential$content25 = _credential$content24.credentialSubject) !== null && _credential$content25 !== void 0 && _credential$content25.provider.includes('TwitterTweetGT')) {
-    var _credential$content26, _credential$content27;
-    let countTweets = (_credential$content26 = credential.content) === null || _credential$content26 === void 0 ? void 0 : (_credential$content27 = _credential$content26.credentialSubject) === null || _credential$content27 === void 0 ? void 0 : _credential$content27.provider.replace('TwitterTweetGT', '');
+  if ((_credential$content26 = credential.content) !== null && _credential$content26 !== void 0 && (_credential$content27 = _credential$content26.credentialSubject) !== null && _credential$content27 !== void 0 && _credential$content27.provider.includes('TwitterTweetGT')) {
+    var _credential$content28, _credential$content29;
+    let countTweets = (_credential$content28 = credential.content) === null || _credential$content28 === void 0 ? void 0 : (_credential$content29 = _credential$content28.credentialSubject) === null || _credential$content29 === void 0 ? void 0 : _credential$content29.provider.replace('TwitterTweetGT', '');
     provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(TwitterIcon, {
       style: {
         marginRight: 4,
@@ -2029,9 +2240,9 @@ const GitcoinProvider = ({
       className: "primary bold"
     }, ` > `), " ", countTweets));
   }
-  if ((_credential$content28 = credential.content) !== null && _credential$content28 !== void 0 && (_credential$content29 = _credential$content28.credentialSubject) !== null && _credential$content29 !== void 0 && _credential$content29.provider.includes('gtcPossessionsGte')) {
-    var _credential$content30, _credential$content31;
-    let countGtc = (_credential$content30 = credential.content) === null || _credential$content30 === void 0 ? void 0 : (_credential$content31 = _credential$content30.credentialSubject) === null || _credential$content31 === void 0 ? void 0 : _credential$content31.provider.replace('gtcPossessionsGte#', '');
+  if ((_credential$content30 = credential.content) !== null && _credential$content30 !== void 0 && (_credential$content31 = _credential$content30.credentialSubject) !== null && _credential$content31 !== void 0 && _credential$content31.provider.includes('gtcPossessionsGte')) {
+    var _credential$content32, _credential$content33;
+    let countGtc = (_credential$content32 = credential.content) === null || _credential$content32 === void 0 ? void 0 : (_credential$content33 = _credential$content32.credentialSubject) === null || _credential$content33 === void 0 ? void 0 : _credential$content33.provider.replace('gtcPossessionsGte#', '');
     provider = /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", null, "Owns at least ", /*#__PURE__*/React.createElement("span", {
       className: "primary bold"
     }, countGtc)), /*#__PURE__*/React.createElement("img", {
@@ -2042,7 +2253,7 @@ const GitcoinProvider = ({
       className: "primary bold"
     }, "GTC"));
   }
-  switch ((_credential$content32 = credential.content) === null || _credential$content32 === void 0 ? void 0 : (_credential$content33 = _credential$content32.credentialSubject) === null || _credential$content33 === void 0 ? void 0 : _credential$content33.provider) {
+  switch ((_credential$content34 = credential.content) === null || _credential$content34 === void 0 ? void 0 : (_credential$content35 = _credential$content34.credentialSubject) === null || _credential$content35 === void 0 ? void 0 : _credential$content35.provider) {
     case 'Twitter':
       provider = /*#__PURE__*/React.createElement(React.Fragment, null, "Has a ", /*#__PURE__*/React.createElement(TwitterIcon, {
         style: {
@@ -2228,9 +2439,7 @@ function Follow({
   if (loading) {
     return /*#__PURE__*/React.createElement(Button, {
       color: "green"
-    }, /*#__PURE__*/React.createElement(LoadingCircle, {
-      color: "text-white ml-3"
-    }));
+    }, /*#__PURE__*/React.createElement(LoadingCircle, null));
   }
   if (following) {
     return /*#__PURE__*/React.createElement("div", {
@@ -2288,6 +2497,7 @@ function UserEditProfile({
         ...user
       };
       _user.profile = profile;
+      console.log("Updating user to: ", _user);
       setUser(_user);
       await sleep(1500);
       setIsEditing(false);
@@ -2348,7 +2558,9 @@ function UserEditProfile({
   }, /*#__PURE__*/React.createElement(EditIcon, null)))), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userEditButtonContainer,
     onClick: () => setIsEditing(false)
-  }, /*#__PURE__*/React.createElement(Button, null, "Cancel"))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Button, {
+    color: "secondary"
+  }, "Cancel"))), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userFieldsContainer
   }, /*#__PURE__*/React.createElement(Input, {
     type: "text",
@@ -2444,7 +2656,8 @@ const WalletButton = ({
     orbis,
     magic,
     user,
-    setUser
+    setUser,
+    setCredentials
   } = useOrbis();
   const [status, setStatus] = useState(0);
   async function connect() {
@@ -2463,6 +2676,12 @@ const WalletButton = ({
         });
         break;
       case "wallet-connect":
+        const wc_provider = await EthereumProvider.init({
+          projectId: "9fe6eef52f4985e5849a5c1e2c80fabb",
+          chains: ["1"]
+        });
+        await wc_provider.enable();
+        res = await orbis.connect(wc_provider, false);
         break;
       case "phantom":
         const isPhantomInstalled = (_window$phantom = window.phantom) === null || _window$phantom === void 0 ? void 0 : (_window$phantom$solan = _window$phantom.solana) === null || _window$phantom$solan === void 0 ? void 0 : _window$phantom$solan.isPhantom;
@@ -2493,6 +2712,7 @@ const WalletButton = ({
       if (res.status == 200) {
         setUser(res.details);
         setStatus(2);
+        loadCredentials(res.details.did);
         localStorage.setItem("provider-type", type);
         callback();
       } else {
@@ -2504,6 +2724,32 @@ const WalletButton = ({
       }
     } catch (e) {
       alert("Error calling Orbis connect function.");
+    }
+  }
+  async function loadCredentials(did) {
+    let {
+      data,
+      error,
+      status
+    } = await orbis.api.rpc("get_verifiable_credentials", {
+      q_subject: did,
+      q_min_weight: 10
+    });
+    if (data && data.length > 0) {
+      setCredentials(data);
+    } else {
+      fetchCredentials(did);
+    }
+  }
+  async function fetchCredentials(did) {
+    console.log("Fetching credentials for di");
+    let res = await fetch("https://api.orbis.club/mint-credentials/" + did, {
+      method: 'GET'
+    });
+    let result = await res.json();
+    if (result.status == 200) {
+      await sleep(3000);
+      loadCredentials(did);
     }
   }
   return /*#__PURE__*/React.createElement(Button, {
@@ -2681,25 +2927,11 @@ function ConnectButton({
     orbis,
     user,
     theme,
-    setUser
+    setUser,
+    setCredentials,
+    connecting
   } = useOrbis();
-  const [connecting, setConnecting] = useState(false);
   const [connectModalVis, setConnectModalVis] = useState(false);
-  useEffect(() => {
-    if (!user) {
-      checkOrbisConnected();
-    }
-    async function checkOrbisConnected() {
-      if (localStorage.getItem("ceramic-session")) {
-        setConnecting(true);
-      }
-      let res = await orbis.isConnected();
-      if (res && res.status == 200) {
-        setUser(res.details);
-      }
-      setConnecting(false);
-    }
-  }, [user]);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     className: styles$8.connectBtn,
     style: {
@@ -2719,7 +2951,123 @@ function ConnectButton({
   }));
 }
 
-var styles$9 = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
+var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","operator":"_1XO9C"};
+
+function AccessRulesModal({
+  hide,
+  callbackNftUpdate
+}) {
+  const {
+    user,
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement(Modal, {
+    hide: () => hide(),
+    width: 500,
+    title: "Access Rules",
+    description: "This feed is gated with the following rules:"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: "100%",
+      display: "flex",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$9.accessRulesContainer
+  }, /*#__PURE__*/React.createElement(LoopAccessRules, null))));
+}
+const LoopAccessRules = () => {
+  const {
+    accessRules
+  } = useOrbis();
+  return accessRules.map((accessRule, key) => {
+    return /*#__PURE__*/React.createElement(OneAccessRule, {
+      accessRule: accessRule,
+      key: key
+    });
+  });
+};
+const OneAccessRule = ({
+  accessRule
+}) => {
+  const {
+    theme
+  } = useOrbis();
+  if (accessRule.operator) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$9.operator,
+      style: {
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }, accessRule.operator);
+  }
+  switch (accessRule.type) {
+    case "credential":
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.accessRuleContainer,
+        style: {
+          borderColor: getThemeValue("border", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 13,
+          color: getThemeValue("color", theme, "secondary"),
+          marginRight: 7
+        }
+      }, "Must own:"), /*#__PURE__*/React.createElement(LoopCredentials, {
+        credentials: accessRule.requiredCredentials
+      }));
+    case "did":
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.accessRuleContainer,
+        style: {
+          borderColor: getThemeValue("border", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 13,
+          color: getThemeValue("color", theme, "secondary"),
+          marginRight: 7
+        }
+      }, "Must be:"), /*#__PURE__*/React.createElement(LoopUsers, {
+        users: accessRule.authorizedUsers
+      }));
+    default:
+      return null;
+  }
+};
+const LoopCredentials = ({
+  credentials
+}) => {
+  return credentials.map((credential, key) => {
+    return /*#__PURE__*/React.createElement(UserCredential, {
+      credential: credential,
+      key: key
+    });
+  });
+};
+const LoopUsers = ({
+  users
+}) => {
+  const {
+    theme
+  } = useOrbis();
+  return users.map((_user, key) => {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: getThemeValue("color", theme, "main"),
+        fontSize: 15
+      }
+    }, /*#__PURE__*/React.createElement(User, {
+      details: _user.details,
+      key: key
+    }));
+  });
+};
+
+const CommentsContext = React.createContext({});
+
+var styles$a = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","accessRulesContainer":"_38Oc2","hoverLink":"_2DzGC","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
 
 let mentions = [];
 function Postbox({
@@ -2731,7 +3079,7 @@ function Postbox({
   defaultPost,
   setEditPost,
   ctaTitle = "Comment",
-  ctaStyle = styles$9.postboxShareContainerBtn,
+  ctaStyle = styles$a.postboxShareContainerBtn,
   placeholder = "Add your comment..."
 }) {
   const {
@@ -2739,15 +3087,18 @@ function Postbox({
     setUser,
     orbis,
     theme,
-    context
+    context,
+    accessRules,
+    hasAccess
   } = useOrbis();
   const {
     comments,
     setComments
-  } = useContext(GlobalContext);
+  } = useContext(CommentsContext);
   const [sharing, setSharing] = useState(false);
   const [hoverRef, isHovered] = useHover();
   const [body, setBody] = useState("");
+  const [accessRulesModalVis, setAccessRulesModalVis] = useState(false);
   const postbox = useRef();
   const [mentionsBoxVis, setMentionsBoxVis] = useState(false);
   const [focusOffset, setFocusOffset] = useState(null);
@@ -2755,10 +3106,11 @@ function Postbox({
   useEffect(() => {
     if (defaultPost) {
       if (postbox.current) {
-        postbox.current.value = defaultPost.content.body;
+        postbox.current.textContent = defaultPost.content.body;
+        setBody(defaultPost.content.body);
       }
     }
-  }, [defaultPost]);
+  }, [defaultPost, postbox]);
   const handleSubmit = async event => {
     console.log("Submitting form.");
     event.preventDefault();
@@ -2774,37 +3126,49 @@ function Postbox({
     } else if (reply) {
       master = reply.stream_id;
     }
-    let _content = {
-      body: body,
-      context: context,
-      master: master,
-      reply_to: reply ? reply.stream_id : null,
-      mentions: mentions
-    };
-    let res = await orbis.createPost(_content);
-    console.log("res:", res);
-    if (res.status == 200) {
-      setComments([{
-        timestamp: getTimestamp(),
-        creator_details: user,
-        creator: user.did,
-        stream_id: res.doc,
-        content: _content,
-        count_likes: 0
-      }, ...comments]);
-      if (postbox.current) {
-        postbox.current.value = "";
+    if (defaultPost) {
+      let _contentEdit = {
+        ...defaultPost.content
+      };
+      _contentEdit.body = body;
+      let res = await orbis.editPost(defaultPost.stream_id, _contentEdit);
+      console.log("res:", res);
+      if (callback) {
+        callback(_contentEdit);
+      }
+    } else {
+      let _contentCreate = {
+        body: body,
+        context: context ? context : null,
+        master: master,
+        reply_to: reply ? reply.stream_id : null,
+        mentions: mentions
+      };
+      console.log("_content to share:", _contentCreate);
+      let res = await orbis.createPost(_contentCreate);
+      if (res.status == 200) {
+        setComments([{
+          timestamp: getTimestamp(),
+          creator_details: user,
+          creator: user.did,
+          stream_id: res.doc,
+          content: _contentCreate,
+          count_likes: 0
+        }, ...comments]);
+      } else {
+        console.log("Error submitting form:", res);
       }
       if (callback) {
         callback();
       }
-      setBody(null);
-      mentions = [];
-      if (postbox.current) {
-        postbox.current.textContent = "";
-      }
-    } else {
-      console.log("Error submitting form:", res);
+    }
+    if (postbox.current) {
+      postbox.current.value = "";
+    }
+    setBody(null);
+    mentions = [];
+    if (postbox.current) {
+      postbox.current.textContent = "";
     }
     setSharing(false);
   };
@@ -2858,44 +3222,42 @@ function Postbox({
   if (user) {
     var _theme$color, _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main;
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxGlobalContainer
+      className: styles$a.postboxGlobalContainer
     }, showPfp && /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxUserContainer,
+      className: styles$a.postboxUserContainer,
       ref: hoverRef
     }, /*#__PURE__*/React.createElement(UserPfp, {
-      details: user
-    }), /*#__PURE__*/React.createElement(UserPopup, {
-      visible: isHovered,
-      details: user
+      details: user,
+      hover: true
     })), /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxContainer
+      className: styles$a.postboxContainer
     }, /*#__PURE__*/React.createElement("form", {
       style: {
         width: "100%"
       },
       onSubmit: event => handleSubmit(event)
     }, /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postbox,
+      className: styles$a.postbox,
       style: {
         borderColor: getThemeValue("input", theme).border,
         backgroundColor: getThemeValue("input", theme, sharing).background
       }
     }, reply && /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxReplyContainer
+      className: styles$a.postboxReplyContainer
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         marginRight: "0.25rem",
         color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.secondary ? theme.color.secondary : defaultTheme.color.secondary
       }
     }, "Replying to:"), /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxReplyBadge,
+      className: styles$a.postboxReplyBadge,
       style: {
         background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
         color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
       }
     }, /*#__PURE__*/React.createElement(Username, {
       details: reply.creator_details
-    }))), /*#__PURE__*/React.createElement("div", {
+    }))), hasAccess && /*#__PURE__*/React.createElement("div", {
       contentEditable: true,
       autoFocus: true,
       "data-placeholder": placeholder,
@@ -2905,7 +3267,7 @@ function Postbox({
       id: "postbox-area",
       value: body,
       onChange: e => setBody(e.target.value),
-      className: styles$9.postboxInput,
+      className: styles$a.postboxInput,
       style: {
         fontSize: 15,
         color: getThemeValue("input", theme, sharing).color
@@ -2914,27 +3276,67 @@ function Postbox({
       disabled: sharing,
       onInput: e => handleInput(e)
     }), /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxShareContainer
-    }, sharing ? /*#__PURE__*/React.createElement("button", {
+      className: styles$a.postboxShareContainer
+    }, accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: styles$a.accessRulesContainer,
+      style: {
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }, hasAccess ? /*#__PURE__*/React.createElement(UnlockIcon, {
+      style: {
+        marginRight: 5,
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }) : /*#__PURE__*/React.createElement(LockIcon, {
+      style: {
+        marginRight: 5,
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }), /*#__PURE__*/React.createElement("span", null, "Gated to specific credentials holders. ", /*#__PURE__*/React.createElement("span", {
+      className: styles$a.hoverLink,
+      style: {
+        fontWeight: 500,
+        color: getThemeValue("color", theme, "active")
+      },
+      onClick: () => setAccessRulesModalVis(true)
+    }, "View"))), sharing ? /*#__PURE__*/React.createElement("button", {
       type: "submit",
       className: ctaStyle,
-      disabled: true
+      style: {
+        background: "transparent",
+        color: getThemeValue("color", theme, "main")
+      }
     }, /*#__PURE__*/React.createElement(LoadingCircle, null), " Sending") : /*#__PURE__*/React.createElement(React.Fragment, null, defaultPost && /*#__PURE__*/React.createElement(Button, {
       color: "secondary",
       style: {
         marginRight: 5
       },
       onClick: () => setEditPost(false)
-    }, "Cancel"), /*#__PURE__*/React.createElement("button", {
+    }, "Cancel"), hasAccess ? /*#__PURE__*/React.createElement("button", {
       type: "submit",
       className: ctaStyle,
       style: getStyle("button-main", theme, "main")
-    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null)))))), mentionsBoxVis && /*#__PURE__*/React.createElement(MentionsBox, {
+    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null)) : /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      disabled: true,
+      className: ctaStyle,
+      style: {
+        ...getStyle("button-main", theme, "main"),
+        opacity: 0.7,
+        marginTop: 10
+      }
+    }, /*#__PURE__*/React.createElement(LockIcon, {
+      style: {
+        marginRight: 5
+      }
+    }), "Locked"))))), mentionsBoxVis && /*#__PURE__*/React.createElement(MentionsBox, {
       add: addMention
-    })));
+    })), accessRulesModalVis && /*#__PURE__*/React.createElement(AccessRulesModal, {
+      hide: () => setAccessRulesModalVis(false)
+    }));
   } else {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$9.postboxConnectContainer
+      className: styles$a.postboxConnectContainer
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         width: "60%"
@@ -2952,7 +3354,7 @@ const MentionsBox = ({
     orbis,
     user,
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -2984,7 +3386,7 @@ const MentionsBox = ({
     }
     if (loading) {
       return /*#__PURE__*/React.createElement("div", {
-        className: styles$9.loadingContainer,
+        className: styles$a.loadingContainer,
         style: {
           color: getThemeValue("color", theme, "main")
         }
@@ -2994,7 +3396,7 @@ const MentionsBox = ({
         return users.map((_user, key) => {
           var _theme$color2;
           return /*#__PURE__*/React.createElement("div", {
-            className: styles$9.userResultContainer,
+            className: styles$a.userResultContainer,
             onClick: () => add(_user.details),
             style: {
               fontSize: 15,
@@ -3013,13 +3415,13 @@ const MentionsBox = ({
     }
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$9.mentionsBoxContainer,
+    className: styles$a.mentionsBoxContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.mentionsBoxInputContainer
+    className: styles$a.mentionsBoxInputContainer
   }, /*#__PURE__*/React.createElement(Input, {
     autofocus: true,
     type: "text",
@@ -3034,34 +3436,19 @@ const MentionsBox = ({
       borderBottomWidth: 1
     }
   })), search && search.length >= 2 ? /*#__PURE__*/React.createElement("div", {
-    className: styles$9.userResults,
+    className: styles$a.userResults,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
     }
   }, /*#__PURE__*/React.createElement(LoopUsers, null)) : /*#__PURE__*/React.createElement("p", {
-    className: styles$9.mentionsBoxEmptyState,
+    className: styles$a.mentionsBoxEmptyState,
     style: {
       color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Search by username to mention someone."));
 };
-const SendIcon = () => {
-  return /*#__PURE__*/React.createElement("svg", {
-    width: "13",
-    height: "11",
-    viewBox: "0 0 13 11",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg",
-    style: {
-      marginLeft: "0.25rem"
-    }
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M1.17363 0.101882C0.997487 0.0769162 0.820681 0.142855 0.7039 0.277068C0.587119 0.411281 0.546253 0.595504 0.595329 0.766509L1.58489 4.21462C1.71408 4.66479 2.1258 4.97498 2.59415 4.97498H6.87496C7.16491 4.97498 7.39996 5.21003 7.39996 5.49998C7.39996 5.78993 7.16491 6.02498 6.87496 6.02498H2.59415C2.1258 6.02498 1.71409 6.33516 1.58489 6.78533L0.595329 10.2335C0.546253 10.4045 0.587119 10.5887 0.7039 10.7229C0.820681 10.8571 0.997487 10.9231 1.17363 10.8981C5.26007 10.3189 8.95462 8.52309 11.8788 5.89013C11.9894 5.79057 12.0525 5.64877 12.0525 5.49999C12.0525 5.3512 11.9894 5.2094 11.8788 5.10984C8.95462 2.47688 5.26007 0.681073 1.17363 0.101882Z",
-    fill: "white"
-  }));
-};
 
-var styles$a = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
+var styles$b = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
 
 function Post({
   post,
@@ -3072,14 +3459,14 @@ function Post({
     user,
     setUser,
     orbis,
-    theme
+    theme,
+    hasAccess
   } = useOrbis();
   const [editPost, setEditPost] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [reply, setReply] = useState();
   const [userReaction, setUserReaction] = useState();
   const [postMenuVis, setPostMenuVis] = useState(false);
-  const [hoverRef, isHovered] = useHover();
   useEffect(() => {
     if (user) {
       getUserReaction();
@@ -3099,6 +3486,10 @@ function Post({
       alert("You must be connected to react to posts.");
       return;
     }
+    if (!hasAccess) {
+      alert("You need the required credentials to react to posts in this feed.");
+      return;
+    }
     setUserReaction(type);
     let res = await orbis.react(post.stream_id, type);
     switch (res.status) {
@@ -3110,29 +3501,31 @@ function Post({
   function callbackShared() {
     setReply(false);
   }
+  function callbackEdit(content) {
+    console.log("Enter callbackShared()");
+    setEditPost(false);
+    post.content = content;
+  }
   if (isDeleted) {
     return null;
   }
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postContainer
+    className: styles$b.postContainer
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative"
-    },
-    ref: hoverRef
+    }
   }, /*#__PURE__*/React.createElement(UserPfp, {
-    details: post.creator_details
-  }), /*#__PURE__*/React.createElement(UserPopup, {
-    visible: isHovered,
-    details: post.creator_details
+    details: post.creator_details,
+    hover: true
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postDetailsContainer
+    className: styles$b.postDetailsContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postDetailsContainerMetadata
+    className: styles$b.postDetailsContainerMetadata
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postDetailsContainerUser
+    className: styles$b.postDetailsContainerUser
   }, /*#__PURE__*/React.createElement("span", {
-    className: styles$a.postDetailsContainerUsername,
+    className: styles$b.postDetailsContainerUsername,
     style: {
       fontSize: 15,
       color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.main ? theme.color.main : defaultTheme.color.main
@@ -3140,14 +3533,14 @@ function Post({
   }, /*#__PURE__*/React.createElement(Username, {
     details: post.creator_details
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.hideMobile,
+    className: styles$b.hideMobile,
     style: {
       marginLeft: "0.5rem"
     }
   }, /*#__PURE__*/React.createElement(UserBadge, {
     details: post.creator_details
   }))), /*#__PURE__*/React.createElement("p", {
-    className: styles$a.postDetailsContainerTimestamp,
+    className: styles$b.postDetailsContainerTimestamp,
     style: {
       fontSize: 12,
       color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.secondary ? theme.color.secondary : defaultTheme.color.secondary
@@ -3160,7 +3553,7 @@ function Post({
     date: post.timestamp * 1000,
     locale: "en-US"
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.hideMobile
+    className: styles$b.hideMobile
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: "0.5rem",
@@ -3203,10 +3596,10 @@ function Post({
     showPfp: false,
     defaultPost: post,
     reply: reply,
-    callback: callbackShared,
+    callback: callbackEdit,
     rows: "1",
     ctaTitle: "Edit",
-    ctaStyle: styles$a.postReplyCta,
+    ctaStyle: styles$b.postReplyCta,
     setEditPost: setEditPost
   })) : /*#__PURE__*/React.createElement("div", {
     style: {
@@ -3217,19 +3610,19 @@ function Post({
     post: post,
     characterLimit: characterLimit
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postActionsContainer
+    className: styles$b.postActionsContainer
   }, reply != null ? /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: styles$a.postActionButton,
+    className: styles$b.postActionButton,
     style: {
-      color: "#4E75F6"
+      color: getThemeValue("color", theme, "active")
     },
     onClick: () => setReply(null)
   }, /*#__PURE__*/React.createElement(ReplyIcon, {
     type: "full"
   }), "Reply") : /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: styles$a.postActionButton,
+    className: styles$b.postActionButton,
     style: {
       color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary
     },
@@ -3243,15 +3636,15 @@ function Post({
       display: "flex"
     }
   }, userReaction == "like" ? /*#__PURE__*/React.createElement("button", {
-    className: styles$a.postActionButton,
+    className: styles$b.postActionButton,
     style: {
-      color: "#4E75F6"
+      color: getThemeValue("color", theme, "active")
     },
     onClick: () => like(null)
   }, /*#__PURE__*/React.createElement(LikeIcon, {
     type: "full"
   }), "Liked") : /*#__PURE__*/React.createElement("button", {
-    className: styles$a.postActionButton,
+    className: styles$b.postActionButton,
     style: {
       color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.secondary ? theme.color.secondary : defaultTheme.color.secondary
     },
@@ -3268,7 +3661,7 @@ function Post({
     placeholder: "Add your reply...",
     rows: "1",
     ctaTitle: "Reply",
-    ctaStyle: styles$a.postReplyCta
+    ctaStyle: styles$b.postReplyCta
   })))));
 }
 const PostBody = ({
@@ -3294,7 +3687,7 @@ const PostBody = ({
   const Body = () => {
     var _theme$color6;
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postContent,
+      className: styles$b.postContent,
       style: {
         fontSize: 15,
         color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.main ? theme.color.main : defaultTheme.color.main
@@ -3305,7 +3698,7 @@ const PostBody = ({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Body, null), charLimit && ((_post$content2 = post.content) === null || _post$content2 === void 0 ? void 0 : (_post$content2$body = _post$content2.body) === null || _post$content2$body === void 0 ? void 0 : _post$content2$body.length) > charLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postViewMoreCtaContainer
+    className: styles$b.postViewMoreCtaContainer
   }, /*#__PURE__*/React.createElement(Button, {
     color: "secondary",
     style: {
@@ -3324,7 +3717,7 @@ const LinkCard = ({
     theme
   } = useContext(GlobalContext);
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postUrlMetadataContainer,
+    className: styles$b.postUrlMetadataContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main,
@@ -3335,12 +3728,12 @@ const LinkCard = ({
     target: "_blank",
     rel: "noreferrer"
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postUrlMetadataImage,
+    className: styles$b.postUrlMetadataImage,
     style: {
       backgroundImage: "url(" + metadata.image + ")"
     }
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postUrlMetadataDetails,
+    className: styles$b.postUrlMetadataDetails,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.secondary ? theme.border.secondary : defaultTheme.border.secondary
     }
@@ -3418,7 +3811,7 @@ const PostMenu = ({
     }
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$a.postMenuContainer,
+    className: styles$b.postMenuContainer,
     ref: wrapperRef,
     style: {
       right: 10,
@@ -3434,80 +3827,6 @@ const PostMenu = ({
     onClick: () => edit()
   }, "Edit"), /*#__PURE__*/React.createElement(DeleteButton, null));
 };
-const ReplyIcon = ({
-  type
-}) => {
-  switch (type) {
-    case "line":
-      return /*#__PURE__*/React.createElement("svg", {
-        width: "14",
-        height: "11",
-        viewBox: "0 0 17 13",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg",
-        style: {
-          marginRight: "0.25rem"
-        }
-      }, /*#__PURE__*/React.createElement("path", {
-        d: "M6.40127 10.375L0.691272 6.27502C0.556779 6.19554 0.445325 6.08238 0.3679 5.94669C0.290476 5.81101 0.249756 5.65749 0.249756 5.50127C0.249756 5.34505 0.290476 5.19152 0.3679 5.05584C0.445325 4.92015 0.556779 4.80699 0.691272 4.72752L6.40127 0.625016C6.53739 0.544955 6.69226 0.502334 6.85017 0.501478C7.00808 0.500622 7.16341 0.541561 7.30039 0.620141C7.43736 0.69872 7.55111 0.812142 7.63008 0.948893C7.70905 1.08564 7.75043 1.24085 7.75002 1.39877V3.00002C9.62502 3.00002 15.25 3.00002 16.5 13C13.375 7.37502 7.75002 8.00002 7.75002 8.00002V9.60127C7.75002 10.3013 6.99252 10.7238 6.40127 10.3763V10.375Z",
-        stroke: "#798496",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round"
-      }));
-    case "full":
-      return /*#__PURE__*/React.createElement("svg", {
-        width: "15",
-        height: "12",
-        viewBox: "0 0 17 13",
-        fill: "currentColor",
-        xmlns: "http://www.w3.org/2000/svg",
-        style: {
-          marginRight: "0.25rem"
-        }
-      }, /*#__PURE__*/React.createElement("path", {
-        d: "M6.40127 10.375L0.691272 6.27502C0.556779 6.19554 0.445325 6.08238 0.3679 5.94669C0.290476 5.81101 0.249756 5.65749 0.249756 5.50127C0.249756 5.34505 0.290476 5.19152 0.3679 5.05584C0.445325 4.92015 0.556779 4.80699 0.691272 4.72752L6.40127 0.625016C6.53739 0.544955 6.69226 0.502334 6.85017 0.501478C7.00808 0.500622 7.16341 0.541561 7.30039 0.620141C7.43736 0.69872 7.55111 0.812142 7.63008 0.948893C7.70905 1.08564 7.75043 1.24085 7.75002 1.39877V3.00002C9.62502 3.00002 15.25 3.00002 16.5 13C13.375 7.37502 7.75002 8.00002 7.75002 8.00002V9.60127C7.75002 10.3013 6.99252 10.7238 6.40127 10.3763V10.375Z",
-        fill: "#4E75F6"
-      }));
-    default:
-      return null;
-  }
-};
-const LikeIcon = ({
-  type
-}) => {
-  switch (type) {
-    case "line":
-      return /*#__PURE__*/React.createElement("svg", {
-        width: "15",
-        height: "15",
-        viewBox: "0 0 15 15",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg",
-        style: {
-          marginRight: "0.25rem"
-        }
-      }, /*#__PURE__*/React.createElement("path", {
-        d: "M13.875 4.84375C13.875 3.08334 12.3884 1.65625 10.5547 1.65625C9.18362 1.65625 8.00666 2.45403 7.5 3.59242C6.99334 2.45403 5.81638 1.65625 4.44531 1.65625C2.61155 1.65625 1.125 3.08334 1.125 4.84375C1.125 9.95831 7.5 13.3438 7.5 13.3438C7.5 13.3438 13.875 9.95831 13.875 4.84375Z",
-        stroke: "currentColor",
-        strokeWidth: "1.5",
-        strokeLinecap: "round",
-        strokeLinejoin: "round"
-      }));
-    case "full":
-      return /*#__PURE__*/React.createElement("svg", {
-        width: "15",
-        height: "15",
-        viewBox: "0 0 16 15",
-        fill: "currentColor",
-        xmlns: "http://www.w3.org/2000/svg",
-        style: {
-          marginRight: "0.25rem"
-        }
-      }, /*#__PURE__*/React.createElement("path", {
-        d: "M7.65298 13.9149L7.6476 13.9121L7.62912 13.9024C7.61341 13.8941 7.59102 13.8822 7.56238 13.8667C7.50511 13.8358 7.42281 13.7907 7.31906 13.732C7.11164 13.6146 6.81794 13.4425 6.46663 13.2206C5.76556 12.7777 4.82731 12.1314 3.88539 11.3197C2.04447 9.73318 0 7.35227 0 4.5C0 2.01472 2.01472 0 4.5 0C5.9144 0 7.17542 0.652377 8 1.67158C8.82458 0.652377 10.0856 0 11.5 0C13.9853 0 16 2.01472 16 4.5C16 7.35227 13.9555 9.73318 12.1146 11.3197C11.1727 12.1314 10.2344 12.7777 9.53337 13.2206C9.18206 13.4425 8.88836 13.6146 8.68094 13.732C8.57719 13.7907 8.49489 13.8358 8.43762 13.8667C8.40898 13.8822 8.38659 13.8941 8.37088 13.9024L8.3524 13.9121L8.34702 13.9149L8.34531 13.9158C8.13 14.03 7.87 14.03 7.65529 13.9161L7.65298 13.9149Z"
-      }));
-  }
-};
 
 let magic;
 let web3;
@@ -3518,15 +3837,52 @@ if (typeof window !== "undefined") {
   });
   web3 = new Web3(magic.rpcProvider);
 }
+let _orbis = new Orbis({
+  node: "https://node1.orbis.club/"
+});
 function OrbisProvider({
   context,
   children,
   theme = defaultTheme,
   options
 }) {
+  const [orbis, setOrbis] = useState(_orbis);
   const [user, setUser] = useState();
-  const [orbis, setOrbis] = useState(new Orbis(options ? options : null));
+  const [connecting, setConnecting] = useState();
+  const [credentials, setCredentials] = useState([]);
+  const [hasAccess, setHasAccess] = useState(true);
   const [activeTheme, setActiveTheme] = useState(theme);
+  const [contextDetails, setContextDetails] = useState();
+  const [accessRules, setAccessRules] = useState([]);
+  useEffect(() => {
+    if (!user) {
+      checkOrbisConnected();
+    }
+    async function checkOrbisConnected() {
+      if (localStorage.getItem("ceramic-session")) {
+        setConnecting(true);
+      }
+      let res = await orbis.isConnected();
+      if (res && res.status == 200) {
+        setUser(res.details);
+        loadCredentials(res.details.did);
+      }
+      setConnecting(false);
+    }
+  }, [user, orbis]);
+  async function loadCredentials(did) {
+    let {
+      data,
+      error,
+      status
+    } = await orbis.api.rpc("get_verifiable_credentials", {
+      q_subject: did,
+      q_min_weight: 10
+    });
+    if (data && data.length > 0) {
+      setCredentials(data);
+    }
+  }
   useEffect(() => {
     if (theme) {
       if (typeof theme === 'object') {
@@ -3536,43 +3892,133 @@ function OrbisProvider({
       }
     }
     async function loadStyle() {
-      var _styleStream$content;
-      console.log("Theme is a stream id, load it: ", theme);
-      let styleStream = await orbis.ceramic.loadStream(theme);
-      setActiveTheme((_styleStream$content = styleStream.content) === null || _styleStream$content === void 0 ? void 0 : _styleStream$content.theme);
+      let storedStyle = localStorage.getItem(theme);
+      if (storedStyle) {
+        setActiveTheme(JSON.parse(storedStyle));
+      }
+      try {
+        var _styleStream$content, _styleStream$content2;
+        let {
+          data: styleStream,
+          error
+        } = await orbis.api.from("orbis_styles").select().eq('stream_id', theme).single();
+        setActiveTheme((_styleStream$content = styleStream.content) === null || _styleStream$content === void 0 ? void 0 : _styleStream$content.theme);
+        localStorage.setItem(theme, JSON.stringify((_styleStream$content2 = styleStream.content) === null || _styleStream$content2 === void 0 ? void 0 : _styleStream$content2.theme));
+      } catch (e) {
+        console.log("Can't log Ceramic stream:", e);
+      }
     }
   }, [theme, orbis]);
   useEffect(() => {
-    console.log("activeTheme updated to:", activeTheme);
-  }, [activeTheme]);
+    if (context) {
+      loadContextDetails();
+    }
+    async function loadContextDetails() {
+      let _context = cleanContext(context);
+      let storedContext = localStorage.getItem(_context);
+      if (storedContext) {
+        storedContext = JSON.parse(storedContext);
+        setContextDetails(storedContext);
+        if (storedContext.accessRules && storedContext.accessRules.length > 0) {
+          setAccessRules(storedContext.accessRules);
+        }
+      }
+      try {
+        let {
+          data: _contextDetails,
+          error
+        } = await orbis.api.from("orbis_contexts").select().eq('stream_id', _context).single();
+        if (_contextDetails) {
+          var _contextDetails$conte;
+          setContextDetails(_contextDetails.content);
+          if ((_contextDetails$conte = _contextDetails.content) !== null && _contextDetails$conte !== void 0 && _contextDetails$conte.accessRules && _contextDetails.content.accessRules.length > 0) {
+            setAccessRules(_contextDetails.content.accessRules);
+          }
+          localStorage.setItem(_context, JSON.stringify(_contextDetails.content));
+        }
+      } catch (e) {
+        console.log("Can't load context details:", e);
+      }
+    }
+  }, [context]);
+  useEffect(() => {
+    let countUserCredentials = credentials ? credentials.length : 0;
+    let countAccessRules = accessRules ? accessRules.length : 0;
+    let _hasAccess = false;
+    if (countAccessRules == 0) {
+      _hasAccess = true;
+    } else if (countAccessRules > 0 && countUserCredentials == 0) {
+      _hasAccess = false;
+    } else if (countUserCredentials > 0 && countAccessRules > 0) {
+      _hasAccess = checkContextAccess(credentials, accessRules);
+    }
+    setHasAccess(_hasAccess);
+  }, [credentials, accessRules]);
+  function checkContextAccess(_userCredentials, _accessRules) {
+    let _hasAccess = false;
+    _accessRules.forEach((_rule, i) => {
+      switch (_rule.type) {
+        case "credential":
+          _rule.requiredCredentials.forEach((cred, i) => {
+            let _hasVc = checkCredentialOwnership(_userCredentials, cred.identifier);
+            if (_hasVc) {
+              _hasAccess = true;
+            }
+          });
+          break;
+        case "did":
+          _rule.authorizedUsers.forEach((_user, i) => {
+            if (_user.did == user.did) {
+              _hasAccess = true;
+            }
+          });
+          break;
+      }
+    });
+    return _hasAccess;
+  }
   return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
     value: {
       user,
       setUser,
+      connecting,
       orbis,
       magic,
       context,
-      theme: activeTheme
+      theme: activeTheme,
+      accessRules: accessRules,
+      hasAccess,
+      credentials,
+      setCredentials
     }
   }, children);
 }
+function cleanContext(context) {
+  if (context.includes(":")) {
+    let _arr = context.split(":");
+    return _arr[0];
+  } else {
+    return context;
+  }
+}
 
-var styles$b = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
+var styles$c = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
 
 function Comments({
   context,
   theme = defaultTheme,
+  options,
   characterLimit = null
 }) {
   return /*#__PURE__*/React.createElement(OrbisProvider, {
-    theme: theme
-  }, /*#__PURE__*/React.createElement(CommentsContent, {
     context: context,
+    theme: theme,
+    options: options
+  }, /*#__PURE__*/React.createElement(CommentsContent, {
     characterLimit: characterLimit
   }));
 }
 const CommentsContent = ({
-  context,
   characterLimit
 }) => {
   var _theme$bg, _theme$border;
@@ -3580,7 +4026,9 @@ const CommentsContent = ({
     user,
     setUser,
     orbis,
-    theme
+    theme,
+    context,
+    accessRules
   } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -3624,17 +4072,13 @@ const CommentsContent = ({
     setComments(data);
     setLoading(false);
   }
-  return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
+  return /*#__PURE__*/React.createElement(CommentsContext.Provider, {
     value: {
-      user,
-      setUser,
-      orbis,
-      context,
       comments,
       setComments
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.commentsGlobalContainer,
+    className: styles$c.commentsGlobalContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main
     }
@@ -3646,17 +4090,17 @@ const CommentsContent = ({
     context: context,
     handleSubmit: handleSubmit
   })), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.commentsContainer,
+    className: styles$c.commentsContainer,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.secondary ? theme.border.secondary : defaultTheme.border.secondary
     }
   }, loading ? /*#__PURE__*/React.createElement("div", {
-    className: styles$b.loadingContainer,
+    className: styles$c.loadingContainer,
     style: {
       color: getThemeValue("color", theme, "main")
     }
   }, /*#__PURE__*/React.createElement(LoadingCircle, null)) : /*#__PURE__*/React.createElement(React.Fragment, null, comments.length <= 0 ? /*#__PURE__*/React.createElement("div", {
-    className: styles$b.commentsEmptyStateContainer
+    className: styles$c.commentsEmptyStateContainer
   }, /*#__PURE__*/React.createElement("p", {
     style: {
       color: getThemeValue("color", theme, "secondary"),
@@ -3668,12 +4112,12 @@ const CommentsContent = ({
     comments: comments,
     characterLimit: characterLimit
   }))), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.footerContainer
+    className: styles$c.footerContainer
   }, /*#__PURE__*/React.createElement("a", {
-    href: "https://orbis.club?utm_source=comments_module",
+    href: "https://useorbis.com?utm_source=comments_module",
     rel: "noreferrer",
     target: "_blank",
-    className: styles$b.footerOpenSocialContainer
+    className: styles$c.footerOpenSocialContainer
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: getThemeValue("color", theme, "secondary"),
@@ -3712,7 +4156,7 @@ function Comment({
   var _theme$border2;
   const {
     theme
-  } = useContext(GlobalContext);
+  } = useOrbis();
   function LoopInternalReplies() {
     return comments.map((_comment, key) => {
       if (_comment.content.reply_to == comment.stream_id) {
@@ -3730,7 +4174,7 @@ function Comment({
       position: "relative"
     }
   }, comment.content.reply_to != null && /*#__PURE__*/React.createElement("span", {
-    className: styles$b.greyLine,
+    className: styles$c.greyLine,
     style: {
       top: 60,
       bottom: 20,
@@ -3750,7 +4194,7 @@ function Comment({
   }, /*#__PURE__*/React.createElement(LoopInternalReplies, null)));
 }
 
-let _orbis = new Orbis();
+let _orbis$1 = new Orbis();
 let magic$1;
 let web3$1;
 if (typeof window !== "undefined") {
@@ -3761,7 +4205,7 @@ if (typeof window !== "undefined") {
   web3$1 = new Web3(magic$1.rpcProvider);
 }
 const Inbox = ({
-  orbis: _orbis2 = _orbis,
+  orbis: _orbis2 = _orbis$1,
   context,
   theme
 }) => {

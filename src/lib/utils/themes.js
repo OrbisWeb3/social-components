@@ -11,8 +11,7 @@ export const defaultTheme = {
     tertiary: "#d1d5db",
     quattro: "#F1F2F3",
     green: "#35c67b",
-    active: "#4E75F6",
-    twitter: "#1DA1F2"
+    active: "#4E75F6"
   },
   border: {
     main: "#E0E2E5",
@@ -113,8 +112,7 @@ export const darkTheme = {
     tertiary: "#d1d5db",
     quattro: "#F1F2F3",
     green: "#35c67b",
-    active: "#4E75F6",
-    twitter: "#1DA1F2"
+    active: "#4E75F6"
   },
   border: {
     main: "#323B49",

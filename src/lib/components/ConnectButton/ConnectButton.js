@@ -10,27 +10,8 @@ import useOrbis from "../../hooks/useOrbis";
 import styles from './ConnectButton.module.css';
 
 export default function ConnectButton({ lit = false }) {
-  const { orbis, user, theme, setUser } = useOrbis();
-  const [connecting, setConnecting] = useState(false);
+  const { orbis, user, theme, setUser, setCredentials, connecting } = useOrbis();
   const [connectModalVis, setConnectModalVis] = useState(false);
-
-  useEffect(() => {
-    if(!user) {
-      checkOrbisConnected();
-    }
-    async function checkOrbisConnected() {
-      if(localStorage.getItem("ceramic-session")) {
-        setConnecting(true);
-      }
-      let res = await orbis.isConnected();
-
-      if(res && res.status == 200) {
-        setUser(res.details);
-      }
-
-      setConnecting(false);
-    }
-  }, [user])
 
   return(
     <>

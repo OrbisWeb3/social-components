@@ -68,6 +68,7 @@
   margin: 0px;
 }
 .postContent p {
+  font-family: "Inter";
   margin: 0px;
   font-size: 15px;
   line-height: inherit !important;
@@ -96,7 +97,8 @@
   padding-bottom: 0.25rem;
   font-size: 13px;
   font-weight: 500;
-  font-family: "Inter"
+  font-family: "Inter";
+  cursor: pointer;
 }
 
 .postUrlMetadataContainer {

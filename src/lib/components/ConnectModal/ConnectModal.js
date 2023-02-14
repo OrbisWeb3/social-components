@@ -8,6 +8,10 @@ import Button from "../Button";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { sleep } from "../../utils";
 
+/** Manage WalletConnect */
+import { EthereumProvider } from "@walletconnect/ethereum-provider";
+
+
 /** Modal for users to connect: Options displayed can be enabled / disabled with the parameters */
 export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide }) {
   const { orbis, theme } = useOrbis();
@@ -37,7 +41,7 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
 
 /** Will render one connect button based on its type */
 const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
-  const { orbis, magic, user, setUser } = useOrbis();
+  const { orbis, magic, user, setUser, setCredentials } = useOrbis();
   const [status, setStatus] = useState(0);
 
   async function connect() {
@@ -56,9 +60,14 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
 
       /** Wallet Connect */
       case "wallet-connect":
-        /** Enable session (triggers QR Code modal) */
-        /*await wc_provider.enable();
-        res = await orbis.connect(wc_provider, false);*/
+        /** Enable session (triggers QR Code modal) *//** Create WalletConnect Provider */
+        const wc_provider = await EthereumProvider.init({
+          projectId:"9fe6eef52f4985e5849a5c1e2c80fabb",
+          chains: ["1"]
+        });
+
+        await wc_provider.enable();
+        res = await orbis.connect(wc_provider, false);
         break;
 
       /** Phantom */
@@ -94,6 +103,9 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
         setUser(res.details);
         setStatus(2);
 
+        /** Retrieve credentials for this user */
+        loadCredentials(res.details.did);
+
         /** Save provider type in localStorage */
         localStorage.setItem("provider-type", type);
         callback();
@@ -106,6 +118,33 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
       }
     } catch(e) {
       alert("Error calling Orbis connect function.");
+    }
+  }
+
+  /** Load credentials for the connected user */
+  async function loadCredentials(did) {
+    let { data, error, status } = await orbis.api.rpc("get_verifiable_credentials", {
+	    q_subject: did,
+	    q_min_weight: 10
+	  });
+
+    if(data && data.length > 0) {
+      setCredentials(data);
+    } else {
+      fetchCredentials(did);
+    }
+  }
+
+  /** Will query our API to fetch credentials for this did */
+  async function fetchCredentials(did) {
+    console.log("Fetching credentials for di")
+    let res = await fetch("https://api.orbis.club/mint-credentials/" + did, {
+      method: 'GET'
+    });
+    let result = await res.json();
+    if(result.status == 200) {
+      await sleep(3000);
+      loadCredentials(did);
     }
   }
 
