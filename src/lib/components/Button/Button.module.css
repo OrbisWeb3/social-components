@@ -2,8 +2,6 @@
 
 .btnPrimary {
   display: flex;
-  font-family: "Inter";
-  font-size: 14px;
   align-items: center;
   border-radius: 9999px;
   border: 1px solid transparent;

@@ -85,7 +85,7 @@ const CommentsContent = ({characterLimit}) => {
 
   return(
     <CommentsContext.Provider value={{ comments, setComments }}>
-      <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main }}>
+      <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main, borderColor: getThemeValue("border", theme, "main") }}>
         <div style={{padding: "1rem"}}>
           <Postbox context={context} handleSubmit={handleSubmit} />
         </div>
@@ -113,7 +113,7 @@ const CommentsContent = ({characterLimit}) => {
         {/** Footer */}
         <div className={styles.footerContainer}>
           <a href="https://useorbis.com?utm_source=comments_module" rel="noreferrer" target="_blank" className={styles.footerOpenSocialContainer}>
-            <span style={{color: getThemeValue("color", theme, "secondary"), marginRight: 5, fontSize: 15}}>Open Social with</span>
+            <span style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "main"), fontWeight: 400, marginRight: 5, fontSize: 15}}>Open Social with</span>
             <Logo className="flex" color={getThemeValue("color", theme, "main")} />
           </a>
         </div>
@@ -136,7 +136,7 @@ function LoopComments({comments, characterLimit}) {
 }
 
 /** One comment component is also looping through the other replies to see if it has any internal replies */
-function Comment({comments, comment, master, characterLimit}) {
+function Comment({comments, comment, master, characterLimit, z}) {
   const { theme } = useOrbis();
 
   function LoopInternalReplies() {

@@ -1,5 +1,34 @@
 /** Pre-defined default / white theme */
 export const defaultTheme = {
+  font: {
+    main: {
+      fontFamily: "Inter",
+      fontSize: 15,
+      fontWeight: 500
+    },
+    secondary: {
+      fontFamily: "Inter",
+      fontSize: 15
+    },
+    actions: {
+      fontFamily: "Inter",
+      fontSize: 12
+    },
+    buttons: {
+      fontFamily: "Inter",
+      fontSize: 14,
+      fontWeight: 500
+    },
+    input: {
+      fontFamily: "Inter",
+      fontSize: 14
+    },
+    badges: {
+      fontFamily: "Inter",
+      fontSize: 12,
+      fontWeight: 500
+    }
+  },
   bg: {
     main: "#FFF",
     secondary: "#f8fafc",
@@ -95,12 +124,49 @@ export const defaultTheme = {
     active_wallet_optimism: {
       bg: "#FFF8F8",
       color: "#FF0420"
+    },
+    x2y2: {
+      bg: "#E2FAFF",
+      color: "#4652D4"
+    },
+    looksrare: {
+      bg: "#EFFFF6",
+      color: "#000000"
     }
   }
 };
 
 /** Pre-defined dark theme */
 export const darkTheme = {
+  font: {
+    main: {
+      fontFamily: "Inter",
+      fontSize: 15,
+      fontWeight: 500
+    },
+    secondary: {
+      fontFamily: "Inter",
+      fontSize: 15
+    },
+    actions: {
+      fontFamily: "Inter",
+      fontSize: 12
+    },
+    buttons: {
+      fontFamily: "Inter",
+      fontSize: 14,
+      fontWeight: 500
+    },
+    input: {
+      fontFamily: "Inter",
+      fontSize: 14
+    },
+    badges: {
+      fontFamily: "Inter",
+      fontSize: 12,
+      fontWeight: 500
+    }
+  },
   bg: {
     main: "#1D1F20",
     secondary: "#252626",
@@ -196,6 +262,14 @@ export const darkTheme = {
     active_wallet_optimism: {
       bg: "#FFF8F8",
       color: "#FF0420"
+    },
+    x2y2: {
+      bg: "#E2FAFF",
+      color: "#4652D4"
+    },
+    looksrare: {
+      bg: "#EFFFF6",
+      color: "#000000"
     }
   }
 };
@@ -209,6 +283,7 @@ export function getThemeValue(type, theme, data) {
   let colorGreen = theme?.color?.green ? theme.color.green : defaultTheme.color.green;
   let borderMain = theme?.border?.main ? theme.border.main : defaultTheme.border.main;
 
+  /** Special case */
   switch (type) {
     /** Return style for inputs */
     case "input":
@@ -258,7 +333,10 @@ export function getThemeValue(type, theme, data) {
     case "badges":
       switch (data) {
         case "main":
-          return null;
+          return ({
+            background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
+            color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color
+          });
         case "red":
           return ({
             background: theme?.badges?.red?.bg ? theme.badges.red.bg : defaultTheme.badges.red.bg,
@@ -273,6 +351,7 @@ export function getThemeValue(type, theme, data) {
           return null;
       };
       break;
+
     /** Return style for button */
     case "button":
       switch (data) {
@@ -307,6 +386,45 @@ export function getThemeValue(type, theme, data) {
             color: theme?.button?.red?.color ? theme.button.red.color : defaultTheme.button.red.color
           });
       };
+      break;
+
+    /** Return font style */
+    case "font":
+      switch (data) {
+        case "main":
+          return({
+            fontFamily: theme?.font?.main?.fontFamily ? theme.font.main.fontFamily : defaultTheme.font.main.fontFamily,
+            fontSize: theme?.font?.main?.fontSize ? theme.font.main.fontSize : defaultTheme.font.main.fontSize,
+            fontWeight: theme?.font?.main?.fontWeight ? theme.font.main.fontWeight : defaultTheme.font.main.fontWeight
+          });
+        case "secondary":
+          return({
+            fontFamily: theme?.font?.secondary?.fontFamily ? theme.font.secondary.fontFamily : defaultTheme.font.secondary.fontFamily,
+            fontSize: theme?.font?.secondary?.fontSize ? theme.font.secondary.fontSize : defaultTheme.font.secondary.fontSize
+          });
+        case "actions":
+          return({
+            fontFamily: theme?.font?.actions?.fontFamily ? theme.font.actions.fontFamily : defaultTheme.font.actions.fontFamily,
+            fontSize: theme?.font?.actions?.fontSize ? theme.font.actions.fontSize : defaultTheme.font.actions.fontSize
+          });
+        case "buttons":
+          return({
+            fontFamily: theme?.font?.buttons?.fontFamily ? theme.font.buttons.fontFamily : defaultTheme.font.buttons.fontFamily,
+            fontSize: theme?.font?.buttons?.fontSize ? theme.font.buttons.fontSize : defaultTheme.font.buttons.fontSize,
+            fontWeight: theme?.font?.buttons?.fontWeight ? theme.font.buttons.fontWeight : defaultTheme.font.buttons.fontWeight
+          });
+        case "input":
+          return({
+            fontFamily: theme?.font?.input?.fontFamily ? theme.font.input.fontFamily : defaultTheme.font.input.fontFamily,
+            fontSize: theme?.font?.input?.fontSize ? theme.font.input.fontSize : defaultTheme.font.input.fontSize
+          });
+        case "badges":
+          return({
+            fontFamily: theme?.font?.badges?.fontFamily ? theme.font.badges.fontFamily : defaultTheme.font.badges.fontFamily,
+            fontSize: theme?.font?.badges?.fontSize ? theme.font.badges.fontSize : defaultTheme.font.badges.fontSize,
+            fontWeight: theme?.font?.badges?.fontWeight ? theme.font.badges.fontWeight : defaultTheme.font.badges.fontWeight
+          });
+      }
       break;
   }
 }
@@ -357,8 +475,5 @@ export function getStyle(type, theme, data) {
         return null
       }
       break;
-    default:
-      return null;
   }
-
 }

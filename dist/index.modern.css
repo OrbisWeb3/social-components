@@ -2,8 +2,6 @@
 
 ._1sKPO {
   display: flex;
-  font-family: "Inter";
-  font-size: 14px;
   align-items: center;
   border-radius: 9999px;
   border: 1px solid transparent;
@@ -57,7 +55,6 @@
   padding-left: 0.75rem;
   border-width: 1px;
   line-height: 1.5rem;
-  font-family: "Inter";
   border: 1px solid;
   box-shadow: none;
 }
@@ -314,8 +311,6 @@
   overflow: hidden;
 }
 ._3tVDt {
-  font-size: 12px;
-  font-weight: 500;
   border-radius: 0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -334,6 +329,7 @@
   padding: 30px;
   left: -10px;
   top: -10px;
+  z-index: 100;
 }
 ._3EuST {
   position: relative;
@@ -371,6 +367,7 @@
 }
 ._WjB9N {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
 }
 ._179TI {
@@ -550,7 +547,6 @@
 
 ._beLGF {
   display: block;
-  width: 100%;
   border-width: 0px;
   min-height: 50px;
   resize: none;
@@ -594,6 +590,7 @@
 
 ._1be8d {
   display: inline-flex;
+  cursor: pointer;
   font-family: "Inter";
   align-items: center;
   border-radius: 9999px;
@@ -629,7 +626,7 @@
 }
 
 /** Rules for mobiles */
-@media screen and (max-width: 850px) {
+@container (max-width: 600px) {
   ._2PH81 {
     display: none;
   }
@@ -746,14 +743,12 @@
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 ._lajK0 {
-  font-family: "Inter";
   overflow-wrap: break-word;
   padding-right: 5rem;
-  max-width: 65ch;
+  max-width: 70ch;
   margin: 0px;
 }
 ._lajK0 p {
-  font-family: "Inter";
   margin: 0px;
   font-size: 15px;
   line-height: inherit !important;
@@ -845,7 +840,7 @@
 }
 
 /** Rules for mobiles */
-@media screen and (max-width: 850px) {
+@container (max-width: 600px) {
   ._2_Z8P {
     display: none;
   }
@@ -879,7 +874,7 @@
   font-weight: 500;
 }
 ._lajK0 :where(strong):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-bold);
+  color: inherit;
   font-weight: 500;
 }
 ._lajK0 :where(a strong):not(:where([class~="not-prose"] *)) {
@@ -932,10 +927,10 @@
 }
 ._lajK0 :where(ol > li):not(:where([class~="not-prose"] *))::marker {
   font-weight: 400;
-  color: var(--tw-prose-counters);
+  color: inherit;
 }
 ._lajK0 :where(ul > li):not(:where([class~="not-prose"] *))::marker {
-  color: var(--tw-prose-bullets);
+  color: inherit;
 }
 ._lajK0 :where(hr):not(:where([class~="not-prose"] *)) {
   border-color: var(--tw-prose-hr);
@@ -946,7 +941,7 @@
 ._lajK0 :where(blockquote):not(:where([class~="not-prose"] *)) {
   font-weight: 500;
   font-style: italic;
-  color: var(--tw-prose-quotes);
+  color: inherit;
   border-left-width: 0.25rem;
   border-left-color: var(--tw-prose-quote-borders);
   quotes: "\201C""\201D""\2018""\2019";
@@ -961,7 +956,7 @@
   content: close-quote;
 }
 ._lajK0 :where(h1):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 800;
   font-size: 2.25em;
   margin-top: 0;
@@ -973,7 +968,7 @@
   color: inherit;
 }
 ._lajK0 :where(h2):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 700;
   font-size: 1.5em;
   margin-top: 2em;
@@ -985,7 +980,7 @@
   color: inherit;
 }
 ._lajK0 :where(h3):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 600;
   font-size: 1.25em;
   margin-top: 1.6em;
@@ -997,7 +992,7 @@
   color: inherit;
 }
 ._lajK0 :where(h4):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 600;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
@@ -1419,6 +1414,7 @@
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   border-radius: 0.375rem;
   width: 100%;
+  border-width: 1px;
 }
 ._3vbCv {
   border-style: solid;
@@ -1427,6 +1423,7 @@
   border-left-width: 0;
   border-right-width: 0px;
   padding: 1.5rem;
+  container-type: inline-size;
 }
 ._3vbCv > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;

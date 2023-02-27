@@ -5,6 +5,7 @@ import { Orbis } from "@orbisclub/orbis-sdk";
 import Button from "./Button";
 import User, { UserPfp, Username, UserCredential } from "./User";
 import Comments from "./Comments";
+import Discussion from "./Comments";
 import Post from "./Post";
 import Inbox from "./Inbox";
 import ConnectButton from "./ConnectButton";
@@ -25,4 +26,4 @@ TimeAgo.addDefaultLocale(en);
 
 const Fragment = React.Fragment;
 
-export { TimeAgo, Button, User, UserPfp, Username, UserCredential, Comments, Post, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme };
+export { TimeAgo, Button, User, UserPfp, Username, UserCredential, Comments, Discussion, Post, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme };

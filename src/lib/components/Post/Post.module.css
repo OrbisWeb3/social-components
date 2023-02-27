@@ -61,14 +61,12 @@
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .postContent {
-  font-family: "Inter";
   overflow-wrap: break-word;
   padding-right: 5rem;
-  max-width: 65ch;
+  max-width: 70ch;
   margin: 0px;
 }
 .postContent p {
-  font-family: "Inter";
   margin: 0px;
   font-size: 15px;
   line-height: inherit !important;
@@ -159,7 +157,7 @@
 }
 
 /** Rules for mobiles */
-@media screen and (max-width: 850px) {
+@container (max-width: 600px) {
   .hideMobile {
     display: none;
   }
@@ -193,7 +191,7 @@
   font-weight: 500;
 }
 .postContent :where(strong):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-bold);
+  color: inherit;
   font-weight: 500;
 }
 .postContent :where(a strong):not(:where([class~="not-prose"] *)) {
@@ -246,10 +244,10 @@
 }
 .postContent :where(ol > li):not(:where([class~="not-prose"] *))::marker {
   font-weight: 400;
-  color: var(--tw-prose-counters);
+  color: inherit;
 }
 .postContent :where(ul > li):not(:where([class~="not-prose"] *))::marker {
-  color: var(--tw-prose-bullets);
+  color: inherit;
 }
 .postContent :where(hr):not(:where([class~="not-prose"] *)) {
   border-color: var(--tw-prose-hr);
@@ -260,7 +258,7 @@
 .postContent :where(blockquote):not(:where([class~="not-prose"] *)) {
   font-weight: 500;
   font-style: italic;
-  color: var(--tw-prose-quotes);
+  color: inherit;
   border-left-width: 0.25rem;
   border-left-color: var(--tw-prose-quote-borders);
   quotes: "\201C""\201D""\2018""\2019";
@@ -275,7 +273,7 @@
   content: close-quote;
 }
 .postContent :where(h1):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 800;
   font-size: 2.25em;
   margin-top: 0;
@@ -287,7 +285,7 @@
   color: inherit;
 }
 .postContent :where(h2):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 700;
   font-size: 1.5em;
   margin-top: 2em;
@@ -299,7 +297,7 @@
   color: inherit;
 }
 .postContent :where(h3):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 600;
   font-size: 1.25em;
   margin-top: 1.6em;
@@ -311,7 +309,7 @@
   color: inherit;
 }
 .postContent :where(h4):not(:where([class~="not-prose"] *)) {
-  color: var(--tw-prose-headings);
+  color: inherit;
   font-weight: 600;
   margin-top: 1.5em;
   margin-bottom: 0.5em;

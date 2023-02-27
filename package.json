@@ -1,6 +1,6 @@
 {
   "name": "@orbisclub/components",
-  "version": "0.1.27",
+  "version": "0.1.44",
   "description": "A library of social components powered by Orbis. Integrate decentralized discussion feeds in your app in one line of code.",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
@@ -10,7 +10,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "@walletconnect/ethereum-provider": "^2.4.3",
+    "@walletconnect/web3-provider": "^1.8.0",
     "encoding": "^0.1.13",
     "ethereum-blockies-base64": "^1.0.2",
     "ethereumjs-abi": "^0.6.8",

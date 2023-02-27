@@ -23,8 +23,6 @@
   overflow: hidden;
 }
 .userBadge {
-  font-size: 12px;
-  font-weight: 500;
   border-radius: 0.5rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -43,6 +41,7 @@
   padding: 30px;
   left: -10px;
   top: -10px;
+  z-index: 100;
 }
 .userPopupContent {
   position: relative;
@@ -79,6 +78,7 @@
 }
 .userPopupDetailsActionsContainer {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
 }
 .userPopupCredentialsContainer {

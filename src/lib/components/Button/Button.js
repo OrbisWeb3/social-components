@@ -19,7 +19,7 @@ const Button = ({color, style, children, onClick}) => {
       btnStyle = styles.btnPrimary;
       break;
   }*/
-  return <button className={styles.btnPrimary} style={{...getThemeValue("button", theme, color), ...style}} onClick={onClick ? () => onClick() : null}>{children}</button>;
+  return <button className={styles.btnPrimary} style={{...getThemeValue("button", theme, color), ...getThemeValue("font", theme, "buttons"), ...style}} onClick={onClick ? () => onClick() : null}>{children}</button>;
 };
 
 export default Button;

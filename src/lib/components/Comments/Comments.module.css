@@ -4,6 +4,7 @@
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   border-radius: 0.375rem;
   width: 100%;
+  border-width: 1px;
 }
 .commentsContainer {
   border-style: solid;
@@ -12,6 +13,7 @@
   border-left-width: 0;
   border-right-width: 0px;
   padding: 1.5rem;
+  container-type: inline-size;
 }
 .commentsContainer > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;

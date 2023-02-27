@@ -13,6 +13,7 @@ import UpdateProfileModal from "../ProfileModal";
 import {
   CheckIcon,
   EditIcon,
+  LogoutIcon,
   TwitterIcon,
   GithubIcon,
   GoogleIcon,
@@ -27,7 +28,9 @@ import {
   EthereumIcon,
   PolygonIcon,
   ArbitrumIcon,
-  OptimismIcon
+  OptimismIcon,
+  X2Y2Icon,
+  LooksRareIcon
 } from "../../icons";
 import useHover from "../../hooks/useHover";
 import useDidToAddress from "../../hooks/useDidToAddress";
@@ -97,7 +100,7 @@ export const UserBadge = ({details}) => {
   const { address, chain } = useDidToAddress(details?.did);
   if(address) {
     return(
-      <div className={styles.userBadge} style={{background: theme?.badges?.main?.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color }}>{details?.metadata?.ensName ? details.metadata.ensName : shortAddress(address)}</div>
+      <div className={styles.userBadge} style={{...getThemeValue("badges", theme, "main"), ...getThemeValue("font", theme, "badges")}}>{details?.metadata?.ensName ? details.metadata.ensName : shortAddress(address)}</div>
     )
   } else {
     return null;
@@ -106,7 +109,7 @@ export const UserBadge = ({details}) => {
 
 /** Modal appearing on request with more details about a specific user */
 export const UserPopup = ({details, visible}) => {
-  const { orbis, user, theme } = useOrbis();
+  const { orbis, user, setUser, theme } = useOrbis();
   const [locked, setLocked] = useState(false);
   const [vis, setVis] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -130,6 +133,11 @@ export const UserPopup = ({details, visible}) => {
     setPfpNftDetails(details);
   }
 
+  async function logout() {
+    let res = orbis.logout();
+    setUser(null);
+  }
+
   if(vis == false) {
     return null;
   }
@@ -147,28 +155,33 @@ export const UserPopup = ({details, visible}) => {
             <div style={{alignItems: "center", display: "flex", flexDirection: "row"}}>
               <UserPfp details={details} />
               <div className={styles.userPopupDetailsContainer}>
-                <span className={styles.userPopupDetailsUsername} style={{color: theme?.color?.main ? theme.color.main : defaultTheme.color.main, fontSize: 15}}><Username details={details} /></span>
+                <span className={styles.userPopupDetailsUsername} style={{color: getThemeValue("color", theme, "main"), ...getThemeValue("font", theme, "main")}}><Username details={details} /></span>
                 <span className={styles.userPopupDetailsBadgeContainer}>
                   <UserBadge details={details} />
 
-                  {/** Show Twitter Badge */}
+                  {/** Show Twitter & GitHub Badges
                   {details?.twitter_details &&
                     <a href={"https://twitter.com/" + details?.twitter_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
                       <TwitterIcon />
                     </a>
                   }
 
-                  {/** Show Twitter Badge */}
                   {details?.github_details &&
                     <a href={"https://github.com/" + details?.github_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
                       <GithubIcon />
                     </a>
                   }
+                  */}
                 </span>
               </div>
               <div className={styles.userPopupDetailsActionsContainer}>
                 {(user && user.did == details.did) ?
-                  <Button color="primary" onClick={() => _setIsEditing(true)}>Edit<EditIcon /></Button>
+                  <>
+                    <Button color="primary" onClick={() => _setIsEditing(true)}>Edit<EditIcon /></Button>
+                    <span style={{marginLeft: 7, cursor: "pointer", color: getThemeValue("color", theme, "main")}} onClick={() => logout()}>
+                      <LogoutIcon />
+                    </span>
+                  </>
                 :
                   <Follow did={details.did} />
                 }
@@ -178,7 +191,7 @@ export const UserPopup = ({details, visible}) => {
             {/** Display description if available part */}
             {details?.profile?.description &&
               <div style={{marginTop: "0.5rem"}}>
-                <p style={{ fontSize: 15, lineHeight: "inherit", color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>{details.profile.description}</p>
+                <p style={{ ...getThemeValue("font", theme, "secondary"), lineHeight: "inherit", color: getThemeValue("color", theme, "secondary")}}>{details.profile.description}</p>
               </div>
             }
 
@@ -189,14 +202,14 @@ export const UserPopup = ({details, visible}) => {
             <div className={styles.userPopupFooterContainer}>
               {/** Followers */}
               <div className={styles.userPopupFooterFollowers} style={{ borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
-                <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Followers</p>
-                <p className={styles.userPopupFooterFollowCount} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_followers}</p>
+                <p className={styles.userPopupFooterFollowTitle} style={{ ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: getThemeValue("color", theme, "secondary") }}>Followers</p>
+                <p className={styles.userPopupFooterFollowCount} style={{ ...getThemeValue("font", theme, "secondary"), fontSize: 15, color: getThemeValue("color", theme, "main") }}>{details.count_followers}</p>
               </div>
 
               {/** Following */}
               <div className={styles.userPopupFooterFollowing}>
-                <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Following</p>
-                <p className={styles.userPopupFooterFollowCount} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main }}>{details.count_following}</p>
+                <p className={styles.userPopupFooterFollowTitle} style={{ ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: getThemeValue("color", theme, "secondary") }}>Following</p>
+                <p className={styles.userPopupFooterFollowCount} style={{ ...getThemeValue("font", theme, "secondary"), fontSize: 15, color: getThemeValue("color", theme, "main") }}>{details.count_following}</p>
               </div>
             </div>
           </>
@@ -255,7 +268,7 @@ function UserCredentials({details}) {
 
   return(
     <div style={{ marginTop: 15, marginBottom: 15 }}>
-      <p className={styles.userPopupFooterFollowTitle} style={{ fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Credentials:</p>
+      <p className={styles.userPopupFooterFollowTitle} style={{ ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary }}>Credentials:</p>
       <div className={styles.userPopupCredentialsContainer}>
         {credentialsLoading ?
           <div className={styles.loadingContainer} style={{ color: getThemeValue("color", theme, "main") }}>
@@ -299,6 +312,10 @@ export function UserCredential({credential, showTooltip = true}) {
           return <SnapshotIcon />;
         case "sismo":
           return <SismoIcon />;
+        case "x2y2":
+          return <X2Y2Icon />;
+        case "looksrare":
+          return <LooksRareIcon />;
         case "nonces":
           switch (credential.content?.credentialSubject?.type) {
             case "active-wallet-mainnet":
@@ -337,7 +354,7 @@ export function UserCredential({credential, showTooltip = true}) {
   if(credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
     if(credential.content.credentialSubject.protocol == "nonces" || credential.content.credentialSubject.protocol == "EVM") {
       return(
-        <Badge style={getStyle("badge", theme, clean(credential.content.credentialSubject.type))} tooltip={showTooltip ? credential.content.credentialSubject.description : null}><CredentialIcon />{credential.content.credentialSubject.name}</Badge>
+        <Badge style={{ ...getStyle("badge", theme, clean(credential.content.credentialSubject.type)), ...getThemeValue("font", theme, "badges") }} tooltip={showTooltip ? credential.content.credentialSubject.description : null}><CredentialIcon />{credential.content.credentialSubject.name}</Badge>
       )
     } else {
       return(

@@ -3,6 +3,7 @@ import { GlobalContext } from "../../contexts/GlobalContext";
 import { Orbis } from "@orbisclub/orbis-sdk";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { checkCredentialOwnership } from "../../utils";
+import ConnectModal from "../ConnectModal";
 
 /** For Magic */
 import Web3 from 'web3';
@@ -33,6 +34,7 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   const [activeTheme, setActiveTheme] = useState(theme);
   const [contextDetails, setContextDetails] = useState();
   const [accessRules, setAccessRules] = useState([]);
+  const [connectModalVis, setConnectModalVis] = useState(false);
 
   useEffect(() => {
     if(!user) {
@@ -201,8 +203,13 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   }
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, connecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials }}>
+    <GlobalContext.Provider value={{ user, setUser, connecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
       {children}
+
+      {/** Show ConnectModal */}
+      {connectModalVis &&
+        <ConnectModal lit={false} hide={() => setConnectModalVis(false)} />
+      }
     </GlobalContext.Provider>
   )
 }

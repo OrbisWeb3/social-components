@@ -27,6 +27,7 @@ export default function Post({post, characterLimit = null}) {
   const [reply, setReply] = useState();
   const [userReaction, setUserReaction] = useState();
   const [postMenuVis, setPostMenuVis] = useState(false);
+  const [hoverRef, isHovered] = useHover();
 
   useEffect(() => {
     if(user) {
@@ -87,106 +88,105 @@ export default function Post({post, characterLimit = null}) {
   }
 
   return(
-    <div>
-      <div className={styles.postContainer} >
-        <div style={{position: "relative"}}>
-          <UserPfp details={post.creator_details} hover={true} />
-        </div>
-        <div className={styles.postDetailsContainer}>
-          <div className={styles.postDetailsContainerMetadata}>
-            <div className={styles.postDetailsContainerUser}>
-              <span className={styles.postDetailsContainerUsername} style={{fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}}><Username details={post.creator_details} /></span>
-              <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={post.creator_details} /></div>
-            </div>
-            <p className={styles.postDetailsContainerTimestamp} style={{fontSize: 12, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>
-              <ReactTimeAgo style={{display: "flex", fontSize: 12}} date={post.timestamp * 1000} locale="en-US" />
-              <div className={styles.hideMobile}>
-                <span style={{marginLeft: "0.5rem", marginRight: "0.5rem"}}>·</span>
-                <a style={{textDecoration: "none", color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} href={"https://cerscan.com/mainnet/stream/" + post.stream_id} rel="noreferrer" target="_blank">Proof</a>
-              </div>
-              {/** Show action if user is connected */}
-              {user && user.did == post.creator &&
-                <>
-                  <span style={{marginLeft: "0.5rem", marginRight: "0.5rem"}}>·</span>
-                  <div style={{alignItems: "center", display: "flex"}}>
-                    {/** Button to edit a post */}
-                    <div style={{display: "flex", cursor: "pointer"}} onClick={() => setPostMenuVis(true)}>
-                      <MenuHorizontal />
-                    </div>
-
-                    {/** Show postmenu for user */}
-                    {postMenuVis &&
-                      <PostMenu stream_id={post.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
-                    }
-                  </div>
-                </>
-              }
-            </p>
+    <div className={styles.postContainer}>
+      <div style={{position: "relative"}} ref={hoverRef}>
+        <UserPfp details={post.creator_details} hover={false} />
+        <UserPopup visible={isHovered} details={post.creator_details} />
+      </div>
+      <div className={styles.postDetailsContainer}>
+        <div className={styles.postDetailsContainerMetadata}>
+          <div className={styles.postDetailsContainerUser}>
+            <span className={styles.postDetailsContainerUsername} style={{...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main")}}><Username details={post.creator_details} /></span>
+            <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={post.creator_details} /></div>
           </div>
+          <p className={styles.postDetailsContainerTimestamp} style={{fontSize: 12, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>
+            <ReactTimeAgo style={{display: "flex", fontSize: 12, ...getThemeValue("font", theme, "actions")}} date={post.timestamp * 1000} locale="en-US" />
+            <div className={styles.hideMobile}>
+              <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}}>·</span>
+              <a style={{textDecoration: "none", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} href={"https://cerscan.com/mainnet/stream/" + post.stream_id} rel="noreferrer" target="_blank">Proof</a>
+            </div>
+            {/** Show action if user is connected */}
+            {user && user.did == post.creator &&
+              <>
+                <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary")}}>·</span>
+                <div style={{alignItems: "center", display: "flex"}}>
+                  {/** Button to edit a post */}
+                  <div style={{display: "flex", cursor: "pointer", color: getThemeValue("color", theme, "secondary")}} onClick={() => setPostMenuVis(true)}>
+                    <MenuHorizontal />
+                  </div>
 
-          {/** Post content */}
-          {editPost ?
-            <div style={{ marginTop: "0.5rem" }}>
-              <Postbox showPfp={false} defaultPost={post} reply={reply} callback={callbackEdit} rows="1" ctaTitle="Edit" ctaStyle={styles.postReplyCta} setEditPost={setEditPost} />
-            </div>
+                  {/** Show postmenu for user */}
+                  {postMenuVis &&
+                    <PostMenu stream_id={post.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
+                  }
+                </div>
+              </>
+            }
+          </p>
+        </div>
+
+        {/** Post content */}
+        {editPost ?
+          <div style={{ marginTop: "0.5rem" }}>
+            <Postbox showPfp={false} defaultPost={post} reply={reply} callback={callbackEdit} rows="1" ctaTitle="Edit" ctaStyle={styles.postReplyCta} setEditPost={setEditPost} />
+          </div>
+        :
+          <div style={{display: "flex", flexDirection: "column"}}>
+            <PostBody post={post} characterLimit={characterLimit} />
+          </div>
+        }
+
+        {/** post CTAs */}
+        <div className={styles.postActionsContainer}>
+          {/** Reply button */}
+          {reply != null ?
+            <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => setReply(null)}>
+              <ReplyIcon type="full" />
+              Reply
+            </button>
           :
-            <div style={{display: "flex", flexDirection: "column"}}>
-              <PostBody post={post} characterLimit={characterLimit} />
-            </div>
+            <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => setReply(post)}>
+              <ReplyIcon type="line" />
+              Reply
+            </button>
           }
 
-          {/** post CTAs */}
-          <div className={styles.postActionsContainer}>
-            {/** Reply button */}
-            {reply != null ?
-              <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active")}} onClick={() => setReply(null)}>
-                <ReplyIcon type="full" />
-                Reply
+
+          {/** Like button */}
+          <span style={{marginLeft: "0.75rem", flexDirection: "row", display: "flex"}}>
+            {userReaction == "like" ?
+              <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => like(null)}>
+                <LikeIcon type="full" />
+                Liked
               </button>
             :
-              <button type="button" className={styles.postActionButton} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} onClick={() => setReply(post)}>
-                <ReplyIcon type="line" />
-                Reply
+              <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => like("like")}>
+                <LikeIcon type="line" />
+                Like
               </button>
             }
+          </span>
 
-
-            {/** Like button */}
-            <span style={{marginLeft: "0.75rem", flexDirection: "row", display: "flex"}}>
-              {userReaction == "like" ?
-                <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active")}} onClick={() => like(null)}>
-                  <LikeIcon type="full" />
-                  Liked
-                </button>
-              :
-                <button className={styles.postActionButton} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}} onClick={() => like("like")}>
-                  <LikeIcon type="line" />
-                  Like
-                </button>
-              }
-            </span>
-
-            {/** Like count
-            {(userReaction == "like" || post.count_likes > 0) &&
-              <span style={{marginRight: 2}}>{userReaction == "like" ? post.count_likes + 1 : post.count_likes}</span>
-            }
-            */}
-            {/** Downvote button
-            <button type="button" className="inline-flex items-center rounded-md border border-transparent bg-transaprent px-2 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none text-[#798496] ml-4">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                <path d="M11 8L6 13M6 13L1 8M6 13L6 1" stroke="#4d5562" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Downvote
-            </button>*/}
-          </div>
-
-          {/** Show postbox */}
-          {reply &&
-            <div style={{marginTop: 8}}>
-              <Postbox reply={reply} callback={callbackShared} placeholder="Add your reply..." rows="1" ctaTitle="Reply" ctaStyle={styles.postReplyCta} />
-            </div>
+          {/** Like count
+          {(userReaction == "like" || post.count_likes > 0) &&
+            <span style={{marginRight: 2}}>{userReaction == "like" ? post.count_likes + 1 : post.count_likes}</span>
           }
+          */}
+          {/** Downvote button
+          <button type="button" className="inline-flex items-center rounded-md border border-transparent bg-transaprent px-2 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none text-[#798496] ml-4">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
+              <path d="M11 8L6 13M6 13L1 8M6 13L6 1" stroke="#4d5562" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Downvote
+          </button>*/}
         </div>
+
+        {/** Show postbox */}
+        {reply &&
+          <div style={{marginTop: 8}}>
+            <Postbox reply={reply} callback={callbackShared} placeholder="Add your reply..." rows="1" ctaTitle="Reply" ctaStyle={styles.postReplyCta} />
+          </div>
+        }
       </div>
     </div>
   )
@@ -213,7 +213,7 @@ const PostBody = ({post, characterLimit}) => {
 
   const Body = () => {
     return(
-      <div className={styles.postContent} style={{ fontSize: 15, color: theme?.color?.main ? theme.color.main : defaultTheme.color.main}} dangerouslySetInnerHTML={{__html: marked.parse(charLimit ? body?.substring(0, charLimit) + "..." : body )}}></div>
+      <div className={styles.postContent} style={{...getThemeValue("font", theme, "secondary"), color: getThemeValue("color", theme, "main")}} dangerouslySetInnerHTML={{__html: marked.parse(charLimit ? body?.substring(0, charLimit) + "..." : body )}}></div>
     )
   };
 
@@ -256,7 +256,7 @@ const LinkCard = ({metadata}) => {
       <div className={styles.postUrlMetadataDetails} style={{ borderColor: theme?.border?.secondary ? theme.border.secondary : defaultTheme.border.secondary }}>
         {/** Show source if any */}
         {metadata.source &&
-          <p style={{color: theme?.color?.active ? theme.color.active : defaultTheme.color.active, fontSize: 13, fontWeight: 500 }}>{metadata.source}</p>
+          <p style={{color: theme?.color?.active ? theme.color.active : defaultTheme.color.active, ...getThemeValue("font", theme, "secondary"), fontSize: 13, fontWeight: 500 }}>{metadata.source}</p>
         }
         <h3 style={{color: theme?.color?.main ? theme.color.main : defaultTheme.color.main, fontSize: 17, fontWeight: 500, lineHeight: "1.5rem" }}>{metadata.title}</h3>
 

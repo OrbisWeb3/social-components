@@ -3,9 +3,9 @@ import { Orbis } from '@orbisclub/orbis-sdk';
 export { Orbis } from '@orbisclub/orbis-sdk';
 import 'react-string-replace';
 import { getAddressFromDid } from '@orbisclub/orbis-sdk/utils/index.js';
-import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import ReactTimeAgo from 'react-time-ago';
 import { marked } from 'marked';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 import Web3 from 'web3';
 import { Magic } from 'magic-sdk';
 import { ConnectExtension } from '@magic-ext/connect';
@@ -14,6 +14,35 @@ export { default as TimeAgo } from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en.json';
 
 const defaultTheme = {
+  font: {
+    main: {
+      fontFamily: "Inter",
+      fontSize: 15,
+      fontWeight: 500
+    },
+    secondary: {
+      fontFamily: "Inter",
+      fontSize: 15
+    },
+    actions: {
+      fontFamily: "Inter",
+      fontSize: 12
+    },
+    buttons: {
+      fontFamily: "Inter",
+      fontSize: 14,
+      fontWeight: 500
+    },
+    input: {
+      fontFamily: "Inter",
+      fontSize: 14
+    },
+    badges: {
+      fontFamily: "Inter",
+      fontSize: 12,
+      fontWeight: 500
+    }
+  },
   bg: {
     main: "#FFF",
     secondary: "#f8fafc",
@@ -109,10 +138,47 @@ const defaultTheme = {
     active_wallet_optimism: {
       bg: "#FFF8F8",
       color: "#FF0420"
+    },
+    x2y2: {
+      bg: "#E2FAFF",
+      color: "#4652D4"
+    },
+    looksrare: {
+      bg: "#EFFFF6",
+      color: "#000000"
     }
   }
 };
 const darkTheme = {
+  font: {
+    main: {
+      fontFamily: "Inter",
+      fontSize: 15,
+      fontWeight: 500
+    },
+    secondary: {
+      fontFamily: "Inter",
+      fontSize: 15
+    },
+    actions: {
+      fontFamily: "Inter",
+      fontSize: 12
+    },
+    buttons: {
+      fontFamily: "Inter",
+      fontSize: 14,
+      fontWeight: 500
+    },
+    input: {
+      fontFamily: "Inter",
+      fontSize: 14
+    },
+    badges: {
+      fontFamily: "Inter",
+      fontSize: 12,
+      fontWeight: 500
+    }
+  },
   bg: {
     main: "#1D1F20",
     secondary: "#252626",
@@ -208,11 +274,19 @@ const darkTheme = {
     active_wallet_optimism: {
       bg: "#FFF8F8",
       color: "#FF0420"
+    },
+    x2y2: {
+      bg: "#E2FAFF",
+      color: "#4652D4"
+    },
+    looksrare: {
+      bg: "#EFFFF6",
+      color: "#000000"
     }
   }
 };
 function getThemeValue(type, theme, data) {
-  var _theme$bg, _theme$bg3, _theme$color2, _theme$border2, _theme$bg4, _theme$bg5, _theme$bg6, _theme$border3, _theme$border4, _theme$badges, _theme$badges$red, _theme$badges2, _theme$badges2$red, _theme$badges3, _theme$badges3$twitte, _theme$badges4, _theme$badges4$twitte, _theme$button, _theme$button$main, _theme$button2, _theme$button2$main, _theme$button3, _theme$button3$main, _theme$button4, _theme$button4$main, _theme$button5, _theme$button5$second, _theme$button6, _theme$button6$second, _theme$button7, _theme$button7$green, _theme$button8, _theme$button8$green, _theme$color3, _theme$button9, _theme$button9$red, _theme$button10, _theme$button10$red;
+  var _theme$bg, _theme$bg3, _theme$color2, _theme$border2, _theme$bg4, _theme$bg5, _theme$bg6, _theme$border3, _theme$border4, _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main, _theme$badges3, _theme$badges3$red, _theme$badges4, _theme$badges4$red, _theme$badges5, _theme$badges5$twitte, _theme$badges6, _theme$badges6$twitte, _theme$button, _theme$button$main, _theme$button2, _theme$button2$main, _theme$button3, _theme$button3$main, _theme$button4, _theme$button4$main, _theme$button5, _theme$button5$second, _theme$button6, _theme$button6$second, _theme$button7, _theme$button7$green, _theme$button8, _theme$button8$green, _theme$color3, _theme$button9, _theme$button9$red, _theme$button10, _theme$button10$red, _theme$font, _theme$font$main, _theme$font2, _theme$font2$main, _theme$font3, _theme$font3$main, _theme$font4, _theme$font4$secondar, _theme$font5, _theme$font5$secondar, _theme$font6, _theme$font6$actions, _theme$font7, _theme$font7$actions, _theme$font8, _theme$font8$buttons, _theme$font9, _theme$font9$buttons, _theme$font10, _theme$font10$buttons, _theme$font11, _theme$font11$input, _theme$font12, _theme$font12$input, _theme$font13, _theme$font13$badges, _theme$font14, _theme$font14$badges, _theme$font15, _theme$font15$badges;
   let bgMain = theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main;
   let bgTertiary = theme !== null && theme !== void 0 && (_theme$bg3 = theme.bg) !== null && _theme$bg3 !== void 0 && _theme$bg3.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary;
   switch (type) {
@@ -253,16 +327,19 @@ function getThemeValue(type, theme, data) {
     case "badges":
       switch (data) {
         case "main":
-          return null;
+          return {
+            background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
+            color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
+          };
         case "red":
           return {
-            background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$red = _theme$badges.red) !== null && _theme$badges$red !== void 0 && _theme$badges$red.bg ? theme.badges.red.bg : defaultTheme.badges.red.bg,
-            color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$red = _theme$badges2.red) !== null && _theme$badges2$red !== void 0 && _theme$badges2$red.color ? theme.badges.red.color : defaultTheme.badges.red.color
+            background: theme !== null && theme !== void 0 && (_theme$badges3 = theme.badges) !== null && _theme$badges3 !== void 0 && (_theme$badges3$red = _theme$badges3.red) !== null && _theme$badges3$red !== void 0 && _theme$badges3$red.bg ? theme.badges.red.bg : defaultTheme.badges.red.bg,
+            color: theme !== null && theme !== void 0 && (_theme$badges4 = theme.badges) !== null && _theme$badges4 !== void 0 && (_theme$badges4$red = _theme$badges4.red) !== null && _theme$badges4$red !== void 0 && _theme$badges4$red.color ? theme.badges.red.color : defaultTheme.badges.red.color
           };
         case "twitter":
           return {
-            background: theme !== null && theme !== void 0 && (_theme$badges3 = theme.badges) !== null && _theme$badges3 !== void 0 && (_theme$badges3$twitte = _theme$badges3.twitter) !== null && _theme$badges3$twitte !== void 0 && _theme$badges3$twitte.bg ? theme.badges.twitter.bg : defaultTheme.badges.twitter.bg,
-            color: theme !== null && theme !== void 0 && (_theme$badges4 = theme.badges) !== null && _theme$badges4 !== void 0 && (_theme$badges4$twitte = _theme$badges4.twitter) !== null && _theme$badges4$twitte !== void 0 && _theme$badges4$twitte.color ? theme.badges.twitter.color : defaultTheme.badges.twitter.color
+            background: theme !== null && theme !== void 0 && (_theme$badges5 = theme.badges) !== null && _theme$badges5 !== void 0 && (_theme$badges5$twitte = _theme$badges5.twitter) !== null && _theme$badges5$twitte !== void 0 && _theme$badges5$twitte.bg ? theme.badges.twitter.bg : defaultTheme.badges.twitter.bg,
+            color: theme !== null && theme !== void 0 && (_theme$badges6 = theme.badges) !== null && _theme$badges6 !== void 0 && (_theme$badges6$twitte = _theme$badges6.twitter) !== null && _theme$badges6$twitte !== void 0 && _theme$badges6$twitte.color ? theme.badges.twitter.color : defaultTheme.badges.twitter.color
           };
         default:
           return null;
@@ -298,6 +375,43 @@ function getThemeValue(type, theme, data) {
           return {
             background: theme !== null && theme !== void 0 && (_theme$button9 = theme.button) !== null && _theme$button9 !== void 0 && (_theme$button9$red = _theme$button9.red) !== null && _theme$button9$red !== void 0 && _theme$button9$red.bg ? theme.button.red.bg : defaultTheme.button.red.bg,
             color: theme !== null && theme !== void 0 && (_theme$button10 = theme.button) !== null && _theme$button10 !== void 0 && (_theme$button10$red = _theme$button10.red) !== null && _theme$button10$red !== void 0 && _theme$button10$red.color ? theme.button.red.color : defaultTheme.button.red.color
+          };
+      }
+      break;
+    case "font":
+      switch (data) {
+        case "main":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font = theme.font) !== null && _theme$font !== void 0 && (_theme$font$main = _theme$font.main) !== null && _theme$font$main !== void 0 && _theme$font$main.fontFamily ? theme.font.main.fontFamily : defaultTheme.font.main.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font2 = theme.font) !== null && _theme$font2 !== void 0 && (_theme$font2$main = _theme$font2.main) !== null && _theme$font2$main !== void 0 && _theme$font2$main.fontSize ? theme.font.main.fontSize : defaultTheme.font.main.fontSize,
+            fontWeight: theme !== null && theme !== void 0 && (_theme$font3 = theme.font) !== null && _theme$font3 !== void 0 && (_theme$font3$main = _theme$font3.main) !== null && _theme$font3$main !== void 0 && _theme$font3$main.fontWeight ? theme.font.main.fontWeight : defaultTheme.font.main.fontWeight
+          };
+        case "secondary":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font4 = theme.font) !== null && _theme$font4 !== void 0 && (_theme$font4$secondar = _theme$font4.secondary) !== null && _theme$font4$secondar !== void 0 && _theme$font4$secondar.fontFamily ? theme.font.secondary.fontFamily : defaultTheme.font.secondary.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font5 = theme.font) !== null && _theme$font5 !== void 0 && (_theme$font5$secondar = _theme$font5.secondary) !== null && _theme$font5$secondar !== void 0 && _theme$font5$secondar.fontSize ? theme.font.secondary.fontSize : defaultTheme.font.secondary.fontSize
+          };
+        case "actions":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font6 = theme.font) !== null && _theme$font6 !== void 0 && (_theme$font6$actions = _theme$font6.actions) !== null && _theme$font6$actions !== void 0 && _theme$font6$actions.fontFamily ? theme.font.actions.fontFamily : defaultTheme.font.actions.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font7 = theme.font) !== null && _theme$font7 !== void 0 && (_theme$font7$actions = _theme$font7.actions) !== null && _theme$font7$actions !== void 0 && _theme$font7$actions.fontSize ? theme.font.actions.fontSize : defaultTheme.font.actions.fontSize
+          };
+        case "buttons":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font8 = theme.font) !== null && _theme$font8 !== void 0 && (_theme$font8$buttons = _theme$font8.buttons) !== null && _theme$font8$buttons !== void 0 && _theme$font8$buttons.fontFamily ? theme.font.buttons.fontFamily : defaultTheme.font.buttons.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font9 = theme.font) !== null && _theme$font9 !== void 0 && (_theme$font9$buttons = _theme$font9.buttons) !== null && _theme$font9$buttons !== void 0 && _theme$font9$buttons.fontSize ? theme.font.buttons.fontSize : defaultTheme.font.buttons.fontSize,
+            fontWeight: theme !== null && theme !== void 0 && (_theme$font10 = theme.font) !== null && _theme$font10 !== void 0 && (_theme$font10$buttons = _theme$font10.buttons) !== null && _theme$font10$buttons !== void 0 && _theme$font10$buttons.fontWeight ? theme.font.buttons.fontWeight : defaultTheme.font.buttons.fontWeight
+          };
+        case "input":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font11 = theme.font) !== null && _theme$font11 !== void 0 && (_theme$font11$input = _theme$font11.input) !== null && _theme$font11$input !== void 0 && _theme$font11$input.fontFamily ? theme.font.input.fontFamily : defaultTheme.font.input.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font12 = theme.font) !== null && _theme$font12 !== void 0 && (_theme$font12$input = _theme$font12.input) !== null && _theme$font12$input !== void 0 && _theme$font12$input.fontSize ? theme.font.input.fontSize : defaultTheme.font.input.fontSize
+          };
+        case "badges":
+          return {
+            fontFamily: theme !== null && theme !== void 0 && (_theme$font13 = theme.font) !== null && _theme$font13 !== void 0 && (_theme$font13$badges = _theme$font13.badges) !== null && _theme$font13$badges !== void 0 && _theme$font13$badges.fontFamily ? theme.font.badges.fontFamily : defaultTheme.font.badges.fontFamily,
+            fontSize: theme !== null && theme !== void 0 && (_theme$font14 = theme.font) !== null && _theme$font14 !== void 0 && (_theme$font14$badges = _theme$font14.badges) !== null && _theme$font14$badges !== void 0 && _theme$font14$badges.fontSize ? theme.font.badges.fontSize : defaultTheme.font.badges.fontSize,
+            fontWeight: theme !== null && theme !== void 0 && (_theme$font15 = theme.font) !== null && _theme$font15 !== void 0 && (_theme$font15$badges = _theme$font15.badges) !== null && _theme$font15$badges !== void 0 && _theme$font15$badges.fontWeight ? theme.font.badges.fontWeight : defaultTheme.font.badges.fontWeight
           };
       }
       break;
@@ -346,8 +460,6 @@ function getStyle(type, theme, data) {
       } else {
         return null;
       }
-    default:
-      return null;
   }
 }
 
@@ -373,7 +485,9 @@ function useOrbis() {
     accessRules,
     hasAccess,
     connecting,
-    magic
+    magic,
+    connectModalVis,
+    setConnectModalVis
   } = useContext(GlobalContext);
   return {
     orbis,
@@ -386,7 +500,9 @@ function useOrbis() {
     accessRules,
     hasAccess,
     connecting,
-    magic
+    magic,
+    connectModalVis,
+    setConnectModalVis
   };
 }
 
@@ -407,6 +523,7 @@ const Button = ({
     className: styles.btnPrimary,
     style: {
       ...getThemeValue("button", theme, color),
+      ...getThemeValue("font", theme, "buttons"),
       ...style
     },
     onClick: onClick ? () => onClick() : null
@@ -515,7 +632,10 @@ const Input = ({
         value: value,
         onChange: onChange,
         className: styles$2.input,
-        style: style
+        style: {
+          ...style,
+          ...getThemeValue("font", theme, "input")
+        }
       }, children);
     case "textarea":
       return /*#__PURE__*/React.createElement("textarea", {
@@ -526,7 +646,10 @@ const Input = ({
         value: value,
         onChange: onChange,
         className: styles$2.textarea,
-        style: style
+        style: {
+          ...style,
+          ...getThemeValue("font", theme, "input")
+        }
       });
     default:
       return null;
@@ -637,7 +760,6 @@ function Modal({
   useOutsideClick(wrapperRef, () => hide());
   return /*#__PURE__*/React.createElement("div", {
     style: {
-      position: "relative",
       zIndex: 50
     },
     "aria-labelledby": "modal-title",
@@ -1084,6 +1206,21 @@ const EditIcon = () => {
     fill: "currentColor"
   }));
 };
+const LogoutIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "15",
+    height: "15",
+    viewBox: "0 0 20 20",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3.63604 3.63604C0.12132 7.15076 0.12132 12.8492 3.63604 16.364C7.15076 19.8787 12.8492 19.8787 16.364 16.364C19.8787 12.8492 19.8787 7.15076 16.364 3.63604M10 1V10",
+    stroke: "currentColor",
+    "stroke-width": "2",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round"
+  }));
+};
 const TwitterIcon = ({
   style
 }) => {
@@ -1479,6 +1616,93 @@ const OptimismIcon = () => {
     fill: "currentColor"
   }));
 };
+const X2Y2Icon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "12",
+    height: "12",
+    viewBox: "0 0 12 12",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M10.764 2.352C9.81219 1.41964 8.53238 0.898237 7.2 0.9C4.38337 0.9 2.1 3.18337 2.1 6C2.1 8.81662 4.38337 11.1 7.2 11.1C8.58712 11.1 9.8445 10.5465 10.764 9.648C10.2043 10.3801 9.4833 10.9731 8.65702 11.3811C7.83074 11.789 6.92149 12.0008 6 12C2.68612 12 0 9.31387 0 6C0 2.68612 2.68612 0 6 0C7.94137 0 9.6675 0.922125 10.764 2.352Z",
+    fill: "url(#paint0_linear_229_936)"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3.38867 8.91845C4.15008 9.66436 5.1739 10.0815 6.2398 10.0802C8.49317 10.0802 10.3198 8.25357 10.3198 6.0002C10.3198 3.74682 8.49317 1.9202 6.2398 1.9202C5.1739 1.91885 4.15008 2.33603 3.38867 3.08195C3.83641 2.4963 4.41321 2.02184 5.07422 1.69547C5.73522 1.36909 6.46261 1.19961 7.1998 1.2002C9.85105 1.2002 11.9998 3.34895 11.9998 6.0002C11.9998 8.65145 9.85105 10.8002 7.1998 10.8002C6.46261 10.8008 5.73522 10.6313 5.07422 10.3049C4.41321 9.97855 3.83641 9.50409 3.38867 8.91845Z",
+    fill: "url(#paint1_linear_229_936)"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M9.5999 5.9999C9.5999 6.47266 9.50678 6.94079 9.32587 7.37756C9.14495 7.81433 8.87978 8.21119 8.54549 8.54549C8.21119 8.87978 7.81433 9.14495 7.37756 9.32587C6.94079 9.50678 6.47266 9.5999 5.9999 9.5999C5.52714 9.5999 5.05901 9.50678 4.62224 9.32587C4.18547 9.14495 3.78861 8.87978 3.45432 8.54549C3.12003 8.21119 2.85485 7.81433 2.67394 7.37756C2.49302 6.94079 2.3999 6.47266 2.3999 5.9999C2.3999 5.04512 2.77919 4.12945 3.45432 3.45432C4.12945 2.77919 5.04512 2.3999 5.9999 2.3999C6.95468 2.3999 7.87035 2.77919 8.54549 3.45432C9.22062 4.12945 9.5999 5.04512 9.5999 5.9999ZM8.3999 5.9999C8.3999 6.63642 8.14704 7.24687 7.69696 7.69696C7.24687 8.14704 6.63642 8.3999 5.9999 8.3999C5.36338 8.3999 4.75293 8.14704 4.30285 7.69696C3.85276 7.24687 3.5999 6.63642 3.5999 5.9999C3.5999 5.36338 3.85276 4.75293 4.30285 4.30285C4.75293 3.85276 5.36338 3.5999 5.9999 3.5999C6.63642 3.5999 7.24687 3.85276 7.69696 4.30285C8.14704 4.75293 8.3999 5.36338 8.3999 5.9999Z",
+    fill: "url(#paint2_linear_229_936)"
+  }), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint0_linear_229_936",
+    x1: "0",
+    y1: "5.793",
+    x2: "12",
+    y2: "5.793",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    "stop-color": "#00E0FF"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    "stop-color": "#562EC8"
+  })), /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint1_linear_229_936",
+    x1: "-0.000202357",
+    y1: "5.7932",
+    x2: "11.9998",
+    y2: "5.7932",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    "stop-color": "#00E0FF"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    "stop-color": "#562EC8"
+  })), /*#__PURE__*/React.createElement("linearGradient", {
+    id: "paint2_linear_229_936",
+    x1: "-9.70562e-05",
+    y1: "5.7929",
+    x2: "11.9999",
+    y2: "5.7929",
+    gradientUnits: "userSpaceOnUse"
+  }, /*#__PURE__*/React.createElement("stop", {
+    "stop-color": "#00E0FF"
+  }), /*#__PURE__*/React.createElement("stop", {
+    offset: "1",
+    "stop-color": "#562EC8"
+  }))));
+};
+const LooksRareIcon = () => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "14",
+    height: "11",
+    viewBox: "0 0 14 11",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: 3
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3.74031 2.20617C5.7415 0.216434 8.98595 0.216428 10.9865 2.20617L12.7151 3.92493L10.9865 5.64371C8.98595 7.63344 5.7415 7.63344 3.74031 5.64371L2.01172 3.92493L3.74031 2.20617Z",
+    fill: "black"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M0.762695 3.92737L4.68737 0H10.0394L13.9641 3.92737L7.3637 10.5251L0.762695 3.92737ZM10.3961 2.49748C8.72861 0.822604 5.99815 0.822616 4.3307 2.49748L2.90337 3.92464L4.3307 5.35177C5.99815 7.02667 8.72861 7.02667 10.3961 5.35177L11.8234 3.92464L10.3961 2.49748Z",
+    fill: "#0CE466"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M7.36374 5.17328C6.67396 5.17328 6.11475 4.61445 6.11475 3.92455C6.11475 3.23459 6.67396 2.67578 7.36374 2.67578C8.05288 2.67578 8.61209 3.23459 8.61209 3.92455C8.61209 4.61445 8.05288 5.17328 7.36374 5.17328Z",
+    fill: "black"
+  }), /*#__PURE__*/React.createElement("path", {
+    "fill-rule": "evenodd",
+    "clip-rule": "evenodd",
+    d: "M5.31201 3.92456C5.31201 5.05802 6.23108 5.97607 7.36352 5.97607C8.49596 5.97607 9.41503 5.05802 9.41503 3.92456C9.41503 2.79108 8.49596 1.87305 7.36352 1.87305C6.23108 1.87305 5.31201 2.79107 5.31201 3.92456ZM6.4712 3.92456C6.4712 4.41734 6.87118 4.8165 7.36352 4.8165C7.85586 4.8165 8.2552 4.41741 8.2552 3.92456C8.2552 3.43174 7.85586 3.0326 7.36352 3.0326C6.87118 3.0326 6.4712 3.43174 6.4712 3.92456Z",
+    fill: "white"
+  }));
+};
 const SendIcon = ({
   style
 }) => {
@@ -1831,12 +2055,12 @@ const UserBadge = ({
     chain
   } = useDidToAddress(details === null || details === void 0 ? void 0 : details.did);
   if (address) {
-    var _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main, _details$metadata;
+    var _details$metadata;
     return /*#__PURE__*/React.createElement("div", {
       className: styles$7.userBadge,
       style: {
-        background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
-        color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
+        ...getThemeValue("badges", theme, "main"),
+        ...getThemeValue("font", theme, "badges")
       }
     }, details !== null && details !== void 0 && (_details$metadata = details.metadata) !== null && _details$metadata !== void 0 && _details$metadata.ensName ? details.metadata.ensName : shortAddress(address));
   } else {
@@ -1847,10 +2071,11 @@ const UserPopup = ({
   details,
   visible
 }) => {
-  var _details$profile4, _details$profile5, _theme$bg2, _theme$border, _theme$color2, _theme$badges3, _theme$badges3$main, _theme$badges4, _theme$badges4$main, _details$profile6, _theme$color3, _theme$border2, _theme$color4, _theme$color5, _theme$color6, _theme$color7;
+  var _details$profile4, _details$profile5, _theme$bg2, _theme$border, _details$profile6, _theme$border2;
   const {
     orbis,
     user,
+    setUser,
     theme
   } = useOrbis();
   const [locked, setLocked] = useState(false);
@@ -1871,6 +2096,10 @@ const UserPopup = ({
   function callbackNftUpdate(url, details) {
     setPfp(url);
     setPfpNftDetails(details);
+  }
+  async function logout() {
+    let res = orbis.logout();
+    setUser(null);
   }
   if (vis == false) {
     return null;
@@ -1901,8 +2130,8 @@ const UserPopup = ({
   }, /*#__PURE__*/React.createElement("span", {
     className: styles$7.userPopupDetailsUsername,
     style: {
-      color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main,
-      fontSize: 15
+      color: getThemeValue("color", theme, "main"),
+      ...getThemeValue("font", theme, "main")
     }
   }, /*#__PURE__*/React.createElement(Username, {
     details: details
@@ -1910,28 +2139,19 @@ const UserPopup = ({
     className: styles$7.userPopupDetailsBadgeContainer
   }, /*#__PURE__*/React.createElement(UserBadge, {
     details: details
-  }), (details === null || details === void 0 ? void 0 : details.twitter_details) && /*#__PURE__*/React.createElement("a", {
-    href: "https://twitter.com/" + (details === null || details === void 0 ? void 0 : details.twitter_details.username),
-    target: "_blank",
-    rel: "noreferrer",
-    style: {
-      marginLeft: 10,
-      color: theme !== null && theme !== void 0 && (_theme$badges3 = theme.badges) !== null && _theme$badges3 !== void 0 && (_theme$badges3$main = _theme$badges3.main) !== null && _theme$badges3$main !== void 0 && _theme$badges3$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
-    }
-  }, /*#__PURE__*/React.createElement(TwitterIcon, null)), (details === null || details === void 0 ? void 0 : details.github_details) && /*#__PURE__*/React.createElement("a", {
-    href: "https://github.com/" + (details === null || details === void 0 ? void 0 : details.github_details.username),
-    target: "_blank",
-    rel: "noreferrer",
-    style: {
-      marginLeft: 10,
-      color: theme !== null && theme !== void 0 && (_theme$badges4 = theme.badges) !== null && _theme$badges4 !== void 0 && (_theme$badges4$main = _theme$badges4.main) !== null && _theme$badges4$main !== void 0 && _theme$badges4$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
-    }
-  }, /*#__PURE__*/React.createElement(GithubIcon, null)))), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userPopupDetailsActionsContainer
-  }, user && user.did == details.did ? /*#__PURE__*/React.createElement(Button, {
+  }, user && user.did == details.did ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
     color: "primary",
     onClick: () => _setIsEditing(true)
-  }, "Edit", /*#__PURE__*/React.createElement(EditIcon, null)) : /*#__PURE__*/React.createElement(Follow, {
+  }, "Edit", /*#__PURE__*/React.createElement(EditIcon, null)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: 7,
+      cursor: "pointer",
+      color: getThemeValue("color", theme, "main")
+    },
+    onClick: () => logout()
+  }, /*#__PURE__*/React.createElement(LogoutIcon, null))) : /*#__PURE__*/React.createElement(Follow, {
     did: details.did
   }))), (details === null || details === void 0 ? void 0 : (_details$profile6 = details.profile) === null || _details$profile6 === void 0 ? void 0 : _details$profile6.description) && /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1939,9 +2159,9 @@ const UserPopup = ({
     }
   }, /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: 15,
+      ...getThemeValue("font", theme, "secondary"),
       lineHeight: "inherit",
-      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: getThemeValue("color", theme, "secondary")
     }
   }, details.profile.description)), /*#__PURE__*/React.createElement(UserCredentials, {
     details: details
@@ -1955,28 +2175,34 @@ const UserPopup = ({
   }, /*#__PURE__*/React.createElement("p", {
     className: styles$7.userPopupFooterFollowTitle,
     style: {
+      ...getThemeValue("font", theme, "main"),
+      fontWeight: 400,
       fontSize: 13,
-      color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: getThemeValue("color", theme, "secondary")
     }
   }, "Followers"), /*#__PURE__*/React.createElement("p", {
     className: styles$7.userPopupFooterFollowCount,
     style: {
+      ...getThemeValue("font", theme, "secondary"),
       fontSize: 15,
-      color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.main ? theme.color.main : defaultTheme.color.main
+      color: getThemeValue("color", theme, "main")
     }
   }, details.count_followers)), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userPopupFooterFollowing
   }, /*#__PURE__*/React.createElement("p", {
     className: styles$7.userPopupFooterFollowTitle,
     style: {
+      ...getThemeValue("font", theme, "main"),
+      fontWeight: 400,
       fontSize: 13,
-      color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: getThemeValue("color", theme, "secondary")
     }
   }, "Following"), /*#__PURE__*/React.createElement("p", {
     className: styles$7.userPopupFooterFollowCount,
     style: {
+      ...getThemeValue("font", theme, "secondary"),
       fontSize: 15,
-      color: theme !== null && theme !== void 0 && (_theme$color7 = theme.color) !== null && _theme$color7 !== void 0 && _theme$color7.main ? theme.color.main : defaultTheme.color.main
+      color: getThemeValue("color", theme, "main")
     }
   }, details.count_following))))), showProfileModal && /*#__PURE__*/React.createElement(UpdateProfileModal, {
     hide: () => setShowProfileModal(false),
@@ -1986,7 +2212,7 @@ const UserPopup = ({
 function UserCredentials({
   details
 }) {
-  var _theme$color8;
+  var _theme$color2;
   const {
     orbis,
     user,
@@ -2036,8 +2262,10 @@ function UserCredentials({
   }, /*#__PURE__*/React.createElement("p", {
     className: styles$7.userPopupFooterFollowTitle,
     style: {
+      ...getThemeValue("font", theme, "main"),
+      fontWeight: 400,
       fontSize: 13,
-      color: theme !== null && theme !== void 0 && (_theme$color8 = theme.color) !== null && _theme$color8 !== void 0 && _theme$color8.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Credentials:"), /*#__PURE__*/React.createElement("div", {
     className: styles$7.userPopupCredentialsContainer
@@ -2081,6 +2309,10 @@ function UserCredential({
           return /*#__PURE__*/React.createElement(SnapshotIcon, null);
         case "sismo":
           return /*#__PURE__*/React.createElement(SismoIcon, null);
+        case "x2y2":
+          return /*#__PURE__*/React.createElement(X2Y2Icon, null);
+        case "looksrare":
+          return /*#__PURE__*/React.createElement(LooksRareIcon, null);
         case "nonces":
           switch ((_credential$content2 = credential.content) === null || _credential$content2 === void 0 ? void 0 : (_credential$content2$ = _credential$content2.credentialSubject) === null || _credential$content2$ === void 0 ? void 0 : _credential$content2$.type) {
             case "active-wallet-mainnet":
@@ -2117,7 +2349,10 @@ function UserCredential({
   if (credential.content && credential.issuer == "did:key:z6mkfglpulq7vvxu93xrh1mlgha5fmutcgmuwkz1vuwt3qju") {
     if (credential.content.credentialSubject.protocol == "nonces" || credential.content.credentialSubject.protocol == "EVM") {
       return /*#__PURE__*/React.createElement(Badge, {
-        style: getStyle("badge", theme, clean(credential.content.credentialSubject.type)),
+        style: {
+          ...getStyle("badge", theme, clean(credential.content.credentialSubject.type)),
+          ...getThemeValue("font", theme, "badges")
+        },
         tooltip: showTooltip ? credential.content.credentialSubject.description : null
       }, /*#__PURE__*/React.createElement(CredentialIcon, null), credential.content.credentialSubject.name);
     } else {
@@ -2584,6 +2819,940 @@ function UserEditProfile({
   }, /*#__PURE__*/React.createElement(SaveButton, null)));
 }
 
+var styles$8 = {"connectBtn":"_1jNTa"};
+
+function ConnectButton({
+  lit = false
+}) {
+  const {
+    orbis,
+    user,
+    theme,
+    setUser,
+    setCredentials,
+    connecting,
+    setConnectModalVis
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    className: styles$8.connectBtn,
+    style: {
+      ...getStyle("button-main", theme, "main"),
+      ...getThemeValue("font", theme, "buttons"),
+      width: "100%",
+      textAlign: "center"
+    },
+    onClick: () => setConnectModalVis(true)
+  }, connecting ? /*#__PURE__*/React.createElement(LoadingCircle, null) : /*#__PURE__*/React.createElement(BoltIcon, {
+    style: {
+      marginRight: "0.25rem"
+    }
+  }), "Connect"));
+}
+
+var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","operator":"_1XO9C"};
+
+function AccessRulesModal({
+  hide,
+  callbackNftUpdate
+}) {
+  const {
+    user,
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement(Modal, {
+    hide: () => hide(),
+    width: 500,
+    title: "Access Rules",
+    description: "This feed is gated with the following rules:"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: "100%",
+      display: "flex",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$9.accessRulesContainer
+  }, /*#__PURE__*/React.createElement(LoopAccessRules, null))));
+}
+const LoopAccessRules = () => {
+  const {
+    accessRules
+  } = useOrbis();
+  return accessRules.map((accessRule, key) => {
+    return /*#__PURE__*/React.createElement(OneAccessRule, {
+      accessRule: accessRule,
+      key: key
+    });
+  });
+};
+const OneAccessRule = ({
+  accessRule
+}) => {
+  const {
+    theme
+  } = useOrbis();
+  if (accessRule.operator) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$9.operator,
+      style: {
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }, accessRule.operator);
+  }
+  switch (accessRule.type) {
+    case "credential":
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.accessRuleContainer,
+        style: {
+          borderColor: getThemeValue("border", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 13,
+          color: getThemeValue("color", theme, "secondary"),
+          marginRight: 7
+        }
+      }, "Must own:"), /*#__PURE__*/React.createElement(LoopCredentials, {
+        credentials: accessRule.requiredCredentials
+      }));
+    case "did":
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.accessRuleContainer,
+        style: {
+          borderColor: getThemeValue("border", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 13,
+          color: getThemeValue("color", theme, "secondary"),
+          marginRight: 7
+        }
+      }, "Must be:"), /*#__PURE__*/React.createElement(LoopUsers, {
+        users: accessRule.authorizedUsers
+      }));
+    default:
+      return null;
+  }
+};
+const LoopCredentials = ({
+  credentials
+}) => {
+  return credentials.map((credential, key) => {
+    return /*#__PURE__*/React.createElement(UserCredential, {
+      credential: credential,
+      key: key
+    });
+  });
+};
+const LoopUsers = ({
+  users
+}) => {
+  const {
+    theme
+  } = useOrbis();
+  return users.map((_user, key) => {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: getThemeValue("color", theme, "main"),
+        fontSize: 15
+      }
+    }, /*#__PURE__*/React.createElement(User, {
+      details: _user.details,
+      key: key
+    }));
+  });
+};
+
+const CommentsContext = React.createContext({});
+
+var styles$a = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","accessRulesContainer":"_38Oc2","hoverLink":"_2DzGC","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
+
+let mentions = [];
+function Postbox({
+  showPfp = true,
+  connecting,
+  reply = null,
+  callback,
+  rows = "2",
+  defaultPost,
+  setEditPost,
+  ctaTitle = "Comment",
+  ctaStyle = styles$a.postboxShareContainerBtn,
+  placeholder = "Add your comment..."
+}) {
+  const {
+    user,
+    setUser,
+    orbis,
+    theme,
+    context,
+    accessRules,
+    hasAccess
+  } = useOrbis();
+  const {
+    comments,
+    setComments
+  } = useContext(CommentsContext);
+  const [sharing, setSharing] = useState(false);
+  const [hoverRef, isHovered] = useHover();
+  const [body, setBody] = useState("");
+  const [accessRulesModalVis, setAccessRulesModalVis] = useState(false);
+  const postbox = useRef();
+  const [mentionsBoxVis, setMentionsBoxVis] = useState(false);
+  const [focusOffset, setFocusOffset] = useState(null);
+  const [focusNode, setFocusNode] = useState(null);
+  useEffect(() => {
+    if (defaultPost) {
+      if (postbox.current) {
+        postbox.current.textContent = defaultPost.content.body;
+        setBody(defaultPost.content.body);
+      }
+    }
+  }, [defaultPost, postbox]);
+  const handleSubmit = async event => {
+    console.log("Submitting form.");
+    event.preventDefault();
+    if (sharing) {
+      console.log("A request is already being processed.");
+      return;
+    }
+    setSharing(true);
+    const formData = new FormData(event.target);
+    let master = null;
+    if (reply && reply.content.master) {
+      master = reply.content.master;
+    } else if (reply) {
+      master = reply.stream_id;
+    }
+    if (defaultPost) {
+      let _contentEdit = {
+        ...defaultPost.content
+      };
+      _contentEdit.body = body;
+      let res = await orbis.editPost(defaultPost.stream_id, _contentEdit);
+      console.log("res:", res);
+      if (callback) {
+        callback(_contentEdit);
+      }
+    } else {
+      let _contentCreate = {
+        body: body,
+        context: context ? context : null,
+        master: master,
+        reply_to: reply ? reply.stream_id : null,
+        mentions: mentions
+      };
+      let res = await orbis.createPost(_contentCreate);
+      if (res.status == 200) {
+        if (comments) {
+          setComments([{
+            timestamp: getTimestamp(),
+            creator_details: user,
+            creator: user.did,
+            stream_id: res.doc,
+            content: _contentCreate,
+            count_likes: 0
+          }, ...comments]);
+        }
+      } else {
+        console.log("Error submitting form:", res);
+      }
+      if (callback) {
+        callback();
+      }
+    }
+    if (postbox.current) {
+      postbox.current.value = "";
+    }
+    setBody(null);
+    mentions = [];
+    if (postbox.current) {
+      postbox.current.textContent = "";
+    }
+    setSharing(false);
+  };
+  async function handleInput(e) {
+    var _user$nonces;
+    let inputValue = e.currentTarget.innerText;
+    let keyCode = e.nativeEvent.data;
+    switch (keyCode) {
+      case "@":
+        if (user.nonces && ((_user$nonces = user.nonces) === null || _user$nonces === void 0 ? void 0 : _user$nonces.global) <= 0 && user.a_r <= 1) {
+          return;
+        } else {
+          setMentionsBoxVis(true);
+        }
+        console.log("Should show mention box!");
+        break;
+      case " ":
+        postbox === null || postbox === void 0 ? void 0 : postbox.current.focus();
+        break;
+      default:
+        setMentionsBoxVis(false);
+        break;
+    }
+    setBody(inputValue);
+    saveCaretPos(document.getSelection());
+  }
+  function saveCaretPos(_sel) {
+    setFocusOffset(_sel.focusOffset);
+    setFocusNode(_sel.focusNode);
+  }
+  function addMention(mention) {
+    var _mention$profile, _mention$profile$user;
+    console.log("Adding user:", mention);
+    restoreCaretPos();
+    let _mentionName = (_mention$profile = mention.profile) === null || _mention$profile === void 0 ? void 0 : (_mention$profile$user = _mention$profile.username) === null || _mention$profile$user === void 0 ? void 0 : _mention$profile$user.replaceAll(" ", "");
+    mentions.push({
+      username: "@" + _mentionName,
+      did: mention.did
+    });
+    var _mentionTag = "<span style='color: " + getThemeValue("color", theme, "active") + "; font-weight: " + 500 + ";' class='mention' contentEditable='false' data-did='" + mention.did + "'>@" + _mentionName + "</span>&nbsp;";
+    document.execCommand("delete", null, false);
+    document.execCommand("insertHTML", false, _mentionTag);
+    console.log("Trying to paste mention:", _mentionTag);
+    setMentionsBoxVis(false);
+  }
+  function restoreCaretPos() {
+    postbox.current.focus();
+    var sel = document.getSelection();
+    sel.collapse(focusNode, focusOffset);
+  }
+  if (user) {
+    var _theme$color, _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main;
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxGlobalContainer
+    }, showPfp && /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxUserContainer,
+      ref: hoverRef
+    }, /*#__PURE__*/React.createElement(UserPfp, {
+      details: user,
+      hover: true
+    })), /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxContainer
+    }, /*#__PURE__*/React.createElement("form", {
+      style: {
+        width: "100%"
+      },
+      onSubmit: event => handleSubmit(event)
+    }, /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postbox,
+      style: {
+        borderColor: getThemeValue("input", theme).border,
+        backgroundColor: getThemeValue("input", theme, sharing).background
+      }
+    }, reply && /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxReplyContainer
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        marginRight: "0.25rem",
+        color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.secondary ? theme.color.secondary : defaultTheme.color.secondary
+      }
+    }, "Replying to:"), /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxReplyBadge,
+      style: {
+        background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
+        color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
+      }
+    }, /*#__PURE__*/React.createElement(Username, {
+      details: reply.creator_details
+    }))), hasAccess && /*#__PURE__*/React.createElement("div", {
+      contentEditable: true,
+      autoFocus: true,
+      "data-placeholder": placeholder,
+      ref: postbox,
+      rows: rows,
+      name: "body",
+      id: "postbox-area",
+      value: body,
+      onChange: e => setBody(e.target.value),
+      className: styles$a.postboxInput,
+      style: {
+        fontSize: 15,
+        color: getThemeValue("input", theme, sharing).color,
+        ...getThemeValue("font", theme, "secondary")
+      },
+      placeholder: placeholder,
+      disabled: sharing,
+      onInput: e => handleInput(e)
+    }), /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxShareContainer
+    }, accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: styles$a.accessRulesContainer,
+      style: {
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }, hasAccess ? /*#__PURE__*/React.createElement(UnlockIcon, {
+      style: {
+        marginRight: 5,
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }) : /*#__PURE__*/React.createElement(LockIcon, {
+      style: {
+        marginRight: 5,
+        color: getThemeValue("color", theme, "secondary")
+      }
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: getThemeValue("color", theme, "secondary"),
+        ...getThemeValue("font", theme, "secondary")
+      }
+    }, "Gated to specific credentials holders. ", /*#__PURE__*/React.createElement("span", {
+      className: styles$a.hoverLink,
+      style: {
+        fontWeight: 500,
+        color: getThemeValue("color", theme, "active")
+      },
+      onClick: () => setAccessRulesModalVis(true)
+    }, "View"))), sharing ? /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      className: ctaStyle,
+      style: {
+        background: "transparent",
+        color: getThemeValue("color", theme, "main"),
+        ...getThemeValue("font", theme, "buttons")
+      }
+    }, /*#__PURE__*/React.createElement(LoadingCircle, null), " Sending") : /*#__PURE__*/React.createElement(React.Fragment, null, defaultPost && /*#__PURE__*/React.createElement(Button, {
+      color: "secondary",
+      style: {
+        marginRight: 5
+      },
+      onClick: () => setEditPost(false)
+    }, "Cancel"), hasAccess ? /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      className: ctaStyle,
+      style: {
+        ...getStyle("button-main", theme, "main"),
+        ...getThemeValue("font", theme, "buttons")
+      }
+    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null)) : /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      disabled: true,
+      className: ctaStyle,
+      style: {
+        ...getStyle("button-main", theme, "main"),
+        ...getThemeValue("font", theme, "buttons"),
+        opacity: 0.7,
+        marginTop: 10
+      }
+    }, /*#__PURE__*/React.createElement(LockIcon, {
+      style: {
+        marginRight: 5
+      }
+    }), "Locked"))))), mentionsBoxVis && /*#__PURE__*/React.createElement(MentionsBox, {
+      add: addMention
+    })), accessRulesModalVis && /*#__PURE__*/React.createElement(AccessRulesModal, {
+      hide: () => setAccessRulesModalVis(false)
+    }));
+  } else {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$a.postboxConnectContainer
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "60%"
+      }
+    }, /*#__PURE__*/React.createElement(ConnectButton, {
+      orbis: orbis
+    })));
+  }
+}
+const MentionsBox = ({
+  add
+}) => {
+  var _theme$bg, _theme$border, _theme$border2, _theme$color3;
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    if (search && search.length >= 2) {
+      searchUsers();
+    }
+    async function searchUsers() {
+      setLoading(true);
+      let {
+        data,
+        error,
+        status
+      } = await orbis.getProfilesByUsername(search);
+      setLoading(false);
+      if (error) {
+        console.log("Error querying Orbis usernames: ", error);
+      }
+      if (data) {
+        setUsers(data);
+      } else {
+        setUsers([]);
+      }
+    }
+  }, [search]);
+  const LoopUsers = () => {
+    if (!search || search == "" || search.length < 2) {
+      return null;
+    }
+    if (loading) {
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$a.loadingContainer,
+        style: {
+          color: getThemeValue("color", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement(LoadingCircle, null));
+    } else {
+      if (users.length > 0) {
+        return users.map((_user, key) => {
+          var _theme$color2;
+          return /*#__PURE__*/React.createElement("div", {
+            className: styles$a.userResultContainer,
+            onClick: () => add(_user.details),
+            style: {
+              fontSize: 15,
+              color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main
+            },
+            key: key
+          }, /*#__PURE__*/React.createElement(User, {
+            details: _user.details,
+            key: key,
+            isLink: false
+          }));
+        });
+      } else {
+        return /*#__PURE__*/React.createElement("p", null, "No users");
+      }
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$a.mentionsBoxContainer,
+    style: {
+      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
+      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$a.mentionsBoxInputContainer
+  }, /*#__PURE__*/React.createElement(Input, {
+    autofocus: true,
+    type: "text",
+    name: "username",
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: "Search username",
+    style: {
+      ...getStyle("input", theme, status == 1),
+      borderRadius: 0,
+      borderWidth: 0,
+      borderBottomWidth: 1
+    }
+  })), search && search.length >= 2 ? /*#__PURE__*/React.createElement("div", {
+    className: styles$a.userResults,
+    style: {
+      borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
+    }
+  }, /*#__PURE__*/React.createElement(LoopUsers, null)) : /*#__PURE__*/React.createElement("p", {
+    className: styles$a.mentionsBoxEmptyState,
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
+    }
+  }, "Search by username to mention someone."));
+};
+
+var styles$b = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
+
+function Post({
+  post,
+  characterLimit = null
+}) {
+  var _theme$color;
+  const {
+    user,
+    setUser,
+    orbis,
+    theme,
+    hasAccess
+  } = useOrbis();
+  const [editPost, setEditPost] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [reply, setReply] = useState();
+  const [userReaction, setUserReaction] = useState();
+  const [postMenuVis, setPostMenuVis] = useState(false);
+  const [hoverRef, isHovered] = useHover();
+  useEffect(() => {
+    if (user) {
+      getUserReaction();
+    }
+  }, [user]);
+  async function getUserReaction() {
+    let {
+      data,
+      error
+    } = await orbis.getReaction(post.stream_id, user.did);
+    if (data) {
+      setUserReaction(data.type);
+    }
+  }
+  async function like(type) {
+    if (!user) {
+      alert("You must be connected to react to posts.");
+      return;
+    }
+    if (!hasAccess) {
+      alert("You need the required credentials to react to posts in this feed.");
+      return;
+    }
+    setUserReaction(type);
+    let res = await orbis.react(post.stream_id, type);
+    switch (res.status) {
+      case 300:
+        console.log("Error reacting to the post:", res);
+        break;
+    }
+  }
+  function callbackShared() {
+    setReply(false);
+  }
+  function callbackEdit(content) {
+    console.log("Enter callbackShared()");
+    setEditPost(false);
+    post.content = content;
+  }
+  if (isDeleted) {
+    return null;
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postContainer
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative"
+    },
+    ref: hoverRef
+  }, /*#__PURE__*/React.createElement(UserPfp, {
+    details: post.creator_details,
+    hover: false
+  }), /*#__PURE__*/React.createElement(UserPopup, {
+    visible: isHovered,
+    details: post.creator_details
+  })), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postDetailsContainer
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postDetailsContainerMetadata
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postDetailsContainerUser
+  }, /*#__PURE__*/React.createElement("span", {
+    className: styles$b.postDetailsContainerUsername,
+    style: {
+      ...getThemeValue("font", theme, "main"),
+      color: getThemeValue("color", theme, "main")
+    }
+  }, /*#__PURE__*/React.createElement(Username, {
+    details: post.creator_details
+  })), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.hideMobile,
+    style: {
+      marginLeft: "0.5rem"
+    }
+  }, /*#__PURE__*/React.createElement(UserBadge, {
+    details: post.creator_details
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: styles$b.postDetailsContainerTimestamp,
+    style: {
+      fontSize: 12,
+      color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.secondary ? theme.color.secondary : defaultTheme.color.secondary
+    }
+  }, /*#__PURE__*/React.createElement(ReactTimeAgo, {
+    style: {
+      display: "flex",
+      fontSize: 12,
+      ...getThemeValue("font", theme, "actions")
+    },
+    date: post.timestamp * 1000,
+    locale: "en-US"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.hideMobile
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: "0.5rem",
+      marginRight: "0.5rem",
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "actions")
+    }
+  }, "\xB7"), /*#__PURE__*/React.createElement("a", {
+    style: {
+      textDecoration: "none",
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "actions")
+    },
+    href: "https://cerscan.com/mainnet/stream/" + post.stream_id,
+    rel: "noreferrer",
+    target: "_blank"
+  }, "Proof")), user && user.did == post.creator && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: "0.5rem",
+      marginRight: "0.5rem",
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }, "\xB7"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      alignItems: "center",
+      display: "flex"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      cursor: "pointer",
+      color: getThemeValue("color", theme, "secondary")
+    },
+    onClick: () => setPostMenuVis(true)
+  }, /*#__PURE__*/React.createElement(MenuHorizontal, null)), postMenuVis && /*#__PURE__*/React.createElement(PostMenu, {
+    stream_id: post.stream_id,
+    setPostMenuVis: setPostMenuVis,
+    setEditPost: setEditPost,
+    setIsDeleted: setIsDeleted
+  }))))), editPost ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: "0.5rem"
+    }
+  }, /*#__PURE__*/React.createElement(Postbox, {
+    showPfp: false,
+    defaultPost: post,
+    reply: reply,
+    callback: callbackEdit,
+    rows: "1",
+    ctaTitle: "Edit",
+    ctaStyle: styles$b.postReplyCta,
+    setEditPost: setEditPost
+  })) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, /*#__PURE__*/React.createElement(PostBody, {
+    post: post,
+    characterLimit: characterLimit
+  })), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postActionsContainer
+  }, reply != null ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: styles$b.postActionButton,
+    style: {
+      color: getThemeValue("color", theme, "active"),
+      ...getThemeValue("font", theme, "actions")
+    },
+    onClick: () => setReply(null)
+  }, /*#__PURE__*/React.createElement(ReplyIcon, {
+    type: "full"
+  }), "Reply") : /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: styles$b.postActionButton,
+    style: {
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "actions")
+    },
+    onClick: () => setReply(post)
+  }, /*#__PURE__*/React.createElement(ReplyIcon, {
+    type: "line"
+  }), "Reply"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: "0.75rem",
+      flexDirection: "row",
+      display: "flex"
+    }
+  }, userReaction == "like" ? /*#__PURE__*/React.createElement("button", {
+    className: styles$b.postActionButton,
+    style: {
+      color: getThemeValue("color", theme, "active"),
+      ...getThemeValue("font", theme, "actions")
+    },
+    onClick: () => like(null)
+  }, /*#__PURE__*/React.createElement(LikeIcon, {
+    type: "full"
+  }), "Liked") : /*#__PURE__*/React.createElement("button", {
+    className: styles$b.postActionButton,
+    style: {
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "actions")
+    },
+    onClick: () => like("like")
+  }, /*#__PURE__*/React.createElement(LikeIcon, {
+    type: "line"
+  }), "Like"))), reply && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(Postbox, {
+    reply: reply,
+    callback: callbackShared,
+    placeholder: "Add your reply...",
+    rows: "1",
+    ctaTitle: "Reply",
+    ctaStyle: styles$b.postReplyCta
+  }))));
+}
+const PostBody = ({
+  post,
+  characterLimit
+}) => {
+  var _post$content, _post$content2, _post$content2$body, _post$indexing_metada, _post$creator_details;
+  const {
+    theme
+  } = useOrbis();
+  const [charLimit, setCharLimit] = useState(characterLimit);
+  const [body, setBody] = useState(post === null || post === void 0 ? void 0 : (_post$content = post.content) === null || _post$content === void 0 ? void 0 : _post$content.body);
+  useEffect(() => {
+    let _body = post.content.body;
+    let mentions = post.content.mentions;
+    if (mentions && mentions.length > 0) {
+      mentions.forEach((mention, i) => {
+        _body = _body.replaceAll(mention.username, "**" + mention.username + "**");
+      });
+    }
+    setBody(_body);
+  }, [post]);
+  const Body = () => {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$b.postContent,
+      style: {
+        ...getThemeValue("font", theme, "secondary"),
+        color: getThemeValue("color", theme, "main")
+      },
+      dangerouslySetInnerHTML: {
+        __html: marked.parse(charLimit ? (body === null || body === void 0 ? void 0 : body.substring(0, charLimit)) + "..." : body)
+      }
+    });
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Body, null), charLimit && ((_post$content2 = post.content) === null || _post$content2 === void 0 ? void 0 : (_post$content2$body = _post$content2.body) === null || _post$content2$body === void 0 ? void 0 : _post$content2$body.length) > charLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postViewMoreCtaContainer
+  }, /*#__PURE__*/React.createElement(Button, {
+    color: "secondary",
+    style: {
+      marginRight: 5
+    },
+    onClick: () => setCharLimit(null)
+  }, "View more"))) : /*#__PURE__*/React.createElement(React.Fragment, null, ((_post$indexing_metada = post.indexing_metadata) === null || _post$indexing_metada === void 0 ? void 0 : _post$indexing_metada.urlMetadata) && ((_post$creator_details = post.creator_details) === null || _post$creator_details === void 0 ? void 0 : _post$creator_details.a_r) > 15 && /*#__PURE__*/React.createElement(LinkCard, {
+    metadata: post.indexing_metadata.urlMetadata
+  })));
+};
+const LinkCard = ({
+  metadata
+}) => {
+  var _theme$bg, _theme$border, _theme$border2, _theme$color2, _theme$color3, _theme$color4;
+  const {
+    theme
+  } = useContext(GlobalContext);
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postUrlMetadataContainer,
+    style: {
+      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
+      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main,
+      maxWidth: 480
+    }
+  }, metadata.image && /*#__PURE__*/React.createElement("a", {
+    href: metadata.url,
+    target: "_blank",
+    rel: "noreferrer"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postUrlMetadataImage,
+    style: {
+      backgroundImage: "url(" + metadata.image + ")"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postUrlMetadataDetails,
+    style: {
+      borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.secondary ? theme.border.secondary : defaultTheme.border.secondary
+    }
+  }, metadata.source && /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.active ? theme.color.active : defaultTheme.color.active,
+      ...getThemeValue("font", theme, "secondary"),
+      fontSize: 13,
+      fontWeight: 500
+    }
+  }, metadata.source), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.main ? theme.color.main : defaultTheme.color.main,
+      fontSize: 17,
+      fontWeight: 500,
+      lineHeight: "1.5rem"
+    }
+  }, metadata.title), metadata.description && /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary,
+      fontSize: 15
+    }
+  }, metadata.description.length > 155 ? /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description, "...") : /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description))));
+};
+const PostMenu = ({
+  stream_id,
+  setPostMenuVis,
+  setEditPost,
+  setIsDeleted
+}) => {
+  var _theme$bg2, _theme$border3, _theme$color5;
+  const {
+    orbis,
+    theme
+  } = useContext(GlobalContext);
+  const [deletingStatus, setDeletingStatus] = useState(0);
+  const wrapperRef = useRef(null);
+  useOutsideClick(wrapperRef, () => hide());
+  async function _delete() {
+    setDeletingStatus(1);
+    let res = await orbis.deletePost(stream_id);
+    console.log("res delete:", res);
+    setDeletingStatus(2);
+  }
+  function edit() {
+    setPostMenuVis(false);
+    setEditPost(true);
+  }
+  function hide() {
+    if (deletingStatus == 2) {
+      setIsDeleted(true);
+    }
+    setPostMenuVis(false);
+  }
+  function DeleteButton() {
+    switch (deletingStatus) {
+      case 0:
+        return /*#__PURE__*/React.createElement("div", {
+          class: "text-red-700 hover:bg-gray-50 flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer",
+          onClick: () => _delete()
+        }, "Delete");
+      case 1:
+        return /*#__PURE__*/React.createElement("div", {
+          class: "text-red-700 flex items-center px-3 py-2 text-sm font-medium rounded-md"
+        }, /*#__PURE__*/React.createElement(LoadingCircle, {
+          color: "text-red-700"
+        }), /*#__PURE__*/React.createElement("span", {
+          class: "truncate"
+        }, "Deleting"));
+      case 2:
+        return /*#__PURE__*/React.createElement("div", {
+          class: "text-green-700 flex items-center px-3 py-2 text-sm font-medium rounded-md"
+        }, /*#__PURE__*/React.createElement("span", {
+          class: "truncate mr-2"
+        }, "Deleted"));
+    }
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$b.postMenuContainer,
+    ref: wrapperRef,
+    style: {
+      right: 10,
+      background: theme !== null && theme !== void 0 && (_theme$bg2 = theme.bg) !== null && _theme$bg2 !== void 0 && _theme$bg2.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
+      borderColor: theme !== null && theme !== void 0 && (_theme$border3 = theme.border) !== null && _theme$border3 !== void 0 && _theme$border3.main ? theme.border.main : defaultTheme.border.main
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    class: "flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer",
+    style: {
+      color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.main ? theme.color.main : defaultTheme.color.main
+    },
+    "aria-current": "page",
+    onClick: () => edit()
+  }, "Edit"), /*#__PURE__*/React.createElement(DeleteButton, null));
+};
+
 function ConnectModal({
   lit = false,
   title = "Connect to join the discussion",
@@ -2676,9 +3845,8 @@ const WalletButton = ({
         });
         break;
       case "wallet-connect":
-        const wc_provider = await EthereumProvider.init({
-          projectId: "9fe6eef52f4985e5849a5c1e2c80fabb",
-          chains: ["1"]
+        let wc_provider = new WalletConnectProvider({
+          infuraId: "9bf71860bc6c4560904d84cd241ab0a0"
         });
         await wc_provider.enable();
         res = await orbis.connect(wc_provider, false);
@@ -2887,7 +4055,7 @@ const PhantomIcon = ({
   }), /*#__PURE__*/React.createElement("stop", {
     offset: "1",
     stopColor: "white",
-    "stop-opacity": "0.82"
+    stopOpacity: "0.82"
   })), /*#__PURE__*/React.createElement("clipPath", {
     id: "clip0_970_832"
   }, /*#__PURE__*/React.createElement("rect", {
@@ -2918,916 +4086,6 @@ const EmailIcon = ({
   }));
 };
 
-var styles$8 = {"connectBtn":"_1jNTa"};
-
-function ConnectButton({
-  lit = false
-}) {
-  const {
-    orbis,
-    user,
-    theme,
-    setUser,
-    setCredentials,
-    connecting
-  } = useOrbis();
-  const [connectModalVis, setConnectModalVis] = useState(false);
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-    className: styles$8.connectBtn,
-    style: {
-      ...getStyle("button-main", theme, "main"),
-      width: "100%",
-      textAlign: "center"
-    },
-    onClick: () => setConnectModalVis(true)
-  }, connecting ? /*#__PURE__*/React.createElement(LoadingCircle, null) : /*#__PURE__*/React.createElement(BoltIcon, {
-    style: {
-      marginRight: "0.25rem"
-    }
-  }), "Connect"), connectModalVis && /*#__PURE__*/React.createElement(ConnectModal, {
-    orbis: orbis,
-    lit: lit,
-    hide: () => setConnectModalVis(false)
-  }));
-}
-
-var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","operator":"_1XO9C"};
-
-function AccessRulesModal({
-  hide,
-  callbackNftUpdate
-}) {
-  const {
-    user,
-    theme
-  } = useOrbis();
-  return /*#__PURE__*/React.createElement(Modal, {
-    hide: () => hide(),
-    width: 500,
-    title: "Access Rules",
-    description: "This feed is gated with the following rules:"
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: "100%",
-      display: "flex",
-      justifyContent: "center"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$9.accessRulesContainer
-  }, /*#__PURE__*/React.createElement(LoopAccessRules, null))));
-}
-const LoopAccessRules = () => {
-  const {
-    accessRules
-  } = useOrbis();
-  return accessRules.map((accessRule, key) => {
-    return /*#__PURE__*/React.createElement(OneAccessRule, {
-      accessRule: accessRule,
-      key: key
-    });
-  });
-};
-const OneAccessRule = ({
-  accessRule
-}) => {
-  const {
-    theme
-  } = useOrbis();
-  if (accessRule.operator) {
-    return /*#__PURE__*/React.createElement("div", {
-      className: styles$9.operator,
-      style: {
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }, accessRule.operator);
-  }
-  switch (accessRule.type) {
-    case "credential":
-      return /*#__PURE__*/React.createElement("div", {
-        className: styles$9.accessRuleContainer,
-        style: {
-          borderColor: getThemeValue("border", theme, "main")
-        }
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 13,
-          color: getThemeValue("color", theme, "secondary"),
-          marginRight: 7
-        }
-      }, "Must own:"), /*#__PURE__*/React.createElement(LoopCredentials, {
-        credentials: accessRule.requiredCredentials
-      }));
-    case "did":
-      return /*#__PURE__*/React.createElement("div", {
-        className: styles$9.accessRuleContainer,
-        style: {
-          borderColor: getThemeValue("border", theme, "main")
-        }
-      }, /*#__PURE__*/React.createElement("span", {
-        style: {
-          fontSize: 13,
-          color: getThemeValue("color", theme, "secondary"),
-          marginRight: 7
-        }
-      }, "Must be:"), /*#__PURE__*/React.createElement(LoopUsers, {
-        users: accessRule.authorizedUsers
-      }));
-    default:
-      return null;
-  }
-};
-const LoopCredentials = ({
-  credentials
-}) => {
-  return credentials.map((credential, key) => {
-    return /*#__PURE__*/React.createElement(UserCredential, {
-      credential: credential,
-      key: key
-    });
-  });
-};
-const LoopUsers = ({
-  users
-}) => {
-  const {
-    theme
-  } = useOrbis();
-  return users.map((_user, key) => {
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: getThemeValue("color", theme, "main"),
-        fontSize: 15
-      }
-    }, /*#__PURE__*/React.createElement(User, {
-      details: _user.details,
-      key: key
-    }));
-  });
-};
-
-const CommentsContext = React.createContext({});
-
-var styles$a = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","accessRulesContainer":"_38Oc2","hoverLink":"_2DzGC","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
-
-let mentions = [];
-function Postbox({
-  showPfp = true,
-  connecting,
-  reply = null,
-  callback,
-  rows = "2",
-  defaultPost,
-  setEditPost,
-  ctaTitle = "Comment",
-  ctaStyle = styles$a.postboxShareContainerBtn,
-  placeholder = "Add your comment..."
-}) {
-  const {
-    user,
-    setUser,
-    orbis,
-    theme,
-    context,
-    accessRules,
-    hasAccess
-  } = useOrbis();
-  const {
-    comments,
-    setComments
-  } = useContext(CommentsContext);
-  const [sharing, setSharing] = useState(false);
-  const [hoverRef, isHovered] = useHover();
-  const [body, setBody] = useState("");
-  const [accessRulesModalVis, setAccessRulesModalVis] = useState(false);
-  const postbox = useRef();
-  const [mentionsBoxVis, setMentionsBoxVis] = useState(false);
-  const [focusOffset, setFocusOffset] = useState(null);
-  const [focusNode, setFocusNode] = useState(null);
-  useEffect(() => {
-    if (defaultPost) {
-      if (postbox.current) {
-        postbox.current.textContent = defaultPost.content.body;
-        setBody(defaultPost.content.body);
-      }
-    }
-  }, [defaultPost, postbox]);
-  const handleSubmit = async event => {
-    console.log("Submitting form.");
-    event.preventDefault();
-    if (sharing) {
-      console.log("A request is already being processed.");
-      return;
-    }
-    setSharing(true);
-    const formData = new FormData(event.target);
-    let master = null;
-    if (reply && reply.content.master) {
-      master = reply.content.master;
-    } else if (reply) {
-      master = reply.stream_id;
-    }
-    if (defaultPost) {
-      let _contentEdit = {
-        ...defaultPost.content
-      };
-      _contentEdit.body = body;
-      let res = await orbis.editPost(defaultPost.stream_id, _contentEdit);
-      console.log("res:", res);
-      if (callback) {
-        callback(_contentEdit);
-      }
-    } else {
-      let _contentCreate = {
-        body: body,
-        context: context ? context : null,
-        master: master,
-        reply_to: reply ? reply.stream_id : null,
-        mentions: mentions
-      };
-      console.log("_content to share:", _contentCreate);
-      let res = await orbis.createPost(_contentCreate);
-      if (res.status == 200) {
-        setComments([{
-          timestamp: getTimestamp(),
-          creator_details: user,
-          creator: user.did,
-          stream_id: res.doc,
-          content: _contentCreate,
-          count_likes: 0
-        }, ...comments]);
-      } else {
-        console.log("Error submitting form:", res);
-      }
-      if (callback) {
-        callback();
-      }
-    }
-    if (postbox.current) {
-      postbox.current.value = "";
-    }
-    setBody(null);
-    mentions = [];
-    if (postbox.current) {
-      postbox.current.textContent = "";
-    }
-    setSharing(false);
-  };
-  async function handleInput(e) {
-    var _user$nonces;
-    let inputValue = e.currentTarget.innerText;
-    let keyCode = e.nativeEvent.data;
-    switch (keyCode) {
-      case "@":
-        if (user.nonces && ((_user$nonces = user.nonces) === null || _user$nonces === void 0 ? void 0 : _user$nonces.global) <= 0 && user.a_r <= 1) {
-          return;
-        } else {
-          setMentionsBoxVis(true);
-        }
-        console.log("Should show mention box!");
-        break;
-      case " ":
-        postbox === null || postbox === void 0 ? void 0 : postbox.current.focus();
-        break;
-      default:
-        setMentionsBoxVis(false);
-        break;
-    }
-    setBody(inputValue);
-    saveCaretPos(document.getSelection());
-  }
-  function saveCaretPos(_sel) {
-    setFocusOffset(_sel.focusOffset);
-    setFocusNode(_sel.focusNode);
-  }
-  function addMention(mention) {
-    var _mention$profile, _mention$profile$user;
-    console.log("Adding user:", mention);
-    restoreCaretPos();
-    let _mentionName = (_mention$profile = mention.profile) === null || _mention$profile === void 0 ? void 0 : (_mention$profile$user = _mention$profile.username) === null || _mention$profile$user === void 0 ? void 0 : _mention$profile$user.replaceAll(" ", "");
-    mentions.push({
-      username: "@" + _mentionName,
-      did: mention.did
-    });
-    var _mentionTag = "<span style='color: " + getThemeValue("color", theme, "active") + "; font-weight: " + 500 + ";' class='mention' contentEditable='false' data-did='" + mention.did + "'>@" + _mentionName + "</span>&nbsp;";
-    document.execCommand("delete", null, false);
-    document.execCommand("insertHTML", false, _mentionTag);
-    console.log("Trying to paste mention:", _mentionTag);
-    setMentionsBoxVis(false);
-  }
-  function restoreCaretPos() {
-    postbox.current.focus();
-    var sel = document.getSelection();
-    sel.collapse(focusNode, focusOffset);
-  }
-  if (user) {
-    var _theme$color, _theme$badges, _theme$badges$main, _theme$badges2, _theme$badges2$main;
-    return /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxGlobalContainer
-    }, showPfp && /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxUserContainer,
-      ref: hoverRef
-    }, /*#__PURE__*/React.createElement(UserPfp, {
-      details: user,
-      hover: true
-    })), /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxContainer
-    }, /*#__PURE__*/React.createElement("form", {
-      style: {
-        width: "100%"
-      },
-      onSubmit: event => handleSubmit(event)
-    }, /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postbox,
-      style: {
-        borderColor: getThemeValue("input", theme).border,
-        backgroundColor: getThemeValue("input", theme, sharing).background
-      }
-    }, reply && /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxReplyContainer
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        marginRight: "0.25rem",
-        color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.secondary ? theme.color.secondary : defaultTheme.color.secondary
-      }
-    }, "Replying to:"), /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxReplyBadge,
-      style: {
-        background: theme !== null && theme !== void 0 && (_theme$badges = theme.badges) !== null && _theme$badges !== void 0 && (_theme$badges$main = _theme$badges.main) !== null && _theme$badges$main !== void 0 && _theme$badges$main.bg ? theme.badges.main.bg : defaultTheme.badges.main.bg,
-        color: theme !== null && theme !== void 0 && (_theme$badges2 = theme.badges) !== null && _theme$badges2 !== void 0 && (_theme$badges2$main = _theme$badges2.main) !== null && _theme$badges2$main !== void 0 && _theme$badges2$main.color ? theme.badges.main.color : defaultTheme.badges.main.color
-      }
-    }, /*#__PURE__*/React.createElement(Username, {
-      details: reply.creator_details
-    }))), hasAccess && /*#__PURE__*/React.createElement("div", {
-      contentEditable: true,
-      autoFocus: true,
-      "data-placeholder": placeholder,
-      ref: postbox,
-      rows: rows,
-      name: "body",
-      id: "postbox-area",
-      value: body,
-      onChange: e => setBody(e.target.value),
-      className: styles$a.postboxInput,
-      style: {
-        fontSize: 15,
-        color: getThemeValue("input", theme, sharing).color
-      },
-      placeholder: placeholder,
-      disabled: sharing,
-      onInput: e => handleInput(e)
-    }), /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxShareContainer
-    }, accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement("div", {
-      className: styles$a.accessRulesContainer,
-      style: {
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }, hasAccess ? /*#__PURE__*/React.createElement(UnlockIcon, {
-      style: {
-        marginRight: 5,
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }) : /*#__PURE__*/React.createElement(LockIcon, {
-      style: {
-        marginRight: 5,
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }), /*#__PURE__*/React.createElement("span", null, "Gated to specific credentials holders. ", /*#__PURE__*/React.createElement("span", {
-      className: styles$a.hoverLink,
-      style: {
-        fontWeight: 500,
-        color: getThemeValue("color", theme, "active")
-      },
-      onClick: () => setAccessRulesModalVis(true)
-    }, "View"))), sharing ? /*#__PURE__*/React.createElement("button", {
-      type: "submit",
-      className: ctaStyle,
-      style: {
-        background: "transparent",
-        color: getThemeValue("color", theme, "main")
-      }
-    }, /*#__PURE__*/React.createElement(LoadingCircle, null), " Sending") : /*#__PURE__*/React.createElement(React.Fragment, null, defaultPost && /*#__PURE__*/React.createElement(Button, {
-      color: "secondary",
-      style: {
-        marginRight: 5
-      },
-      onClick: () => setEditPost(false)
-    }, "Cancel"), hasAccess ? /*#__PURE__*/React.createElement("button", {
-      type: "submit",
-      className: ctaStyle,
-      style: getStyle("button-main", theme, "main")
-    }, ctaTitle, /*#__PURE__*/React.createElement(SendIcon, null)) : /*#__PURE__*/React.createElement("button", {
-      type: "submit",
-      disabled: true,
-      className: ctaStyle,
-      style: {
-        ...getStyle("button-main", theme, "main"),
-        opacity: 0.7,
-        marginTop: 10
-      }
-    }, /*#__PURE__*/React.createElement(LockIcon, {
-      style: {
-        marginRight: 5
-      }
-    }), "Locked"))))), mentionsBoxVis && /*#__PURE__*/React.createElement(MentionsBox, {
-      add: addMention
-    })), accessRulesModalVis && /*#__PURE__*/React.createElement(AccessRulesModal, {
-      hide: () => setAccessRulesModalVis(false)
-    }));
-  } else {
-    return /*#__PURE__*/React.createElement("div", {
-      className: styles$a.postboxConnectContainer
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: "60%"
-      }
-    }, /*#__PURE__*/React.createElement(ConnectButton, {
-      orbis: orbis
-    })));
-  }
-}
-const MentionsBox = ({
-  add
-}) => {
-  var _theme$bg, _theme$border, _theme$border2, _theme$color3;
-  const {
-    orbis,
-    user,
-    theme
-  } = useOrbis();
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
-  useEffect(() => {
-    if (search && search.length >= 2) {
-      searchUsers();
-    }
-    async function searchUsers() {
-      setLoading(true);
-      let {
-        data,
-        error,
-        status
-      } = await orbis.getProfilesByUsername(search);
-      setLoading(false);
-      if (error) {
-        console.log("Error querying Orbis usernames: ", error);
-      }
-      if (data) {
-        setUsers(data);
-      } else {
-        setUsers([]);
-      }
-    }
-  }, [search]);
-  const LoopUsers = () => {
-    if (!search || search == "" || search.length < 2) {
-      return null;
-    }
-    if (loading) {
-      return /*#__PURE__*/React.createElement("div", {
-        className: styles$a.loadingContainer,
-        style: {
-          color: getThemeValue("color", theme, "main")
-        }
-      }, /*#__PURE__*/React.createElement(LoadingCircle, null));
-    } else {
-      if (users.length > 0) {
-        return users.map((_user, key) => {
-          var _theme$color2;
-          return /*#__PURE__*/React.createElement("div", {
-            className: styles$a.userResultContainer,
-            onClick: () => add(_user.details),
-            style: {
-              fontSize: 15,
-              color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.main ? theme.color.main : defaultTheme.color.main
-            },
-            key: key
-          }, /*#__PURE__*/React.createElement(User, {
-            details: _user.details,
-            key: key,
-            isLink: false
-          }));
-        });
-      } else {
-        return /*#__PURE__*/React.createElement("p", null, "No users");
-      }
-    }
-  };
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles$a.mentionsBoxContainer,
-    style: {
-      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
-      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$a.mentionsBoxInputContainer
-  }, /*#__PURE__*/React.createElement(Input, {
-    autofocus: true,
-    type: "text",
-    name: "username",
-    value: search,
-    onChange: e => setSearch(e.target.value),
-    placeholder: "Search username",
-    style: {
-      ...getStyle("input", theme, status == 1),
-      borderRadius: 0,
-      borderWidth: 0,
-      borderBottomWidth: 1
-    }
-  })), search && search.length >= 2 ? /*#__PURE__*/React.createElement("div", {
-    className: styles$a.userResults,
-    style: {
-      borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
-    }
-  }, /*#__PURE__*/React.createElement(LoopUsers, null)) : /*#__PURE__*/React.createElement("p", {
-    className: styles$a.mentionsBoxEmptyState,
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
-    }
-  }, "Search by username to mention someone."));
-};
-
-var styles$b = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
-
-function Post({
-  post,
-  characterLimit = null
-}) {
-  var _theme$color, _theme$color2, _theme$color3, _theme$color4, _theme$color5;
-  const {
-    user,
-    setUser,
-    orbis,
-    theme,
-    hasAccess
-  } = useOrbis();
-  const [editPost, setEditPost] = useState(false);
-  const [isDeleted, setIsDeleted] = useState(false);
-  const [reply, setReply] = useState();
-  const [userReaction, setUserReaction] = useState();
-  const [postMenuVis, setPostMenuVis] = useState(false);
-  useEffect(() => {
-    if (user) {
-      getUserReaction();
-    }
-  }, [user]);
-  async function getUserReaction() {
-    let {
-      data,
-      error
-    } = await orbis.getReaction(post.stream_id, user.did);
-    if (data) {
-      setUserReaction(data.type);
-    }
-  }
-  async function like(type) {
-    if (!user) {
-      alert("You must be connected to react to posts.");
-      return;
-    }
-    if (!hasAccess) {
-      alert("You need the required credentials to react to posts in this feed.");
-      return;
-    }
-    setUserReaction(type);
-    let res = await orbis.react(post.stream_id, type);
-    switch (res.status) {
-      case 300:
-        console.log("Error reacting to the post:", res);
-        break;
-    }
-  }
-  function callbackShared() {
-    setReply(false);
-  }
-  function callbackEdit(content) {
-    console.log("Enter callbackShared()");
-    setEditPost(false);
-    post.content = content;
-  }
-  if (isDeleted) {
-    return null;
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postContainer
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: "relative"
-    }
-  }, /*#__PURE__*/React.createElement(UserPfp, {
-    details: post.creator_details,
-    hover: true
-  })), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postDetailsContainer
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postDetailsContainerMetadata
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postDetailsContainerUser
-  }, /*#__PURE__*/React.createElement("span", {
-    className: styles$b.postDetailsContainerUsername,
-    style: {
-      fontSize: 15,
-      color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.main ? theme.color.main : defaultTheme.color.main
-    }
-  }, /*#__PURE__*/React.createElement(Username, {
-    details: post.creator_details
-  })), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.hideMobile,
-    style: {
-      marginLeft: "0.5rem"
-    }
-  }, /*#__PURE__*/React.createElement(UserBadge, {
-    details: post.creator_details
-  }))), /*#__PURE__*/React.createElement("p", {
-    className: styles$b.postDetailsContainerTimestamp,
-    style: {
-      fontSize: 12,
-      color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.secondary ? theme.color.secondary : defaultTheme.color.secondary
-    }
-  }, /*#__PURE__*/React.createElement(ReactTimeAgo, {
-    style: {
-      display: "flex",
-      fontSize: 12
-    },
-    date: post.timestamp * 1000,
-    locale: "en-US"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.hideMobile
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginLeft: "0.5rem",
-      marginRight: "0.5rem"
-    }
-  }, "\xB7"), /*#__PURE__*/React.createElement("a", {
-    style: {
-      textDecoration: "none",
-      color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
-    },
-    href: "https://cerscan.com/mainnet/stream/" + post.stream_id,
-    rel: "noreferrer",
-    target: "_blank"
-  }, "Proof")), user && user.did == post.creator && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginLeft: "0.5rem",
-      marginRight: "0.5rem"
-    }
-  }, "\xB7"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      alignItems: "center",
-      display: "flex"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      cursor: "pointer"
-    },
-    onClick: () => setPostMenuVis(true)
-  }, /*#__PURE__*/React.createElement(MenuHorizontal, null)), postMenuVis && /*#__PURE__*/React.createElement(PostMenu, {
-    stream_id: post.stream_id,
-    setPostMenuVis: setPostMenuVis,
-    setEditPost: setEditPost,
-    setIsDeleted: setIsDeleted
-  }))))), editPost ? /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: "0.5rem"
-    }
-  }, /*#__PURE__*/React.createElement(Postbox, {
-    showPfp: false,
-    defaultPost: post,
-    reply: reply,
-    callback: callbackEdit,
-    rows: "1",
-    ctaTitle: "Edit",
-    ctaStyle: styles$b.postReplyCta,
-    setEditPost: setEditPost
-  })) : /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column"
-    }
-  }, /*#__PURE__*/React.createElement(PostBody, {
-    post: post,
-    characterLimit: characterLimit
-  })), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postActionsContainer
-  }, reply != null ? /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: styles$b.postActionButton,
-    style: {
-      color: getThemeValue("color", theme, "active")
-    },
-    onClick: () => setReply(null)
-  }, /*#__PURE__*/React.createElement(ReplyIcon, {
-    type: "full"
-  }), "Reply") : /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: styles$b.postActionButton,
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color4 = theme.color) !== null && _theme$color4 !== void 0 && _theme$color4.secondary ? theme.color.secondary : defaultTheme.color.secondary
-    },
-    onClick: () => setReply(post)
-  }, /*#__PURE__*/React.createElement(ReplyIcon, {
-    type: "line"
-  }), "Reply"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginLeft: "0.75rem",
-      flexDirection: "row",
-      display: "flex"
-    }
-  }, userReaction == "like" ? /*#__PURE__*/React.createElement("button", {
-    className: styles$b.postActionButton,
-    style: {
-      color: getThemeValue("color", theme, "active")
-    },
-    onClick: () => like(null)
-  }, /*#__PURE__*/React.createElement(LikeIcon, {
-    type: "full"
-  }), "Liked") : /*#__PURE__*/React.createElement("button", {
-    className: styles$b.postActionButton,
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color5 = theme.color) !== null && _theme$color5 !== void 0 && _theme$color5.secondary ? theme.color.secondary : defaultTheme.color.secondary
-    },
-    onClick: () => like("like")
-  }, /*#__PURE__*/React.createElement(LikeIcon, {
-    type: "line"
-  }), "Like"))), reply && /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 8
-    }
-  }, /*#__PURE__*/React.createElement(Postbox, {
-    reply: reply,
-    callback: callbackShared,
-    placeholder: "Add your reply...",
-    rows: "1",
-    ctaTitle: "Reply",
-    ctaStyle: styles$b.postReplyCta
-  })))));
-}
-const PostBody = ({
-  post,
-  characterLimit
-}) => {
-  var _post$content, _post$content2, _post$content2$body, _post$indexing_metada, _post$creator_details;
-  const {
-    theme
-  } = useOrbis();
-  const [charLimit, setCharLimit] = useState(characterLimit);
-  const [body, setBody] = useState(post === null || post === void 0 ? void 0 : (_post$content = post.content) === null || _post$content === void 0 ? void 0 : _post$content.body);
-  useEffect(() => {
-    let _body = post.content.body;
-    let mentions = post.content.mentions;
-    if (mentions && mentions.length > 0) {
-      mentions.forEach((mention, i) => {
-        _body = _body.replaceAll(mention.username, "**" + mention.username + "**");
-      });
-    }
-    setBody(_body);
-  }, [post]);
-  const Body = () => {
-    var _theme$color6;
-    return /*#__PURE__*/React.createElement("div", {
-      className: styles$b.postContent,
-      style: {
-        fontSize: 15,
-        color: theme !== null && theme !== void 0 && (_theme$color6 = theme.color) !== null && _theme$color6 !== void 0 && _theme$color6.main ? theme.color.main : defaultTheme.color.main
-      },
-      dangerouslySetInnerHTML: {
-        __html: marked.parse(charLimit ? (body === null || body === void 0 ? void 0 : body.substring(0, charLimit)) + "..." : body)
-      }
-    });
-  };
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Body, null), charLimit && ((_post$content2 = post.content) === null || _post$content2 === void 0 ? void 0 : (_post$content2$body = _post$content2.body) === null || _post$content2$body === void 0 ? void 0 : _post$content2$body.length) > charLimit ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postViewMoreCtaContainer
-  }, /*#__PURE__*/React.createElement(Button, {
-    color: "secondary",
-    style: {
-      marginRight: 5
-    },
-    onClick: () => setCharLimit(null)
-  }, "View more"))) : /*#__PURE__*/React.createElement(React.Fragment, null, ((_post$indexing_metada = post.indexing_metadata) === null || _post$indexing_metada === void 0 ? void 0 : _post$indexing_metada.urlMetadata) && ((_post$creator_details = post.creator_details) === null || _post$creator_details === void 0 ? void 0 : _post$creator_details.a_r) > 15 && /*#__PURE__*/React.createElement(LinkCard, {
-    metadata: post.indexing_metadata.urlMetadata
-  })));
-};
-const LinkCard = ({
-  metadata
-}) => {
-  var _theme$bg, _theme$border, _theme$border2, _theme$color7, _theme$color8, _theme$color9;
-  const {
-    theme
-  } = useContext(GlobalContext);
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postUrlMetadataContainer,
-    style: {
-      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
-      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main,
-      maxWidth: 480
-    }
-  }, metadata.image && /*#__PURE__*/React.createElement("a", {
-    href: metadata.url,
-    target: "_blank",
-    rel: "noreferrer"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postUrlMetadataImage,
-    style: {
-      backgroundImage: "url(" + metadata.image + ")"
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postUrlMetadataDetails,
-    style: {
-      borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.secondary ? theme.border.secondary : defaultTheme.border.secondary
-    }
-  }, metadata.source && /*#__PURE__*/React.createElement("p", {
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color7 = theme.color) !== null && _theme$color7 !== void 0 && _theme$color7.active ? theme.color.active : defaultTheme.color.active,
-      fontSize: 13,
-      fontWeight: 500
-    }
-  }, metadata.source), /*#__PURE__*/React.createElement("h3", {
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color8 = theme.color) !== null && _theme$color8 !== void 0 && _theme$color8.main ? theme.color.main : defaultTheme.color.main,
-      fontSize: 17,
-      fontWeight: 500,
-      lineHeight: "1.5rem"
-    }
-  }, metadata.title), metadata.description && /*#__PURE__*/React.createElement("p", {
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color9 = theme.color) !== null && _theme$color9 !== void 0 && _theme$color9.secondary ? theme.color.secondary : defaultTheme.color.secondary,
-      fontSize: 15
-    }
-  }, metadata.description.length > 155 ? /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description, "...") : /*#__PURE__*/React.createElement(React.Fragment, null, metadata.description))));
-};
-const PostMenu = ({
-  stream_id,
-  setPostMenuVis,
-  setEditPost,
-  setIsDeleted
-}) => {
-  var _theme$bg2, _theme$border3, _theme$color10;
-  const {
-    orbis,
-    theme
-  } = useContext(GlobalContext);
-  const [deletingStatus, setDeletingStatus] = useState(0);
-  const wrapperRef = useRef(null);
-  useOutsideClick(wrapperRef, () => hide());
-  async function _delete() {
-    setDeletingStatus(1);
-    let res = await orbis.deletePost(stream_id);
-    console.log("res delete:", res);
-    setDeletingStatus(2);
-  }
-  function edit() {
-    setPostMenuVis(false);
-    setEditPost(true);
-  }
-  function hide() {
-    if (deletingStatus == 2) {
-      setIsDeleted(true);
-    }
-    setPostMenuVis(false);
-  }
-  function DeleteButton() {
-    switch (deletingStatus) {
-      case 0:
-        return /*#__PURE__*/React.createElement("div", {
-          class: "text-red-700 hover:bg-gray-50 flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer",
-          onClick: () => _delete()
-        }, "Delete");
-      case 1:
-        return /*#__PURE__*/React.createElement("div", {
-          class: "text-red-700 flex items-center px-3 py-2 text-sm font-medium rounded-md"
-        }, /*#__PURE__*/React.createElement(LoadingCircle, {
-          color: "text-red-700"
-        }), /*#__PURE__*/React.createElement("span", {
-          class: "truncate"
-        }, "Deleting"));
-      case 2:
-        return /*#__PURE__*/React.createElement("div", {
-          class: "text-green-700 flex items-center px-3 py-2 text-sm font-medium rounded-md"
-        }, /*#__PURE__*/React.createElement("span", {
-          class: "truncate mr-2"
-        }, "Deleted"));
-    }
-  }
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles$b.postMenuContainer,
-    ref: wrapperRef,
-    style: {
-      right: 10,
-      background: theme !== null && theme !== void 0 && (_theme$bg2 = theme.bg) !== null && _theme$bg2 !== void 0 && _theme$bg2.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
-      borderColor: theme !== null && theme !== void 0 && (_theme$border3 = theme.border) !== null && _theme$border3 !== void 0 && _theme$border3.main ? theme.border.main : defaultTheme.border.main
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    class: "flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer",
-    style: {
-      color: theme !== null && theme !== void 0 && (_theme$color10 = theme.color) !== null && _theme$color10 !== void 0 && _theme$color10.main ? theme.color.main : defaultTheme.color.main
-    },
-    "aria-current": "page",
-    onClick: () => edit()
-  }, "Edit"), /*#__PURE__*/React.createElement(DeleteButton, null));
-};
-
 let magic;
 let web3;
 if (typeof window !== "undefined") {
@@ -3854,6 +4112,7 @@ function OrbisProvider({
   const [activeTheme, setActiveTheme] = useState(theme);
   const [contextDetails, setContextDetails] = useState();
   const [accessRules, setAccessRules] = useState([]);
+  const [connectModalVis, setConnectModalVis] = useState(false);
   useEffect(() => {
     if (!user) {
       checkOrbisConnected();
@@ -3989,9 +4248,14 @@ function OrbisProvider({
       accessRules: accessRules,
       hasAccess,
       credentials,
-      setCredentials
+      setCredentials,
+      connectModalVis,
+      setConnectModalVis
     }
-  }, children);
+  }, children, connectModalVis && /*#__PURE__*/React.createElement(ConnectModal, {
+    lit: false,
+    hide: () => setConnectModalVis(false)
+  }));
 }
 function cleanContext(context) {
   if (context.includes(":")) {
@@ -4080,7 +4344,8 @@ const CommentsContent = ({
   }, /*#__PURE__*/React.createElement("div", {
     className: styles$c.commentsGlobalContainer,
     style: {
-      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main
+      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main,
+      borderColor: getThemeValue("border", theme, "main")
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -4121,6 +4386,8 @@ const CommentsContent = ({
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "main"),
+      fontWeight: 400,
       marginRight: 5,
       fontSize: 15
     }
@@ -4151,7 +4418,8 @@ function Comment({
   comments,
   comment,
   master,
-  characterLimit
+  characterLimit,
+  z
 }) {
   var _theme$border2;
   const {
@@ -4790,5 +5058,5 @@ en.long.minute = {
 };
 TimeAgo.addDefaultLocale(en);
 
-export { Article, Button, Comments, ConnectButton, Inbox, OrbisProvider, Post, User, UserCredential, UserPfp, Username, darkTheme, defaultTheme, useOrbis };
+export { Article, Button, Comments, ConnectButton, Comments as Discussion, Inbox, OrbisProvider, Post, User, UserCredential, UserPfp, Username, darkTheme, defaultTheme, useOrbis };
 //# sourceMappingURL=index.modern.js.map

@@ -19,11 +19,11 @@ const Input = ({type, rows = 2, name, color, style, children, placeholder, value
   switch (type) {
     case "text":
       return(
-        <input type="text" ref={inputRef} name={name} placeholder={placeholder} value={value} onChange={onChange} className={styles.input} style={style}>{children}</input>
+        <input type="text" ref={inputRef} name={name} placeholder={placeholder} value={value} onChange={onChange} className={styles.input} style={{...style, ...getThemeValue("font", theme, "input")}}>{children}</input>
       );
     case "textarea":
       return(
-        <textarea rows={2} ref={inputRef} name={name} placeholder={placeholder} value={value} onChange={onChange} className={styles.textarea} style={style} />
+        <textarea rows={2} ref={inputRef} name={name} placeholder={placeholder} value={value} onChange={onChange} className={styles.textarea} style={{...style, ...getThemeValue("font", theme, "input")}} />
       );
     default:
       return null;

@@ -9,8 +9,7 @@ import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { sleep } from "../../utils";
 
 /** Manage WalletConnect */
-import { EthereumProvider } from "@walletconnect/ethereum-provider";
-
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 /** Modal for users to connect: Options displayed can be enabled / disabled with the parameters */
 export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide }) {
@@ -60,13 +59,18 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
 
       /** Wallet Connect */
       case "wallet-connect":
-        /** Enable session (triggers QR Code modal) *//** Create WalletConnect Provider */
+        /** Enable session (triggers QR Code modal) *//** Create WalletConnect Provider
         const wc_provider = await EthereumProvider.init({
           projectId:"9fe6eef52f4985e5849a5c1e2c80fabb",
           chains: ["1"]
+        });*/
+        /** Initiate the WC provider */
+        let wc_provider = new WalletConnectProvider({
+          infuraId: "9bf71860bc6c4560904d84cd241ab0a0",
         });
-
         await wc_provider.enable();
+
+        //await wc_provider.enable();
         res = await orbis.connect(wc_provider, false);
         break;
 
@@ -201,7 +205,7 @@ const PhantomIcon = ({className}) => {
       </linearGradient>
       <linearGradient id="paint1_linear_970_832" x1="10.7128" y1="3.61694" x2="10.7128" y2="16.8085" gradientUnits="userSpaceOnUse">
       <stop stopColor="white"/>
-      <stop offset="1" stopColor="white" stop-opacity="0.82"/>
+      <stop offset="1" stopColor="white" stopOpacity="0.82"/>
       </linearGradient>
       <clipPath id="clip0_970_832">
       <rect width="20" height="20" fill="white" transform="translate(0.5)"/>

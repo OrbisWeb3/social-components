@@ -92,25 +92,26 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         reply_to: reply ? reply.stream_id : null,
         mentions: mentions
       }
-      console.log("_content to share:", _contentCreate);
 
       let res = await orbis.createPost(_contentCreate);
 
       /** Return results */
       if(res.status == 200) {
-        setComments(
-          [
-            {
-              timestamp: getTimestamp(),
-              creator_details: user,
-              creator: user.did,
-              stream_id: res.doc,
-              content: _contentCreate,
-              count_likes: 0
-            },
-            ...comments
-          ]
-        );
+        if(comments) {
+          setComments(
+            [
+              {
+                timestamp: getTimestamp(),
+                creator_details: user,
+                creator: user.did,
+                stream_id: res.doc,
+                content: _contentCreate,
+                count_likes: 0
+              },
+              ...comments
+            ]
+          );
+        }
       } else {
         console.log("Error submitting form:", res);
       }
@@ -249,7 +250,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   className={styles.postboxInput}
-                  style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color}}
+                  style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color, ...getThemeValue("font", theme, "secondary")}}
                   placeholder={placeholder}
                   disabled={sharing}
                   onInput={(e) => handleInput(e)}></div>
@@ -265,12 +266,12 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                     :
                       <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
                     }
-                    <span>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
+                    <span style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
                   </div>
                 }
 
                 {sharing ?
-                  <button type="submit" className={ctaStyle} style={{background: "transparent", color: getThemeValue("color", theme, "main")}}><LoadingCircle /> Sending</button>
+                  <button type="submit" className={ctaStyle} style={{background: "transparent", color: getThemeValue("color", theme, "main"), ...getThemeValue("font", theme, "buttons")}}><LoadingCircle /> Sending</button>
                 :
                   <>
                     {/** Show cancel button if user is editing a post */}
@@ -280,12 +281,12 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
                     {/** Show share button */}
                     {hasAccess ?
-                      <button type="submit" className={ctaStyle} style={getStyle("button-main", theme, "main")}>
+                      <button type="submit" className={ctaStyle} style={{...getStyle("button-main", theme, "main"), ...getThemeValue("font", theme, "buttons")}}>
                         {ctaTitle}
                         <SendIcon />
                       </button>
                     :
-                      <button type="submit" disabled className={ctaStyle} style={{...getStyle("button-main", theme, "main"), opacity: 0.7, marginTop: 10}}>
+                      <button type="submit" disabled className={ctaStyle} style={{...getStyle("button-main", theme, "main"), ...getThemeValue("font", theme, "buttons"), opacity: 0.7, marginTop: 10}}>
                         <LockIcon style={{marginRight: 5}} />
                         Locked
                       </button>
