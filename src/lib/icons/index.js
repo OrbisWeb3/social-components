@@ -12,6 +12,14 @@ export const Logo = ({color = "#000", className}) => {
   );
 }
 
+export const ErrorIcon = ({style}) => {
+  return(
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+      <path fillRule="evenodd" clipRule="evenodd" d="M0.25 10C0.25 4.61522 4.61522 0.25 10 0.25C15.3848 0.25 19.75 4.61522 19.75 10C19.75 15.3848 15.3848 19.75 10 19.75C4.61522 19.75 0.25 15.3848 0.25 10ZM10 6.25C10.4142 6.25 10.75 6.58579 10.75 7V10.75C10.75 11.1642 10.4142 11.5 10 11.5C9.58579 11.5 9.25 11.1642 9.25 10.75V7C9.25 6.58579 9.58579 6.25 10 6.25ZM10 14.5C10.4142 14.5 10.75 14.1642 10.75 13.75C10.75 13.3358 10.4142 13 10 13C9.58579 13 9.25 13.3358 9.25 13.75C9.25 14.1642 9.58579 14.5 10 14.5Z" fill="#FF3162"/>
+    </svg>
+  )
+}
+
 export const BoltIcon = ({color = "#FFF", className, style}) => {
   return(
     <svg width="14" height="16" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={style}>
@@ -146,7 +154,7 @@ export const EditIcon = () => {
 export const LogoutIcon = () => {
   return(
     <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3.63604 3.63604C0.12132 7.15076 0.12132 12.8492 3.63604 16.364C7.15076 19.8787 12.8492 19.8787 16.364 16.364C19.8787 12.8492 19.8787 7.15076 16.364 3.63604M10 1V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3.63604 3.63604C0.12132 7.15076 0.12132 12.8492 3.63604 16.364C7.15076 19.8787 12.8492 19.8787 16.364 16.364C19.8787 12.8492 19.8787 7.15076 16.364 3.63604M10 1V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }

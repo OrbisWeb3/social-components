@@ -1,11 +1,11 @@
 import React, { useContext, useRef, useEffect, useState } from 'react';
-import { Orbis } from '@orbisclub/orbis-sdk';
+import { decryptString, generateAccessControlConditionsForDMs, encryptString, Orbis } from '@orbisclub/orbis-sdk';
 export { Orbis } from '@orbisclub/orbis-sdk';
 import 'react-string-replace';
 import { getAddressFromDid } from '@orbisclub/orbis-sdk/utils/index.js';
 import ReactTimeAgo from 'react-time-ago';
 import { marked } from 'marked';
-import WalletConnectProvider from '@walletconnect/web3-provider';
+import WalletConnectProvider$1 from '@walletconnect/web3-provider';
 import Web3 from 'web3';
 import { Magic } from 'magic-sdk';
 import { ConnectExtension } from '@magic-ext/connect';
@@ -485,6 +485,7 @@ function useOrbis() {
     accessRules,
     hasAccess,
     connecting,
+    setConnecting,
     magic,
     connectModalVis,
     setConnectModalVis
@@ -500,6 +501,7 @@ function useOrbis() {
     accessRules,
     hasAccess,
     connecting,
+    setConnecting,
     magic,
     connectModalVis,
     setConnectModalVis
@@ -573,12 +575,15 @@ function checkCredentialOwnership(user_credentials, cred_identifier) {
 
 var styles$1 = {"LoadingCircle":"_1fzax","spin":"_esDdM"};
 
-function LoadingCircle() {
+function LoadingCircle({
+  style
+}) {
   return /*#__PURE__*/React.createElement("svg", {
     className: styles$1.LoadingCircle,
     xmlns: "http://www.w3.org/2000/svg",
     fill: "none",
-    viewBox: "0 0 24 24"
+    viewBox: "0 0 24 24",
+    style: style
   }, /*#__PURE__*/React.createElement("circle", {
     style: {
       opacity: 0.25
@@ -595,223 +600,6 @@ function LoadingCircle() {
     fill: "currentColor",
     d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
   }));
-}
-
-var styles$2 = {"input":"_3ExRU","textarea":"_1TTFn"};
-
-const Input = ({
-  type,
-  rows: _rows = 2,
-  name,
-  color,
-  style,
-  children,
-  placeholder,
-  value,
-  onChange,
-  autofocus: _autofocus = false
-}) => {
-  const {
-    orbis,
-    user,
-    theme
-  } = useOrbis();
-  const inputRef = useRef(null);
-  useEffect(() => {
-    if (inputRef.current && _autofocus == true) {
-      inputRef.current.focus();
-    }
-  }, []);
-  switch (type) {
-    case "text":
-      return /*#__PURE__*/React.createElement("input", {
-        type: "text",
-        ref: inputRef,
-        name: name,
-        placeholder: placeholder,
-        value: value,
-        onChange: onChange,
-        className: styles$2.input,
-        style: {
-          ...style,
-          ...getThemeValue("font", theme, "input")
-        }
-      }, children);
-    case "textarea":
-      return /*#__PURE__*/React.createElement("textarea", {
-        rows: 2,
-        ref: inputRef,
-        name: name,
-        placeholder: placeholder,
-        value: value,
-        onChange: onChange,
-        className: styles$2.textarea,
-        style: {
-          ...style,
-          ...getThemeValue("font", theme, "input")
-        }
-      });
-    default:
-      return null;
-  }
-};
-
-function useHover() {
-  const [value, setValue] = useState(false);
-  const ref = useRef(null);
-  const handleMouseOver = () => setValue(true);
-  const handleMouseOut = () => setValue(false);
-  useEffect(() => {
-    const node = ref.current;
-    if (node) {
-      node.addEventListener("mouseover", handleMouseOver);
-      node.addEventListener("mouseout", handleMouseOut);
-      return () => {
-        node.removeEventListener("mouseover", handleMouseOver);
-        node.removeEventListener("mouseout", handleMouseOut);
-      };
-    }
-  }, [ref.current]);
-  return [ref, value];
-}
-
-var styles$3 = {"badge":"_Kzctc","tooltip":"_3Gosv"};
-
-const Badge = ({
-  color,
-  style,
-  tooltip,
-  children
-}) => {
-  const {
-    orbis,
-    user,
-    theme
-  } = useOrbis();
-  const [hoverRef, isHovered] = useHover();
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles$3.badge,
-    ref: hoverRef,
-    style: style
-  }, children, isHovered && tooltip && /*#__PURE__*/React.createElement("div", {
-    className: styles$3.tooltip
-  }, tooltip));
-};
-
-var styles$4 = {"emptyState":"_3yaol"};
-
-const Alert = ({
-  color,
-  style,
-  tooltip,
-  title
-}) => {
-  const {
-    orbis,
-    user,
-    theme
-  } = useOrbis();
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles$4.emptyState,
-    style: style
-  }, /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 13
-    }
-  }, title));
-};
-
-function useOutsideClick(ref, handler) {
-  useEffect(() => {
-    const listener = event => {
-      if (!ref.current || ref.current.contains(event.target)) {
-        return;
-      }
-      handler(event);
-    };
-    if (typeof window !== "undefined") {
-      document.addEventListener("mousedown", listener);
-      document.addEventListener("touchstart", listener);
-    }
-    return () => {
-      if (typeof window !== "undefined") {
-        document.removeEventListener("mousedown", listener);
-        document.removeEventListener("touchstart", listener);
-      }
-    };
-  }, [ref, handler]);
-}
-
-var styles$5 = {"modalBackground":"_2jnSH","modalContainer":"_3DR1S","modalWrapper":"_2EV56","modal":"_3i67k","modalTitle":"_1vj-s","modalDescription":"_1Tgb3"};
-
-function Modal({
-  width = 370,
-  title = "Connect to join the discussion",
-  description = "You must be connected to share posts or reactions.",
-  hide,
-  children
-}) {
-  var _theme$bg;
-  const {
-    orbis,
-    theme
-  } = useOrbis();
-  const wrapperRef = useRef(null);
-  useOutsideClick(wrapperRef, () => hide());
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      zIndex: 50
-    },
-    "aria-labelledby": "modal-title",
-    role: "dialog",
-    "aria-modal": "true"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$5.modalBackground,
-    style: {
-      background: "#000",
-      opacity: 0.70
-    },
-    onClick: () => hide()
-  }), /*#__PURE__*/React.createElement("div", {
-    className: styles$5.modalContainer
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$5.modalWrapper
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles$5.modal,
-    ref: wrapperRef,
-    style: {
-      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main,
-      width: width,
-      maxHeight: '85vh',
-      top: 15,
-      overflow: "scroll"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: "center"
-    }
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: styles$5.modalTitle,
-    style: {
-      color: getThemeValue("color", theme, "main")
-    }
-  }, title), description && /*#__PURE__*/React.createElement("p", {
-    className: styles$5.modalDescription,
-    style: {
-      fontSize: 15,
-      color: getThemeValue("color", theme, "secondary")
-    }
-  }, description)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column"
-    }
-  }, children)))));
-}
-
-function useDidToAddress(did) {
-  let res = getAddressFromDid(did);
-  return res;
 }
 
 const Logo = ({
@@ -840,6 +628,23 @@ const Logo = ({
     r: "6.4",
     stroke: _color,
     strokeWidth: "2.2"
+  }));
+};
+const ErrorIcon = ({
+  style
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 20 20",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: style
+  }, /*#__PURE__*/React.createElement("path", {
+    fillRule: "evenodd",
+    clipRule: "evenodd",
+    d: "M0.25 10C0.25 4.61522 4.61522 0.25 10 0.25C15.3848 0.25 19.75 4.61522 19.75 10C19.75 15.3848 15.3848 19.75 10 19.75C4.61522 19.75 0.25 15.3848 0.25 10ZM10 6.25C10.4142 6.25 10.75 6.58579 10.75 7V10.75C10.75 11.1642 10.4142 11.5 10 11.5C9.58579 11.5 9.25 11.1642 9.25 10.75V7C9.25 6.58579 9.58579 6.25 10 6.25ZM10 14.5C10.4142 14.5 10.75 14.1642 10.75 13.75C10.75 13.3358 10.4142 13 10 13C9.58579 13 9.25 13.3358 9.25 13.75C9.25 14.1642 9.58579 14.5 10 14.5Z",
+    fill: "#FF3162"
   }));
 };
 const BoltIcon = ({
@@ -1216,9 +1021,9 @@ const LogoutIcon = () => {
   }, /*#__PURE__*/React.createElement("path", {
     d: "M3.63604 3.63604C0.12132 7.15076 0.12132 12.8492 3.63604 16.364C7.15076 19.8787 12.8492 19.8787 16.364 16.364C19.8787 12.8492 19.8787 7.15076 16.364 3.63604M10 1V10",
     stroke: "currentColor",
-    "stroke-width": "2",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round"
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
   }));
 };
 const TwitterIcon = ({
@@ -1757,7 +1562,314 @@ const UnlockIcon = ({
   }));
 };
 
-var styles$6 = {"tabsChainsWraper":"_1shC3","tabsChainsContainer":"_2qXm0","tabsChain":"_3oHDX","loadingContainer":"_18PMf","nftsContainer":"_2hqFr","nftsEmptyState":"_1fFRJ","nftContainer":"_11vPg","nftImageContainer":"_1Ga-A","nftOverlayContainer":"_Ol_Rm","nftOverlayText":"_1v6HO"};
+var styles$2 = {"connectBtn":"_1jNTa"};
+
+function ConnectButton({
+  icon = /*#__PURE__*/React.createElement(BoltIcon, {
+    style: {
+      marginRight: "0.25rem"
+    }
+  }),
+  lit = false,
+  litOnly = false,
+  title = "Connect",
+  style
+}) {
+  const {
+    orbis,
+    magic,
+    user,
+    theme,
+    setUser,
+    setCredentials,
+    connecting,
+    setConnecting,
+    setConnectModalVis
+  } = useOrbis();
+  async function connectToLit() {
+    var _window$phantom;
+    console.log("Enter connectToLit()");
+    setConnecting(true);
+    let providerType = localStorage.getItem("provider-type");
+    let provider;
+    switch (providerType) {
+      case "metamask":
+        provider = window.ethereum;
+        break;
+      case "email":
+        provider = magic.rpcProvider;
+        break;
+      case "wallet-connect":
+        provider = new WalletConnectProvider({
+          infuraId: "9bf71860bc6c4560904d84cd241ab0a0"
+        });
+        await provider.enable();
+        break;
+      case "phantom":
+        provider = (_window$phantom = window.phantom) === null || _window$phantom === void 0 ? void 0 : _window$phantom.solana;
+        break;
+      default:
+        provider = window.ethereum;
+        break;
+    }
+    let res = await orbis.connectLit(provider);
+    if (res.status == 200) {
+      console.log("Success connecting to Lit!:", res);
+      let _user = {
+        ...user
+      };
+      _user.hasLit = true;
+      setConnecting(false);
+      setUser(_user);
+    } else {
+      console.log("Error connecting to Lit: ", res);
+    }
+  }
+  function submit() {
+    if (litOnly) {
+      connectToLit();
+    } else {
+      setConnectModalVis(true);
+    }
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+    className: styles$2.connectBtn,
+    style: style ? style : {
+      ...getStyle("button-main", theme, "main"),
+      ...getThemeValue("font", theme, "buttons"),
+      width: "100%",
+      textAlign: "center"
+    },
+    onClick: () => submit()
+  }, connecting ? /*#__PURE__*/React.createElement(LoadingCircle, {
+    style: {
+      marginRight: 5
+    }
+  }) : icon, title));
+}
+
+var styles$3 = {"input":"_3ExRU","textarea":"_1TTFn"};
+
+const Input = ({
+  type,
+  rows: _rows = 2,
+  name,
+  color,
+  style,
+  children,
+  placeholder,
+  value,
+  onChange,
+  autofocus: _autofocus = false,
+  icon: _icon = null
+}) => {
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (inputRef.current && _autofocus == true) {
+      inputRef.current.focus();
+    }
+  }, []);
+  switch (type) {
+    case "text":
+      return /*#__PURE__*/React.createElement("input", {
+        type: "text",
+        ref: inputRef,
+        name: name,
+        placeholder: placeholder,
+        value: value,
+        onChange: onChange,
+        className: styles$3.input,
+        style: {
+          ...getThemeValue("font", theme, "input"),
+          borderColor: getThemeValue("border", theme, "main"),
+          ...style
+        }
+      }, children);
+    case "textarea":
+      return /*#__PURE__*/React.createElement("textarea", {
+        rows: 2,
+        ref: inputRef,
+        name: name,
+        placeholder: placeholder,
+        value: value,
+        onChange: onChange,
+        className: styles$3.textarea,
+        style: {
+          ...getThemeValue("font", theme, "input"),
+          borderColor: getThemeValue("border", theme, "main"),
+          ...style
+        }
+      });
+    default:
+      return null;
+  }
+};
+
+function useHover() {
+  const [value, setValue] = useState(false);
+  const ref = useRef(null);
+  const handleMouseOver = () => setValue(true);
+  const handleMouseOut = () => setValue(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (node) {
+      node.addEventListener("mouseover", handleMouseOver);
+      node.addEventListener("mouseout", handleMouseOut);
+      return () => {
+        node.removeEventListener("mouseover", handleMouseOver);
+        node.removeEventListener("mouseout", handleMouseOut);
+      };
+    }
+  }, [ref.current]);
+  return [ref, value];
+}
+
+var styles$4 = {"badge":"_Kzctc","tooltip":"_3Gosv"};
+
+const Badge = ({
+  color,
+  style,
+  tooltip,
+  children
+}) => {
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  const [hoverRef, isHovered] = useHover();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$4.badge,
+    ref: hoverRef,
+    style: style
+  }, children, isHovered && tooltip && /*#__PURE__*/React.createElement("div", {
+    className: styles$4.tooltip
+  }, tooltip));
+};
+
+var styles$5 = {"emptyState":"_3yaol"};
+
+const Alert = ({
+  color,
+  style,
+  tooltip,
+  title,
+  icon
+}) => {
+  const {
+    orbis,
+    user,
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$5.emptyState,
+    style: style
+  }, icon, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13
+    }
+  }, title));
+};
+
+function useOutsideClick(ref, handler) {
+  useEffect(() => {
+    const listener = event => {
+      if (!ref.current || ref.current.contains(event.target)) {
+        return;
+      }
+      handler(event);
+    };
+    if (typeof window !== "undefined") {
+      document.addEventListener("mousedown", listener);
+      document.addEventListener("touchstart", listener);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        document.removeEventListener("mousedown", listener);
+        document.removeEventListener("touchstart", listener);
+      }
+    };
+  }, [ref, handler]);
+}
+
+var styles$6 = {"modalBackground":"_2jnSH","modalContainer":"_3DR1S","modalWrapper":"_2EV56","modal":"_3i67k","modalTitle":"_1vj-s","modalDescription":"_1Tgb3"};
+
+function Modal({
+  width = 370,
+  title = "Connect to join the discussion",
+  description = "You must be connected to share posts or reactions.",
+  hide,
+  children
+}) {
+  var _theme$bg;
+  const {
+    orbis,
+    theme
+  } = useOrbis();
+  const wrapperRef = useRef(null);
+  useOutsideClick(wrapperRef, () => hide());
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      zIndex: 50
+    },
+    "aria-labelledby": "modal-title",
+    role: "dialog",
+    "aria-modal": "true"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$6.modalBackground,
+    style: {
+      background: "#000",
+      opacity: 0.70
+    },
+    onClick: () => hide()
+  }), /*#__PURE__*/React.createElement("div", {
+    className: styles$6.modalContainer
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$6.modalWrapper
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles$6.modal,
+    ref: wrapperRef,
+    style: {
+      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main,
+      width: width,
+      maxHeight: '85vh',
+      top: 15,
+      overflow: "scroll"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: styles$6.modalTitle,
+    style: {
+      color: getThemeValue("color", theme, "main")
+    }
+  }, title), description && /*#__PURE__*/React.createElement("p", {
+    className: styles$6.modalDescription,
+    style: {
+      fontSize: 15,
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }, description)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, children)))));
+}
+
+function useDidToAddress(did) {
+  let res = getAddressFromDid(did);
+  return res;
+}
+
+var styles$7 = {"tabsChainsWraper":"_1shC3","tabsChainsContainer":"_2qXm0","tabsChain":"_3oHDX","loadingContainer":"_18PMf","nftsContainer":"_2hqFr","nftsEmptyState":"_1fFRJ","nftContainer":"_11vPg","nftImageContainer":"_1Ga-A","nftOverlayContainer":"_Ol_Rm","nftOverlayText":"_1v6HO"};
 
 function UpdateProfileModal({
   hide,
@@ -1788,7 +1900,7 @@ function UpdateProfileModal({
     }
     if (active) {
       return /*#__PURE__*/React.createElement("div", {
-        className: styles$6.tabsChain,
+        className: styles$7.tabsChain,
         style: {
           background: color,
           color: "#FFF"
@@ -1796,7 +1908,7 @@ function UpdateProfileModal({
       }, name);
     } else {
       return /*#__PURE__*/React.createElement("div", {
-        className: styles$6.tabsChain,
+        className: styles$7.tabsChain,
         style: {
           cursor: "pointer"
         },
@@ -1810,9 +1922,9 @@ function UpdateProfileModal({
     title: "Update your profile picture",
     description: "Pick your favorite NFT or upload your profile picture."
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.tabsChainsWraper
+    className: styles$7.tabsChainsWraper
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$6.tabsChainsContainer,
+    className: styles$7.tabsChainsContainer,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary,
       color: theme !== null && theme !== void 0 && (_theme$color = theme.color) !== null && _theme$color !== void 0 && _theme$color.main ? theme.color.main : defaultTheme.color.main
@@ -1864,12 +1976,12 @@ function ListNFTs({
   }
   if (loading) {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$6.loadingContainer
+      className: styles$7.loadingContainer
     }, /*#__PURE__*/React.createElement(LoadingCircle, null));
   }
   if (nfts && nfts.length == 0) {
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$6.nftsEmptyState
+      className: styles$7.nftsEmptyState
     }, /*#__PURE__*/React.createElement("p", {
       style: {
         fontSize: 13
@@ -1877,7 +1989,7 @@ function ListNFTs({
     }, "You don't have any NFT on this network."));
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$6.nftsContainer
+    className: styles$7.nftsContainer
   }, /*#__PURE__*/React.createElement(Loop, null));
 }
 function NFT({
@@ -1906,19 +2018,19 @@ function NFT({
     callback(_imageUrl, nftDetails);
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$6.nftContainer
+    className: styles$7.nftContainer
   }, /*#__PURE__*/React.createElement("div", {
     ref: hoverNft,
-    className: styles$6.nftImageContainer
+    className: styles$7.nftImageContainer
   }, nft.media[0].thumbnail ? /*#__PURE__*/React.createElement("img", {
     src: nft.media[0].thumbnail
   }) : /*#__PURE__*/React.createElement("img", {
     src: nft.media[0].gateway
   }), isNftHovered && /*#__PURE__*/React.createElement("div", {
-    className: styles$6.nftOverlayContainer,
+    className: styles$7.nftOverlayContainer,
     onClick: () => setAsNft()
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$6.nftOverlayText
+    className: styles$7.nftOverlayText
   }, "Use as profile ", /*#__PURE__*/React.createElement("br", null), " picture", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(EditIcon, {
     style: {
       color: "#FFF"
@@ -1950,7 +2062,7 @@ function useGetUsername(details, address, did) {
   }
 }
 
-var styles$7 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userPfpContainer":"_MC4Lq","userPfpContainerImg":"_1FZoV","userPfpContainerImgEmpty":"_164UE","userBadge":"_3tVDt","loadingContainer":"_3JjLt","userPopupContainer":"_3mkOx","userPopupContent":"_3EuST","userPopupDetailsContainer":"_2ioaU","userPopupDetailsUsername":"_18eQ4","userPopupDetailsBadgeContainer":"_2siDY","userPopupDetailsActionsContainer":"_WjB9N","userPopupCredentialsContainer":"_179TI","userPopupFooterContainer":"_3sTma","userPopupFooterFollowers":"_2XlLk","userPopupFooterFollowing":"_1Xdku","userPopupFooterFollowTitle":"_PDHd1","userPopupFooterFollowCount":"_DskLZ","userEditContainer":"_2C8TD","userEditPfpContainer":"_3Ehbv","userEditPfpOverlay":"_1LJ5X","userEditButtonContainer":"_2OSys","userFieldsContainer":"_2ymLO","userFieldsSaveContainer":"_I1aJ0"};
+var styles$8 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userPfpContainer":"_MC4Lq","userPfpContainerImg":"_1FZoV","userPfpContainerImgEmpty":"_164UE","userBadge":"_3tVDt","loadingContainer":"_3JjLt","userPopupContainer":"_3mkOx","userPopupContent":"_3EuST","userPopupTopDetailsContainer":"_8up-o","userPopupDetailsContainer":"_2ioaU","userPopupDetailsUsername":"_18eQ4","userPopupDetailsBadgeContainer":"_2siDY","userPopupDetailsActionsContainer":"_WjB9N","userPopupCredentialsContainer":"_179TI","userPopupFooterContainer":"_3sTma","userPopupFooterFollowers":"_2XlLk","userPopupFooterFollowing":"_1Xdku","userPopupFooterFollowTitle":"_PDHd1","userPopupFooterFollowCount":"_DskLZ","userEditContainer":"_2C8TD","userEditPfpContainer":"_3Ehbv","userEditPfpOverlay":"_1LJ5X","userEditButtonContainer":"_2OSys","userFieldsContainer":"_2ymLO","userFieldsSaveContainer":"_I1aJ0"};
 
 const User = ({
   details,
@@ -1963,13 +2075,13 @@ const User = ({
     theme
   } = useOrbis();
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userContainer
+    className: styles$8.userContainer
   }, /*#__PURE__*/React.createElement(UserPfp, {
     height: _height,
     details: _connected ? user : details,
     hover: _hover
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userUsernameContainer
+    className: styles$8.userUsernameContainer
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       display: "flex"
@@ -1982,18 +2094,20 @@ const UserPfp = ({
   details,
   height: _height2 = 44,
   showBadge: _showBadge = true,
-  hover: _hover2 = false
+  hover: _hover2 = false,
+  showEmailCta: _showEmailCta = false
 }) => {
-  var _details$profile, _theme$bg, _theme$color, _details$profile2, _details$profile3;
-  const [hoverRef, isHovered] = useHover();
+  var _details$profile, _theme$bg, _theme$color, _details$profile2, _details$profile3, _details$profile4;
   const {
+    user,
     theme
   } = useOrbis();
+  const [hoverRef, isHovered] = useHover();
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPfpContainer,
+    className: styles$8.userPfpContainer,
     ref: hoverRef
   }, details && details.profile && (_details$profile = details.profile) !== null && _details$profile !== void 0 && _details$profile.pfp ? /*#__PURE__*/React.createElement("img", {
-    className: styles$7.userPfpContainerImg,
+    className: styles$8.userPfpContainerImg,
     src: details.profile.pfp,
     alt: "",
     style: {
@@ -2001,7 +2115,7 @@ const UserPfp = ({
       width: _height2
     }
   }) : /*#__PURE__*/React.createElement("span", {
-    className: styles$7.userPfpContainerImgEmpty,
+    className: styles$8.userPfpContainerImgEmpty,
     style: {
       height: _height2,
       width: _height2,
@@ -2017,19 +2131,32 @@ const UserPfp = ({
     viewBox: "0 0 24 24"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"
-  }))), _showBadge && ((_details$profile2 = details.profile) === null || _details$profile2 === void 0 ? void 0 : _details$profile2.pfpIsNft) && /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     style: {
-      top: -5,
+      top: -4,
       right: -5,
-      position: "absolute"
+      position: "absolute",
+      display: "flex",
+      flexDirection: "col"
     }
-  }, /*#__PURE__*/React.createElement("img", {
+  }, _showEmailCta && user && user.did == details.did && !((_details$profile2 = details.profile) !== null && _details$profile2 !== void 0 && _details$profile2.encryptedEmail) && /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 20 20",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("path", {
+    fillRule: "evenodd",
+    clipRule: "evenodd",
+    d: "M0.25 10C0.25 4.61522 4.61522 0.25 10 0.25C15.3848 0.25 19.75 4.61522 19.75 10C19.75 15.3848 15.3848 19.75 10 19.75C4.61522 19.75 0.25 15.3848 0.25 10ZM10 6.25C10.4142 6.25 10.75 6.58579 10.75 7V10.75C10.75 11.1642 10.4142 11.5 10 11.5C9.58579 11.5 9.25 11.1642 9.25 10.75V7C9.25 6.58579 9.58579 6.25 10 6.25ZM10 14.5C10.4142 14.5 10.75 14.1642 10.75 13.75C10.75 13.3358 10.4142 13 10 13C9.58579 13 9.25 13.3358 9.25 13.75C9.25 14.1642 9.58579 14.5 10 14.5Z",
+    fill: "#FF3162"
+  })), _showBadge && details && details.profile && ((_details$profile3 = details.profile) === null || _details$profile3 === void 0 ? void 0 : _details$profile3.pfpIsNft) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("img", {
     style: {
       height: "1.25rem",
       width: "1.25rem"
     },
-    src: "https://app.orbis.club/img/icons/nft-verified-" + ((_details$profile3 = details.profile) === null || _details$profile3 === void 0 ? void 0 : _details$profile3.pfpIsNft.chain) + ".png"
-  })), _hover2 && /*#__PURE__*/React.createElement(UserPopup, {
+    src: "https://app.orbis.club/img/icons/nft-verified-" + ((_details$profile4 = details.profile) === null || _details$profile4 === void 0 ? void 0 : _details$profile4.pfpIsNft.chain) + ".png"
+  }))), _hover2 && /*#__PURE__*/React.createElement(UserPopup, {
     visible: isHovered,
     details: details
   }));
@@ -2057,7 +2184,7 @@ const UserBadge = ({
   if (address) {
     var _details$metadata;
     return /*#__PURE__*/React.createElement("div", {
-      className: styles$7.userBadge,
+      className: styles$8.userBadge,
       style: {
         ...getThemeValue("badges", theme, "main"),
         ...getThemeValue("font", theme, "badges")
@@ -2071,7 +2198,7 @@ const UserPopup = ({
   details,
   visible
 }) => {
-  var _details$profile4, _details$profile5, _theme$bg2, _theme$border, _details$profile6, _theme$border2;
+  var _details$profile5, _details$profile6, _theme$bg2, _theme$border, _details$profile7, _details$profile8, _theme$border2;
   const {
     orbis,
     user,
@@ -2082,8 +2209,8 @@ const UserPopup = ({
   const [vis, setVis] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [pfp, setPfp] = useState(details === null || details === void 0 ? void 0 : (_details$profile4 = details.profile) === null || _details$profile4 === void 0 ? void 0 : _details$profile4.pfp);
-  const [pfpNftDetails, setPfpNftDetails] = useState(details === null || details === void 0 ? void 0 : (_details$profile5 = details.profile) === null || _details$profile5 === void 0 ? void 0 : _details$profile5.pfpIsNft);
+  const [pfp, setPfp] = useState(details === null || details === void 0 ? void 0 : (_details$profile5 = details.profile) === null || _details$profile5 === void 0 ? void 0 : _details$profile5.pfp);
+  const [pfpNftDetails, setPfpNftDetails] = useState(details === null || details === void 0 ? void 0 : (_details$profile6 = details.profile) === null || _details$profile6 === void 0 ? void 0 : _details$profile6.pfpIsNft);
   useEffect(() => {
     if (locked == false) {
       setVis(visible);
@@ -2105,9 +2232,9 @@ const UserPopup = ({
     return null;
   }
   return /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupContainer
+    className: styles$8.userPopupContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupContent,
+    className: styles$8.userPopupContent,
     style: {
       background: theme !== null && theme !== void 0 && (_theme$bg2 = theme.bg) !== null && _theme$bg2 !== void 0 && _theme$bg2.secondary ? theme.bg.secondary : defaultTheme.bg.secondary,
       borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
@@ -2118,17 +2245,14 @@ const UserPopup = ({
     pfp: pfp,
     pfpNftDetails: pfpNftDetails
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      alignItems: "center",
-      display: "flex",
-      flexDirection: "row"
-    }
+    className: styles$8.userPopupTopDetailsContainer
   }, /*#__PURE__*/React.createElement(UserPfp, {
-    details: details
+    details: details,
+    hover: false
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupDetailsContainer
+    className: styles$8.userPopupDetailsContainer
   }, /*#__PURE__*/React.createElement("span", {
-    className: styles$7.userPopupDetailsUsername,
+    className: styles$8.userPopupDetailsUsername,
     style: {
       color: getThemeValue("color", theme, "main"),
       ...getThemeValue("font", theme, "main")
@@ -2136,11 +2260,11 @@ const UserPopup = ({
   }, /*#__PURE__*/React.createElement(Username, {
     details: details
   })), /*#__PURE__*/React.createElement("span", {
-    className: styles$7.userPopupDetailsBadgeContainer
+    className: styles$8.userPopupDetailsBadgeContainer
   }, /*#__PURE__*/React.createElement(UserBadge, {
     details: details
   }))), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupDetailsActionsContainer
+    className: styles$8.userPopupDetailsActionsContainer
   }, user && user.did == details.did ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Button, {
     color: "primary",
     onClick: () => _setIsEditing(true)
@@ -2153,7 +2277,20 @@ const UserPopup = ({
     onClick: () => logout()
   }, /*#__PURE__*/React.createElement(LogoutIcon, null))) : /*#__PURE__*/React.createElement(Follow, {
     did: details.did
-  }))), (details === null || details === void 0 ? void 0 : (_details$profile6 = details.profile) === null || _details$profile6 === void 0 ? void 0 : _details$profile6.description) && /*#__PURE__*/React.createElement("div", {
+  }))), user && user.did == details.did && !((_details$profile7 = details.profile) !== null && _details$profile7 !== void 0 && _details$profile7.encryptedEmail) && /*#__PURE__*/React.createElement(Alert, {
+    title: "Edit your profile to verify your email address.",
+    icon: /*#__PURE__*/React.createElement(ErrorIcon, {
+      style: {
+        marginRight: 5
+      }
+    }),
+    style: {
+      backgroundColor: getThemeValue("bg", theme, "main"),
+      color: getThemeValue("color", theme, "main"),
+      borderColor: "#FF3162",
+      marginTop: 12
+    }
+  }), (details === null || details === void 0 ? void 0 : (_details$profile8 = details.profile) === null || _details$profile8 === void 0 ? void 0 : _details$profile8.description) && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: "0.5rem"
     }
@@ -2166,14 +2303,14 @@ const UserPopup = ({
   }, details.profile.description)), /*#__PURE__*/React.createElement(UserCredentials, {
     details: details
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupFooterContainer
+    className: styles$8.userPopupFooterContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupFooterFollowers,
+    className: styles$8.userPopupFooterFollowers,
     style: {
       borderColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
     }
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$7.userPopupFooterFollowTitle,
+    className: styles$8.userPopupFooterFollowTitle,
     style: {
       ...getThemeValue("font", theme, "main"),
       fontWeight: 400,
@@ -2181,16 +2318,16 @@ const UserPopup = ({
       color: getThemeValue("color", theme, "secondary")
     }
   }, "Followers"), /*#__PURE__*/React.createElement("p", {
-    className: styles$7.userPopupFooterFollowCount,
+    className: styles$8.userPopupFooterFollowCount,
     style: {
       ...getThemeValue("font", theme, "secondary"),
       fontSize: 15,
       color: getThemeValue("color", theme, "main")
     }
   }, details.count_followers)), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupFooterFollowing
+    className: styles$8.userPopupFooterFollowing
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$7.userPopupFooterFollowTitle,
+    className: styles$8.userPopupFooterFollowTitle,
     style: {
       ...getThemeValue("font", theme, "main"),
       fontWeight: 400,
@@ -2198,7 +2335,7 @@ const UserPopup = ({
       color: getThemeValue("color", theme, "secondary")
     }
   }, "Following"), /*#__PURE__*/React.createElement("p", {
-    className: styles$7.userPopupFooterFollowCount,
+    className: styles$8.userPopupFooterFollowCount,
     style: {
       ...getThemeValue("font", theme, "secondary"),
       fontSize: 15,
@@ -2260,7 +2397,7 @@ function UserCredentials({
       marginBottom: 15
     }
   }, /*#__PURE__*/React.createElement("p", {
-    className: styles$7.userPopupFooterFollowTitle,
+    className: styles$8.userPopupFooterFollowTitle,
     style: {
       ...getThemeValue("font", theme, "main"),
       fontWeight: 400,
@@ -2268,9 +2405,9 @@ function UserCredentials({
       color: theme !== null && theme !== void 0 && (_theme$color2 = theme.color) !== null && _theme$color2 !== void 0 && _theme$color2.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Credentials:"), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userPopupCredentialsContainer
+    className: styles$8.userPopupCredentialsContainer
   }, credentialsLoading ? /*#__PURE__*/React.createElement("div", {
-    className: styles$7.loadingContainer,
+    className: styles$8.loadingContainer,
     style: {
       color: getThemeValue("color", theme, "main")
     }
@@ -2708,9 +2845,28 @@ function UserEditProfile({
     setUser,
     theme
   } = useOrbis();
-  const [username, setUsername] = useState(user === null || user === void 0 ? void 0 : (_user$profile = user.profile) === null || _user$profile === void 0 ? void 0 : _user$profile.username);
-  const [description, setDescription] = useState(user === null || user === void 0 ? void 0 : (_user$profile2 = user.profile) === null || _user$profile2 === void 0 ? void 0 : _user$profile2.description);
+  const [username, setUsername] = useState(user !== null && user !== void 0 && (_user$profile = user.profile) !== null && _user$profile !== void 0 && _user$profile.username ? user.profile.username : "");
+  const [email, setEmail] = useState("");
+  const [description, setDescription] = useState(user !== null && user !== void 0 && (_user$profile2 = user.profile) !== null && _user$profile2 !== void 0 && _user$profile2.description ? user.profile.description : "");
   const [status, setStatus] = useState(0);
+  useEffect(() => {
+    var _user$profile3;
+    if (user !== null && user !== void 0 && (_user$profile3 = user.profile) !== null && _user$profile3 !== void 0 && _user$profile3.encryptedEmail) {
+      decryptEmail();
+    }
+    async function decryptEmail() {
+      try {
+        let _email = await decryptString(user.profile.encryptedEmail, "ethereum", localStorage);
+        if (_email) {
+          setEmail(_email.result);
+        }
+        console.log("Decrypted email:", _email);
+      } catch (e) {
+        console.log("Error decrypting email:", e);
+        setEmail("•••••••••••••");
+      }
+    }
+  }, [user]);
   async function save() {
     if (status != 0) {
       console.log("Already saving.");
@@ -2718,10 +2874,22 @@ function UserEditProfile({
     }
     setStatus(1);
     let profile = {
-      username: username,
-      description: description,
-      pfp: pfp ? pfp : null
+      ...user.profile
     };
+    profile.username = username;
+    profile.description = description;
+    profile.pfp = pfp ? pfp : null;
+    if (email && email != "") {
+      if (email != "•••••••••••••") {
+        let {
+          accessControlConditions
+        } = generateAccessControlConditionsForDMs([user.did, "did:pkh:eip155:1:0xdbcf111ca51572e2f924587faeab857f1e3b824f"]);
+        let encryptedEmail = await encryptString(email, "ethereum", accessControlConditions);
+        profile.encryptedEmail = encryptedEmail;
+      }
+    } else {
+      profile.encryptedEmail = null;
+    }
     if (pfpNftDetails) {
       profile.pfpIsNft = pfpNftDetails;
     }
@@ -2765,9 +2933,9 @@ function UserEditProfile({
     }
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userEditContainer
+    className: styles$8.userEditContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userEditPfpContainer
+    className: styles$8.userEditPfpContainer
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
@@ -2782,7 +2950,7 @@ function UserEditProfile({
     },
     showBadge: false
   }), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userEditPfpOverlay,
+    className: styles$8.userEditPfpOverlay,
     style: {
       background: "rgba(0,0,0,0.5)",
       top: 0,
@@ -2791,18 +2959,18 @@ function UserEditProfile({
     },
     onClick: () => setShowProfileModal(true)
   }, /*#__PURE__*/React.createElement(EditIcon, null)))), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userEditButtonContainer,
+    className: styles$8.userEditButtonContainer,
     onClick: () => setIsEditing(false)
   }, /*#__PURE__*/React.createElement(Button, {
     color: "secondary"
   }, "Cancel"))), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userFieldsContainer
+    className: styles$8.userFieldsContainer
   }, /*#__PURE__*/React.createElement(Input, {
     type: "text",
     name: "username",
     value: username,
     onChange: e => setUsername(e.target.value),
-    placeholder: "Enter your username",
+    placeholder: "Your username",
     style: getStyle("input", theme, status == 1)
   }), /*#__PURE__*/React.createElement(Input, {
     type: "textarea",
@@ -2814,39 +2982,53 @@ function UserEditProfile({
       ...getStyle("input", theme, status == 1),
       marginTop: "0.5rem"
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: styles$7.userFieldsSaveContainer
-  }, /*#__PURE__*/React.createElement(SaveButton, null)));
-}
-
-var styles$8 = {"connectBtn":"_1jNTa"};
-
-function ConnectButton({
-  lit = false
-}) {
-  const {
-    orbis,
-    user,
-    theme,
-    setUser,
-    setCredentials,
-    connecting,
-    setConnectModalVis
-  } = useOrbis();
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
-    className: styles$8.connectBtn,
+  }), /*#__PURE__*/React.createElement(Input, {
+    type: "text",
+    name: "email",
+    value: email,
+    onChange: e => setEmail(e.target.value),
+    placeholder: "Your email address",
     style: {
-      ...getStyle("button-main", theme, "main"),
-      ...getThemeValue("font", theme, "buttons"),
-      width: "100%",
-      textAlign: "center"
-    },
-    onClick: () => setConnectModalVis(true)
-  }, connecting ? /*#__PURE__*/React.createElement(LoadingCircle, null) : /*#__PURE__*/React.createElement(BoltIcon, {
-    style: {
-      marginRight: "0.25rem"
+      ...getStyle("input", theme, status == 1),
+      marginTop: "0.5rem"
     }
-  }), "Connect"));
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      alignItems: "center",
+      marginTop: 7,
+      display: "flex",
+      ...getThemeValue("font", theme, "main"),
+      fontWeight: 400,
+      fontSize: 13,
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }, /*#__PURE__*/React.createElement(LockIcon, {
+    style: {
+      marginRight: 7
+    }
+  }), /*#__PURE__*/React.createElement("p", {
+    style: {
+      margin: 0,
+      flex: 1
+    }
+  }, "Email address will be encrypted and attached to your profile. ", user.hasLit == false && /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-block"
+    }
+  }, /*#__PURE__*/React.createElement(ConnectButton, {
+    icon: null,
+    title: "Setup private account",
+    litOnly: true,
+    style: {
+      fontSize: 13,
+      background: "transparent",
+      boxShadow: "none",
+      padding: 0,
+      color: getThemeValue("color", theme, "active")
+    }
+  }))))), /*#__PURE__*/React.createElement("div", {
+    className: styles$8.userFieldsSaveContainer
+  }, /*#__PURE__*/React.createElement(SaveButton, null)));
 }
 
 var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","operator":"_1XO9C"};
@@ -2965,7 +3147,7 @@ const LoopUsers = ({
 
 const CommentsContext = React.createContext({});
 
-var styles$a = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","accessRulesContainer":"_38Oc2","hoverLink":"_2DzGC","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
+var styles$a = {"postboxGlobalContainer":"_3glYN","postboxConnectContainer":"_AFaEi","postboxUserContainer":"_2PH81","postboxContainer":"_3G9kY","postbox":"_1Y2r9","postboxInput":"_beLGF","accessRulesContainer":"_38Oc2","hoverLink":"_2DzGC","postboxShareContainer":"_3AOEJ","postboxShareContainerBtn":"_1be8d","postboxReplyContainer":"_3DmQC","postboxReplyBadge":"_2pfJ3","postboxGatingTextMobile":"_1r63_","postboxGatingTextDesktop":"_3OkEg","loadingContainer":"_JNMN2","mentionsBoxContainer":"_x-3dD","mentionsBoxInputContainer":"_AXWLZ","mentionsBoxEmptyState":"_2mojb","userResults":"_UbM_B","userResultContainer":"_Y9wr7"};
 
 let mentions = [];
 function Postbox({
@@ -3127,7 +3309,8 @@ function Postbox({
       ref: hoverRef
     }, /*#__PURE__*/React.createElement(UserPfp, {
       details: user,
-      hover: true
+      hover: true,
+      showEmailCta: true
     })), /*#__PURE__*/React.createElement("div", {
       className: styles$a.postboxContainer
     }, /*#__PURE__*/React.createElement("form", {
@@ -3193,6 +3376,20 @@ function Postbox({
         color: getThemeValue("color", theme, "secondary")
       }
     }), /*#__PURE__*/React.createElement("span", {
+      className: styles$a.postboxGatingTextMobile,
+      style: {
+        color: getThemeValue("color", theme, "secondary"),
+        ...getThemeValue("font", theme, "secondary")
+      }
+    }, "Discussion is gated. ", /*#__PURE__*/React.createElement("span", {
+      className: styles$a.hoverLink,
+      style: {
+        fontWeight: 500,
+        color: getThemeValue("color", theme, "active")
+      },
+      onClick: () => setAccessRulesModalVis(true)
+    }, "View rules")), /*#__PURE__*/React.createElement("span", {
+      className: styles$a.postboxGatingTextDesktop,
       style: {
         color: getThemeValue("color", theme, "secondary"),
         ...getThemeValue("font", theme, "secondary")
@@ -3845,7 +4042,7 @@ const WalletButton = ({
         });
         break;
       case "wallet-connect":
-        let wc_provider = new WalletConnectProvider({
+        let wc_provider = new WalletConnectProvider$1({
           infuraId: "9bf71860bc6c4560904d84cd241ab0a0"
         });
         await wc_provider.enable();
@@ -4241,6 +4438,7 @@ function OrbisProvider({
       user,
       setUser,
       connecting,
+      setConnecting,
       orbis,
       magic,
       context,
@@ -4462,24 +4660,34 @@ function Comment({
   }, /*#__PURE__*/React.createElement(LoopInternalReplies, null)));
 }
 
-let _orbis$1 = new Orbis();
-let magic$1;
-let web3$1;
-if (typeof window !== "undefined") {
-  magic$1 = new Magic('pk_live_2E6B3B065093108E', {
-    network: 'mainnet',
-    extensions: [new ConnectExtension()]
-  });
-  web3$1 = new Web3(magic$1.rpcProvider);
-}
-const Inbox = ({
-  orbis: _orbis2 = _orbis$1,
+const InboxContext = React.createContext({});
+
+var styles$d = {"inboxContainer":"_373Vc","inboxHeaderContainer":"_33Dkm","header":"_1DpfW","inboxContent":"_1dSUE","connectContainer":"_2yYqJ","conversationsContainer":"_2Tjlx","conversationContainer":"_3niTo","conversationRecipientsContainer":"_86TS3","conversationRecipientsPfpContainer":"_3lQ8s","conversationRecipientsDetailsContainer":"_1BzR5","conversationRecipientsUsernameContainer":"_3tFdy","participantsContainer":"_3-uYJ","participantsContainerCta":"_3-lS9","participantsContainerPfp":"_3kZHJ","loadingContainer":"_3rx8N","messagesContainer":"_3vL-q","messageContainer":"_247na","message":"_1LhGk","messageBoxContainer":"_1W1rX"};
+
+function Inbox({
   context,
-  theme
-}) => {
-  const [user, setUser] = useState();
+  theme,
+  options
+}) {
+  return /*#__PURE__*/React.createElement(OrbisProvider, {
+    context: context,
+    theme: theme,
+    options: options
+  }, /*#__PURE__*/React.createElement(InboxContent, null));
+}
+const InboxContent = () => {
+  const {
+    user,
+    setUser,
+    orbis,
+    theme,
+    context,
+    accessRules
+  } = useOrbis();
   const [loading, setLoading] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [conversationSelected, setConversationSelected] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   useEffect(() => {
@@ -4487,53 +4695,87 @@ const Inbox = ({
       loadConversations();
     }
   }, [context, user]);
+  useEffect(() => {
+    if (user && conversationSelected) {
+      loadMessages();
+    }
+  }, [user, conversationSelected]);
   async function loadConversations() {
     setLoading(true);
     let {
       data,
       error
-    } = await _orbis2.getConversations({
-      did: user.did,
-      context: context
+    } = await orbis.getConversations({
+      did: user.did
     }, 0);
-    console.log("data", data);
     setConversations(data);
     setLoading(false);
   }
-  return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
+  async function loadMessages() {
+    setMessagesLoading(true);
+    let {
+      data,
+      error
+    } = await orbis.getMessages(conversationSelected.stream_id);
+    setMessages(data);
+    setMessagesLoading(false);
+  }
+  return /*#__PURE__*/React.createElement(InboxContext.Provider, {
     value: {
-      user,
-      setUser,
-      orbis: _orbis2,
-      magic: magic$1,
-      context,
-      theme,
       conversationSelected,
       setConversationSelected,
+      messagesLoading,
+      messages,
+      setMessages,
       isExpanded,
       setIsExpanded
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "orbis orbis-inbox absolute bottom-0 right-20 rounded-none rounded-t-lg w-[335px] shadow-sm overflow-hidden max-h-[77%] flex flex-col",
+    className: styles$d.inboxContainer,
     style: {
+      background: getThemeValue("background", theme, "main"),
+      borderColor: getThemeValue("border", theme, "secondary"),
       height: isExpanded ? "500px" : "auto"
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex bg-[#4E75F6] text-base font-medium text-white hover:bg-[#3E67F0] flex-row items-center"
+    className: styles$d.inboxHeaderContainer,
+    style: {
+      ...getStyle("button-main", theme, "main"),
+      ...getThemeValue("font", theme, "main")
+    }
   }, /*#__PURE__*/React.createElement(HeaderInbox, null)), isExpanded && /*#__PURE__*/React.createElement("div", {
-    className: "bg-white flex flex-1 flex-col w-full overflow-scroll"
+    className: styles$d.inboxContent
   }, user ? /*#__PURE__*/React.createElement(React.Fragment, null, conversationSelected ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col-reverse flex-1 w-full p-3 overflow-scroll"
+    className: styles$d.messagesContainer
   }, /*#__PURE__*/React.createElement(Messages, null)), /*#__PURE__*/React.createElement("div", {
     className: "flex w-full border-gray-100 border-t bg-white px-3 py-3 flex-row"
-  }, /*#__PURE__*/React.createElement(MessageBox, null))) : /*#__PURE__*/React.createElement("ul", {
+  }, /*#__PURE__*/React.createElement(MessageBox, null))) : /*#__PURE__*/React.createElement(React.Fragment, null, user.hasLit ? /*#__PURE__*/React.createElement("ul", {
     role: "list",
-    className: "divide-y divide-gray-200 w-full px-3"
+    className: styles$d.conversationsContainer
   }, /*#__PURE__*/React.createElement(LoopConversations, {
     conversations: conversations
-  }))) : /*#__PURE__*/React.createElement("div", {
-    className: "p-12 w-full"
-  }, /*#__PURE__*/React.createElement(ConnectButton, {
+  })) : /*#__PURE__*/React.createElement("div", {
+    className: styles$d.connectContainer
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      ...getThemeValue("font", theme, "secondary"),
+      color: getThemeValue("color", theme, "primary"),
+      textAlign: "center",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Last step:"), " Setup your private account to be able to decrypt messages. "), /*#__PURE__*/React.createElement(ConnectButton, {
+    litOnly: true,
+    title: "Setup Private Account"
+  })))) : /*#__PURE__*/React.createElement("div", {
+    className: styles$d.connectContainer
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      ...getThemeValue("font", theme, "secondary"),
+      color: getThemeValue("color", theme, "primary"),
+      textAlign: "center",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Step 1:"), " You need to be connected to access your messages."), /*#__PURE__*/React.createElement(ConnectButton, {
     lit: true
   })))));
 };
@@ -4542,16 +4784,16 @@ function HeaderInbox() {
     conversationSelected,
     isExpanded,
     setIsExpanded
-  } = useContext(GlobalContext);
+  } = useContext(InboxContext);
   if (conversationSelected) {
     return /*#__PURE__*/React.createElement("div", {
-      className: "flex flex-row items-center px-5 py-2"
+      className: styles$d.header
     }, /*#__PURE__*/React.createElement(Participants, {
       conversation: conversationSelected
     }));
   } else {
     return /*#__PURE__*/React.createElement("div", {
-      className: "cursor-pointer flex flex-row items-center px-5 py-4",
+      className: styles$d.header,
       onClick: () => setIsExpanded(!isExpanded)
     }, /*#__PURE__*/React.createElement(DmIcon, null), /*#__PURE__*/React.createElement("p", null, "Direct Messages"));
   }
@@ -4571,52 +4813,54 @@ function Conversation({
 }) {
   const {
     user,
+    theme
+  } = useOrbis();
+  const {
     setConversationSelected
-  } = useContext(GlobalContext);
+  } = useContext(InboxContext);
   return /*#__PURE__*/React.createElement("li", {
-    className: "py-4 items-center hover:bg-gray-50 cursor-pointer",
-    onClick: () => setConversationSelected(conversation)
+    className: styles$d.conversationContainer,
+    onClick: () => setConversationSelected(conversation),
+    style: {
+      borderColor: getThemeValue("border", theme, "secondary")
+    }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center"
+    className: styles$d.conversationRecipientsContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: "mr-3 w-[43px]"
+    className: styles$d.conversationRecipientsPfpContainer
   }, conversation.recipients.length > 2 ? /*#__PURE__*/React.createElement("div", {
-    className: "relative"
+    style: {
+      position: "relative"
+    }
   }, /*#__PURE__*/React.createElement(RecipientsPfp, {
     conversation: conversation
   })) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(UserPfp, {
     details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0]
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 space-y-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 text-base font-medium text-gray-900 flex flex-row"
-  }, conversation.recipients.length > 2 ? /*#__PURE__*/React.createElement("h3", {
-    className: "flex flex-row"
-  }, /*#__PURE__*/React.createElement(Username, {
-    details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0]
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "ml-1 text-gray-500 font-normal"
-  }, "and ", /*#__PURE__*/React.createElement("span", {
-    className: "text-gray-900 font-medium"
-  }, conversation.recipients.length - 1, " others"))) : /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(Username, {
-    details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0]
-  }))), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-gray-500"
-  }, "1h")))));
+    className: styles$d.conversationRecipientsDetailsContainer
+  }, /*#__PURE__*/React.createElement(RecipientsUsername, {
+    recipients: conversation.recipients,
+    recipients_details: conversation.recipients_details
+  }), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }, "1h"))));
 }
 function Participants({
   conversation
 }) {
   const {
-    user,
+    user
+  } = useOrbis();
+  const {
     setConversationSelected
-  } = useContext(GlobalContext);
+  } = useContext(InboxContext);
   return /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-row items-center"
+    className: styles$d.participantsContainer
   }, /*#__PURE__*/React.createElement("div", {
-    className: "mr-3 cursor-pointer",
+    className: styles$d.participantsContainerCta,
     onClick: () => setConversationSelected(null)
   }, /*#__PURE__*/React.createElement("svg", {
     width: "18",
@@ -4625,16 +4869,16 @@ function Participants({
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M9.03033 0.96967C9.32322 1.26256 9.32322 1.73744 9.03033 2.03033L2.81066 8.25H19C19.4142 8.25 19.75 8.58579 19.75 9C19.75 9.41421 19.4142 9.75 19 9.75H2.81066L9.03033 15.9697C9.32322 16.2626 9.32322 16.7374 9.03033 17.0303C8.73744 17.3232 8.26256 17.3232 7.96967 17.0303L0.46967 9.53033C0.176777 9.23744 0.176777 8.76256 0.46967 8.46967L7.96967 0.96967C8.26256 0.676777 8.73744 0.676777 9.03033 0.96967Z",
     fill: "#FAFBFB"
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "mr-3 w-[38px]"
+    className: styles$d.participantsContainerPfp
   }, conversation.recipients.length > 2 ? /*#__PURE__*/React.createElement("div", {
-    className: "relative",
     style: {
-      paddingTop: 11
+      position: "relative",
+      paddingTop: 5
     }
   }, /*#__PURE__*/React.createElement(RecipientsPfp, {
     conversation: conversation,
@@ -4643,41 +4887,41 @@ function Participants({
     details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0],
     height: 38
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 space-y-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 text-base font-medium text-white flex flex-row"
-  }, conversation.recipients.length > 2 ? /*#__PURE__*/React.createElement("h3", {
-    className: "flex flex-row"
-  }, /*#__PURE__*/React.createElement(Username, {
-    details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0]
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "ml-1 text-gray-500 font-normal"
-  }, "and ", /*#__PURE__*/React.createElement("span", {
-    className: "text-gray-900 font-medium"
-  }, conversation.recipients.length - 1, " others"))) : /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(Username, {
-    details: conversation.recipients_details[0].did == user.did ? conversation.recipients_details[1] : conversation.recipients_details[0]
-  }))))));
+    style: {
+      position: "relative",
+      display: "flex",
+      flex: 1,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement(RecipientsUsername, {
+    recipients: conversation.recipients,
+    recipients_details: conversation.recipients_details
+  })));
 }
 const RecipientsPfp = ({
   conversation,
   height: _height = 28
 }) => {
   const {
-    user
-  } = useContext(GlobalContext);
+    user,
+    theme
+  } = useOrbis();
   let i = 0;
   return conversation.recipients_details.map((recipient, key) => {
     if (recipient.did != user.did && i < 2) {
       i++;
       if (i == 1) {
         return /*#__PURE__*/React.createElement("div", {
-          className: "flex rounded-full "
+          style: {
+            position: "relative",
+            display: "flex"
+          },
+          key: key
         }, /*#__PURE__*/React.createElement(UserPfp, {
           height: _height,
           details: recipient,
-          key: key
+          key: key,
+          showBadge: false
         }));
       } else {
         return /*#__PURE__*/React.createElement("div", {
@@ -4685,9 +4929,10 @@ const RecipientsPfp = ({
           style: {
             position: "absolute",
             left: 13,
-            top: -13,
+            top: -8,
             width: _height + 4
-          }
+          },
+          key: key
         }, /*#__PURE__*/React.createElement(UserPfp, {
           height: _height,
           details: recipient,
@@ -4699,53 +4944,85 @@ const RecipientsPfp = ({
     }
   });
 };
+const RecipientsUsername = ({
+  recipients,
+  recipients_details
+}) => {
+  const {
+    user,
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$d.conversationRecipientsUsernameContainer,
+    style: {
+      ...getThemeValue("font", theme, "main"),
+      color: getThemeValue("color", theme, "main")
+    }
+  }, recipients.length > 2 ? /*#__PURE__*/React.createElement("p", {
+    style: {
+      display: "flex",
+      flexDirection: "row"
+    }
+  }, /*#__PURE__*/React.createElement(Username, {
+    details: recipients_details[0].did == user.did ? recipients_details[1] : recipients_details[0]
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...getThemeValue("font", theme, "main"),
+      color: getThemeValue("color", theme, "secondary"),
+      marginLeft: 4
+    }
+  }, "and ", /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-900 font-medium"
+  }, recipients.length - 1, " others"))) : /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement(Username, {
+    details: recipients_details[0].did == user.did ? recipients_details[1] : recipients_details[0]
+  })));
+};
 function Messages() {
   const {
     user,
     orbis,
-    conversationSelected
-  } = useContext(GlobalContext);
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([]);
-  useEffect(() => {
-    if (user) {
-      loadMessages();
-    }
-  }, [user, conversationSelected]);
-  async function loadMessages() {
-    setLoading(true);
-    let {
-      data,
-      error
-    } = await orbis.getMessages(conversationSelected.stream_id);
-    console.log("data", data);
-    setMessages(data);
-    setLoading(false);
-  }
-  if (loading) {
+    theme
+  } = useOrbis();
+  const {
+    conversationSelected,
+    messages,
+    messagesLoading
+  } = useContext(InboxContext);
+  if (messagesLoading) {
     return /*#__PURE__*/React.createElement("div", {
-      className: "w-full justify-center flex py-8"
-    }, /*#__PURE__*/React.createElement(LoadingCircle, {
-      color: "text-gray-900"
-    }));
+      className: styles$d.loadingContainer,
+      style: {
+        color: getThemeValue("color", theme, "main")
+      }
+    }, /*#__PURE__*/React.createElement(LoadingCircle, null));
+  }
+  if (messages && messages.length == 0 || !messages) {
+    return /*#__PURE__*/React.createElement("p", {
+      style: {
+        ...getThemeValue("font", theme, "secondary"),
+        color: getThemeValue("color", theme, "primary"),
+        textAlign: "center",
+        marginBottom: 8
+      }
+    }, "You haven't received any messages yet.");
   }
   return messages.map((message, key) => {
     return /*#__PURE__*/React.createElement(Message, {
       message: message,
-      key: key
+      key: message.stream_id
     });
   });
 }
 function Message({
   message
 }) {
-  const [body, setBody] = useState();
   const {
     user,
-    orbis
-  } = useContext(GlobalContext);
+    orbis,
+    theme
+  } = useOrbis();
+  const [body, setBody] = useState();
   useEffect(() => {
-    console.log("In <Message />: ", message);
     let active = true;
     decrypt();
     return () => {
@@ -4766,39 +5043,90 @@ function Message({
       }
     }
   }, []);
-  return /*#__PURE__*/React.createElement("div", {
-    className: user.did == message.creator ? "flex w-full pb-2 text-base justify-end" : "flex w-full pb-2 text-base"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: user.did == message.creator ? "bg-[#25A4FF] rounded-lg px-4 py-2" : "bg-gray-100 rounded-lg px-4 py-2",
-    style: {
-      minWidth: "70%",
-      maxWidth: "80%"
-    }
-  }, /*#__PURE__*/React.createElement("p", {
-    className: user.did == message.creator ? "text-white" : "text-gray-900"
-  }, body ? body : /*#__PURE__*/React.createElement(LoadingCircle, null))));
+  if (user.did == message.creator) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$d.messageContainer,
+      style: {
+        justifyContent: "flex-end"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: styles$d.message,
+      style: {
+        ...getStyle("button-main", theme, "main"),
+        fontSize: 15
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-white"
+    }, body ? body : /*#__PURE__*/React.createElement(LoadingCircle, null))));
+  } else {
+    return /*#__PURE__*/React.createElement("div", {
+      className: styles$d.messageContainer
+    }, /*#__PURE__*/React.createElement("div", {
+      className: styles$d.message,
+      style: {
+        background: getThemeValue("bg", theme, "tertiary"),
+        fontSize: 15
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "text-gray-900"
+    }, body ? body : /*#__PURE__*/React.createElement(LoadingCircle, null))));
+  }
 }
 function MessageBox() {
   const {
-    theme
-  } = useContext(GlobalContext);
+    user,
+    theme,
+    orbis
+  } = useOrbis();
+  const [content, setContent] = useState("");
+  const [status, setStatus] = useState(0);
+  const {
+    conversationSelected,
+    messages,
+    setMessages
+  } = useContext(InboxContext);
+  async function send() {
+    let _body = content;
+    setStatus(1);
+    setContent("");
+    let res = await orbis.sendMessage({
+      conversation_id: conversationSelected.stream_id,
+      body: _body
+    });
+    if (res.status == 200) {
+      setStatus(2);
+      setMessages([{
+        timestamp: getTimestamp(),
+        creator_details: user,
+        creator: user.did,
+        stream_id: res.doc,
+        content: {
+          body: _body
+        }
+      }, ...messages]);
+      await sleep(1500);
+      setStatus(0);
+    }
+  }
   return /*#__PURE__*/React.createElement("div", {
-    className: "w-full flex flex-row"
-  }, /*#__PURE__*/React.createElement("textarea", {
-    autofocus: true,
-    rows: 1,
-    name: "body",
-    id: "body",
-    className: enabledInput,
+    className: styles$d.messageBoxContainer,
     style: {
-      fontSize: 15,
-      borderRadius: 15,
-      color: getThemeValue("input", theme, false).color
-    },
+      borderColor: getThemeValue("border", theme, "main"),
+      background: getThemeValue("bg", theme, "secondary")
+    }
+  }, /*#__PURE__*/React.createElement(Input, {
+    type: "textarea",
+    name: "description",
+    value: content,
+    onChange: e => setContent(e.target.value),
     placeholder: "Your message...",
-    disabled: false
-  }), /*#__PURE__*/React.createElement("button", {
-    className: sendStyleMain
+    style: {
+      marginRight: "0.375rem",
+      borderRadius: "1.8rem"
+    }
+  }), status == 0 && /*#__PURE__*/React.createElement(Button, {
+    color: "primary",
+    onClick: send
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
     height: "14",
@@ -4807,8 +5135,12 @@ function MessageBox() {
     xmlns: "http://www.w3.org/2000/svg"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M1.31918 0.60287C1.14269 0.5516 0.952295 0.601289 0.823367 0.732269C0.694438 0.863249 0.647761 1.0544 0.70181 1.23006L2.32333 6.5H8.00049C8.27663 6.5 8.50049 6.72386 8.50049 7C8.50049 7.27614 8.27663 7.5 8.00049 7.5H2.32334L0.701871 12.7698C0.647821 12.9454 0.6945 13.1366 0.82343 13.2676C0.95236 13.3985 1.14275 13.4482 1.31925 13.397C5.78498 12.0996 9.93211 10.0543 13.616 7.40581C13.7467 7.31187 13.8241 7.16077 13.8241 6.99984C13.8241 6.8389 13.7467 6.6878 13.616 6.59386C9.93207 3.94544 5.78492 1.90014 1.31918 0.60287Z",
-    fill: "#FAFBFB"
-  }))));
+    fill: "currentColor"
+  }))), status == 1 && /*#__PURE__*/React.createElement(Button, {
+    color: "primary"
+  }, /*#__PURE__*/React.createElement(LoadingCircle, null)), status == 2 && /*#__PURE__*/React.createElement(Button, {
+    color: "green"
+  }, /*#__PURE__*/React.createElement(CheckIcon, null)));
 }
 const DmIcon = () => {
   return /*#__PURE__*/React.createElement("svg", {
@@ -4819,14 +5151,12 @@ const DmIcon = () => {
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
   }, /*#__PURE__*/React.createElement("path", {
-    "fill-rule": "evenodd",
-    "clip-rule": "evenodd",
+    fillRule: "evenodd",
+    clipRule: "evenodd",
     d: "M2.80365 18.6442C2.9793 18.6757 3.15732 18.7003 3.33691 18.7178C3.55516 18.7391 3.77647 18.75 4 18.75C5.3153 18.75 6.54447 18.3731 7.58317 17.7213C8.3569 17.9034 9.16679 18 10 18C15.322 18 19.75 14.0307 19.75 9C19.75 3.96934 15.322 0 10 0C4.67799 0 0.25 3.96934 0.25 9C0.25 11.4086 1.2746 13.5871 2.92371 15.1923C3.15571 15.4182 3.20107 15.6196 3.17822 15.7349C3.05254 16.3685 2.76687 16.9451 2.36357 17.4211C2.19016 17.6258 2.13927 17.9075 2.23008 18.1599C2.3209 18.4123 2.5396 18.597 2.80365 18.6442ZM6.25 7.875C5.62868 7.875 5.125 8.37868 5.125 9C5.125 9.62132 5.62868 10.125 6.25 10.125C6.87132 10.125 7.375 9.62132 7.375 9C7.375 8.37868 6.87132 7.875 6.25 7.875ZM8.875 9C8.875 8.37868 9.37868 7.875 10 7.875C10.6213 7.875 11.125 8.37868 11.125 9C11.125 9.62132 10.6213 10.125 10 10.125C9.37868 10.125 8.875 9.62132 8.875 9ZM13.75 7.875C13.1287 7.875 12.625 8.37868 12.625 9C12.625 9.62132 13.1287 10.125 13.75 10.125C14.3713 10.125 14.875 9.62132 14.875 9C14.875 8.37868 14.3713 7.875 13.75 7.875Z",
     fill: "#FAFBFB"
   }));
 };
-let sendStyleMain = "inline-flex items-center rounded-full border border-transparent bg-[#4E75F6] px-5 py-2 text-base font-medium text-white shadow-sm hover:bg-[#3E67F0] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer";
-let enabledInput = "block w-full resize-none border-0 pb-3 focus:ring-0 text-base placeholder-[#A9AFB7] bg-[#F1F2F3] mr-2";
 
 function Article({
   post,

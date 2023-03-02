@@ -203,7 +203,7 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   }
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, connecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
+    <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
       {children}
 
       {/** Show ConnectModal */}

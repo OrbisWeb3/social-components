@@ -1,0 +1,153 @@
+.inboxContainer {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  bottom: 0px;
+  right: 5rem;
+  width: 335px;
+  max-height: 77%;
+  border-width: 1px;
+  border-style: solid;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.inboxHeaderContainer {
+  font-family: "Inter";
+  display: flex;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFF;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.header {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.header p {
+  margin: 0;
+  margin-left: 5px;
+}
+
+.inboxContent {
+  background: #FFF;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: scroll;
+}
+.connectContainer {
+  padding: 2rem;
+}
+
+/** Conversations */
+.conversationsContainer {
+  width: 100%;
+  padding-left: 0;
+  margin-top: 5px;
+}
+.conversationContainer {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  border-width: 0px;
+  border-bottom-width: 1px;
+  border-style: solid;
+}
+.conversationRecipientsContainer {
+  display: flex;
+  align-items: center;
+}
+.conversationRecipientsPfpContainer {
+  margin-right: 0.75rem;
+  width: 43px;
+}
+.conversationRecipientsDetailsContainer {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+.conversationRecipientsDetailsContainer > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+}
+.conversationRecipientsUsernameContainer {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+.conversationRecipientsUsernameContainer p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.participantsContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.participantsContainerCta {
+  margin-left: 0rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+.participantsContainerPfp {
+  width: 38px;
+}
+.loadingContainer {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+.messagesContainer {
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1;
+  padding: 0.5rem;
+  overflow: scroll;
+}
+.messageContainer {
+  display: flex;
+  width: 100%;
+  padding-bottom: 0.5rem;
+}
+.message {
+  border-radius: 1.8rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+  min-width:60%;
+  max-width: 70%;
+}
+.message p {
+  margin: 0;
+}
+.messageBoxContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0.5rem;
+  border-top: 1px solid;
+}

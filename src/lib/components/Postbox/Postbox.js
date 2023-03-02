@@ -219,7 +219,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         {/** (Optional) Show user's pfp */}
         {showPfp &&
           <div className={styles.postboxUserContainer} ref={hoverRef}>
-            <UserPfp details={user} hover={true} />
+            <UserPfp details={user} hover={true} showEmailCta={true} />
           </div>
         }
 
@@ -266,7 +266,8 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                     :
                       <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
                     }
-                    <span style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
+                    <span className={styles.postboxGatingTextMobile} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Discussion is gated. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View rules</span></span>
+                    <span className={styles.postboxGatingTextDesktop} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
                   </div>
                 }
 

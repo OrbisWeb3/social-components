@@ -6,10 +6,11 @@ import useOrbis from "../../hooks/useOrbis";
 /** Import CSS */
 import styles from './Alert.module.css';
 
-const Alert = ({color, style, tooltip, title}) => {
+const Alert = ({color, style, tooltip, title, icon}) => {
   const { orbis, user, theme } = useOrbis();
   return (
     <div className={styles.emptyState} style={style}>
+      {icon}
       <p style={{fontSize: 13}}>{title}</p>
     </div>
   );

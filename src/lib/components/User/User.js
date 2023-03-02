@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { shortAddress, sleep } from "../../utils";
+import { encryptString, decryptString, generateAccessControlConditionsForDMs } from "@orbisclub/orbis-sdk";
 
 /** Internal components */
 import LoadingCircle from "../LoadingCircle";
+import ConnectButton from "../ConnectButton";
 import Button from "../Button";
 import Input from "../Input";
 import Badge from "../Badge";
@@ -13,6 +15,8 @@ import UpdateProfileModal from "../ProfileModal";
 import {
   CheckIcon,
   EditIcon,
+  ErrorIcon,
+  LockIcon,
   LogoutIcon,
   TwitterIcon,
   GithubIcon,
@@ -55,12 +59,13 @@ const User = ({details, connected = false, height = 44, hover = false}) => {
 }
 
 /** Export only the User Pfp */
-export const UserPfp = ({details, height = 44, showBadge = true, hover = false}) => {
+export const UserPfp = ({details, height = 44, showBadge = true, hover = false, showEmailCta = false}) => {
+  const { user, theme } = useOrbis();
   const [hoverRef, isHovered] = useHover();
-  const { theme } = useOrbis();
+
   return(
     <div className={styles.userPfpContainer} ref={hoverRef}>
-      {details && details.profile && details.profile?.pfp ?
+      {(details && details.profile && details.profile?.pfp) ?
         <img className={styles.userPfpContainerImg} src={details.profile.pfp} alt="" style={{height: height, width: height}} />
       :
         <span className={styles.userPfpContainerImgEmpty} style={{height: height, width: height, background: theme?.bg?.tertiary ? theme.bg.tertiary : defaultTheme.bg.tertiary, color: theme?.color?.tertiary ? theme.color.tertiary : defaultTheme.color.tertiary }}>
@@ -70,11 +75,18 @@ export const UserPfp = ({details, height = 44, showBadge = true, hover = false})
         </span>
       }
 
-      {showBadge && details.profile?.pfpIsNft &&
-        <div style={{ top: -5, right: -5, position: "absolute" }}>
-          <img style={{height: "1.25rem", width: "1.25rem"}} src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
-        </div>
+      <div style={{ top: -4, right: -5, position: "absolute", display:"flex", flexDirection: "col" }}>
+        {(showEmailCta && user && user.did == details.did && !details.profile?.encryptedEmail) &&
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M0.25 10C0.25 4.61522 4.61522 0.25 10 0.25C15.3848 0.25 19.75 4.61522 19.75 10C19.75 15.3848 15.3848 19.75 10 19.75C4.61522 19.75 0.25 15.3848 0.25 10ZM10 6.25C10.4142 6.25 10.75 6.58579 10.75 7V10.75C10.75 11.1642 10.4142 11.5 10 11.5C9.58579 11.5 9.25 11.1642 9.25 10.75V7C9.25 6.58579 9.58579 6.25 10 6.25ZM10 14.5C10.4142 14.5 10.75 14.1642 10.75 13.75C10.75 13.3358 10.4142 13 10 13C9.58579 13 9.25 13.3358 9.25 13.75C9.25 14.1642 9.58579 14.5 10 14.5Z" fill="#FF3162"/>
+          </svg>
+        }
+      {(showBadge && details && details.profile && details.profile?.pfpIsNft) &&
+          <>
+            <img style={{height: "1.25rem", width: "1.25rem"}} src={"https://app.orbis.club/img/icons/nft-verified-"+details.profile?.pfpIsNft.chain+".png"} />
+          </>
       }
+      </div>
 
       {/** If requested show more details on hover */}
       {hover &&
@@ -152,8 +164,8 @@ export const UserPopup = ({details, visible}) => {
         :
           <>
             {/** Top part with CTA and profile picture */}
-            <div style={{alignItems: "center", display: "flex", flexDirection: "row"}}>
-              <UserPfp details={details} />
+            <div className={styles.userPopupTopDetailsContainer}>
+              <UserPfp details={details} hover={false} />
               <div className={styles.userPopupDetailsContainer}>
                 <span className={styles.userPopupDetailsUsername} style={{color: getThemeValue("color", theme, "main"), ...getThemeValue("font", theme, "main")}}><Username details={details} /></span>
                 <span className={styles.userPopupDetailsBadgeContainer}>
@@ -187,6 +199,10 @@ export const UserPopup = ({details, visible}) => {
                 }
               </div>
             </div>
+
+            {(user && user.did == details.did && !details.profile?.encryptedEmail) &&
+              <Alert title="Edit your profile to verify your email address." icon={<ErrorIcon style={{marginRight: 5}} />} style={{backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main"), borderColor: "#FF3162", marginTop: 12}} />
+            }
 
             {/** Display description if available part */}
             {details?.profile?.description &&
@@ -237,9 +253,6 @@ function UserCredentials({details}) {
   /** Load credentials for this user with Orbis SDK */
   async function loadCredentials() {
     setCredentialsLoading(true);
-    //let { data } = await orbis.getCredentials(details.did);
-
-
 	  let { data, error, status } = await orbis.api.rpc("get_verifiable_credentials", {
 	    q_subject: details.did,
 	    q_min_weight: 10
@@ -625,9 +638,29 @@ function Follow({did}) {
 /** Form to update user profile */
 function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}) {
   const { orbis, user, setUser, theme } = useOrbis();
-  const [username, setUsername] = useState(user?.profile?.username);
-  const [description, setDescription] = useState(user?.profile?.description);
+  const [username, setUsername] = useState(user?.profile?.username ? user.profile.username : "");
+  const [email, setEmail] = useState("");
+  const [description, setDescription] = useState(user?.profile?.description ? user.profile.description : "");
   const [status, setStatus] = useState(0);
+
+  useEffect(() => {
+    if(user?.profile?.encryptedEmail) {
+      decryptEmail();
+    }
+    async function decryptEmail() {
+      try {
+        let _email = await decryptString(user.profile.encryptedEmail, "ethereum", localStorage);
+        if(_email) {
+          setEmail(_email.result);
+        }
+        console.log("Decrypted email:", _email);
+      } catch(e) {
+        console.log("Error decrypting email:", e);
+        setEmail("•••••••••••••");
+      }
+
+    }
+  }, [user])
 
   async function save() {
     if(status != 0) {
@@ -637,17 +670,30 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
     setStatus(1);
 
     /** Update profile using the Orbis SDK */
-    let profile = {
-      username: username,
-      description: description,
-      pfp: pfp ? pfp : null
-    };
+    let profile = {...user.profile}
+    profile.username = username;
+    profile.description = description;
+    profile.pfp = pfp ? pfp : null;
+
+    /** Check if user added email, if yes encrypt using Lit and store the object */
+    if(email && email != "") {
+      /** If email == placeholder we don't save as this probably means that the user hasn't setup it's private account with Lit */
+      if(email != "•••••••••••••") {
+        let { accessControlConditions } = generateAccessControlConditionsForDMs([user.did, "did:pkh:eip155:1:0xdbcf111ca51572e2f924587faeab857f1e3b824f"]);
+        let encryptedEmail = await encryptString(email, "ethereum", accessControlConditions);
+        profile.encryptedEmail = encryptedEmail;
+      }
+    } else {
+      /** Reset email if field is empty */
+      profile.encryptedEmail = null;
+    }
 
     /** Add pfp nft details if any */
     if(pfpNftDetails) {
       profile.pfpIsNft = pfpNftDetails;
     }
 
+    /** Update profile using Orbis SDK */
     let res = await orbis.updateProfile(profile);
     if(res.status == 200) {
       setStatus(2);
@@ -712,8 +758,13 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
         </div>
       </div>
       <div className={styles.userFieldsContainer}>
-        <Input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter your username" style={getStyle("input", theme, status == 1)} />
+        <Input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" style={getStyle("input", theme, status == 1)} />
         <Input type="textarea" name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your description" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
+        <Input type="text" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
+        <div style={{alignItems: "center", marginTop: 7, display: "flex", ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: getThemeValue("color", theme, "secondary") }}>
+          <LockIcon style={{marginRight: 7}} />
+          <p style={{margin: 0, flex: 1}}>Email address will be encrypted and attached to your profile. {user.hasLit == false && <span style={{display: "inline-block"}}><ConnectButton icon={null} title="Setup private account" litOnly={true} style={{fontSize: 13, background: "transparent", boxShadow: "none", padding: 0,color: getThemeValue("color", theme, "active")}} /></span> }</p>
+        </div>
       </div>
       <div className={styles.userFieldsSaveContainer}>
         <SaveButton />

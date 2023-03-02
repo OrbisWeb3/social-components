@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Comments, defaultTheme, darkTheme } from "./lib";
+import { Discussion, Inbox, defaultTheme, darkTheme } from "./lib";
 
 function App() {
   const [theme, setTheme] = useState(defaultTheme);
@@ -15,7 +15,7 @@ function App() {
       </div>
       <div className="w-full justify-center flex">
         <div className="flex" style={{paddingTop: 40, maxWidth: 950}}>
-          <Comments theme="kjzl6cwe1jw149wbqi4g5wrcc7dynyidmz2bvokqxc3r90l1g6mhslqjtpehqac" context="kjzl6cwe1jw14a8nr2sf0v0ac72sfyk70uu3n51zt3geif82adf6zonzvkke8xe" options={{node: "https://node2.orbis.club", useLit: false}} />
+          <Discussion context="kjzl6cwe1jw14bisozx249bjt26nyiz1326ani4s8gnfklj0fbedyy8avb06tld" theme="kjzl6cwe1jw149wbqi4g5wrcc7dynyidmz2bvokqxc3r90l1g6mhslqjtpehqac" options={{node: "https://node2.orbis.club", useLit: true}} />
         </div>
       </div>
     </div>

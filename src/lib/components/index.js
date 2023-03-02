@@ -1,3 +1,4 @@
+import "../utils/init"
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { Orbis } from "@orbisclub/orbis-sdk";
 

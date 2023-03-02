@@ -8,12 +8,82 @@ import useOrbis from "../../hooks/useOrbis";
 /** Import CSS */
 import styles from './ConnectButton.module.css';
 
-export default function ConnectButton({ lit = false }) {
-  const { orbis, user, theme, setUser, setCredentials, connecting, setConnectModalVis } = useOrbis();
+export default function ConnectButton({ icon = <BoltIcon style={{marginRight: "0.25rem"}} />, lit = false, litOnly = false, title = "Connect", style }) {
+  const { orbis, magic, user, theme, setUser, setCredentials, connecting, setConnecting, setConnectModalVis } = useOrbis();
+
+  async function connectToLit() {
+    console.log("Enter connectToLit()");
+
+    /** Show loading state */
+    setConnecting(true);
+
+    /** Get provider type in localStorage and Initiate provider netowrk */
+    let chain = "ethereum";
+    let providerType = localStorage.getItem("provider-type");
+    let provider;
+
+    switch (providerType) {
+      /** Metamask */
+      case "metamask":
+        provider = window.ethereum;
+        break;
+
+      /** Magic */
+      case "email":
+        provider = magic.rpcProvider;
+        break;
+
+      /** Wallet Connect */
+      case "wallet-connect":
+        /** Create WalletConnect Provider */
+        provider = new WalletConnectProvider({
+          infuraId: "9bf71860bc6c4560904d84cd241ab0a0",
+        });
+
+        /** Enable session (triggers QR Code modal) */
+        await provider.enable();
+        break;
+
+      /** Phantom */
+      case "phantom":
+        provider = window.phantom?.solana;
+        chain = "solana";
+        break;
+
+      /** Default: Metamask */
+      default:
+        provider = window.ethereum;
+        break;
+    }
+
+    /** Connect only to Lit protocol */
+    let res = await orbis.connectLit(provider);
+
+    if(res.status == 200) {
+      console.log("Success connecting to Lit!:", res);
+
+      /** Save new user object in state */
+      let _user = {...user};
+      _user.hasLit = true;
+      setConnecting(false);
+      setUser(_user);
+    } else {
+      console.log("Error connecting to Lit: ", res);
+    }
+  }
+
+  /** Will either trigger the Lit connection or show the connect modal with the different wallets options */
+  function submit() {
+    if(litOnly) {
+      connectToLit()
+    } else {
+      setConnectModalVis(true)
+    }
+  }
 
   return(
     <>
-      <button className={styles.connectBtn} style={{...getStyle("button-main", theme, "main"), ...getThemeValue("font", theme, "buttons"), width: "100%", textAlign: "center"}} onClick={() => setConnectModalVis(true)}>{connecting ? <LoadingCircle /> : <BoltIcon style={{marginRight: "0.25rem"}} /> }Connect</button>
+      <button className={styles.connectBtn} style={style ? style : {...getStyle("button-main", theme, "main"), ...getThemeValue("font", theme, "buttons"), width: "100%", textAlign: "center"}} onClick={() => submit()}>{connecting ? <LoadingCircle style={{marginRight: 5}} /> : icon }{title}</button>
     </>
   )
 

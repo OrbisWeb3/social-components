@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
-
 ._1sKPO {
   display: flex;
   align-items: center;
@@ -18,7 +16,6 @@
   -webkit-animation: _esDdM 1s linear infinite;
           animation: _esDdM 1s linear infinite;
   margin-left: -0.25rem;
-  margin-right: 0.75rem;
   height: 1.25rem;
   width: 1.25rem;
 }
@@ -37,7 +34,24 @@
   }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+._1jNTa {
+  display: inline-flex;
+  cursor: pointer;
+  font-family: "Inter";
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 15px;
+  font-weight: 500;
+  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
 
 ._3ExRU, ._1TTFn {
   -webkit-appearance: none;
@@ -62,8 +76,6 @@
 ._3ExRU:focus, ._1TTFn:focus {
   border-color: #93bcf7 !important;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._Kzctc {
   position: relative;
@@ -105,20 +117,22 @@
 }
 
 ._3yaol {
-  width: 100%;
   border-radius: 0.375rem;
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-  text-align: center;
   font-family: "Inter";
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._2jnSH {
   position: fixed;
@@ -130,11 +144,12 @@
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   background: rgba(66,74,82,.5);
+  z-index: 9999;
 }
 
 ._3DR1S {
   position: fixed;
-  z-index: 10;
+  z-index: 10000;
   top: 0px;
   right: 0px;
   bottom: 0px;
@@ -286,8 +301,6 @@
   font-weight: 500;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
-
 ._2o7KL {
   display: flex;
   flex-direction: row;
@@ -348,6 +361,12 @@
           filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
   border: 1px solid;
 }
+._8up-o {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
 ._2ioaU {
   display: flex;
   flex-direction: column;
@@ -355,6 +374,7 @@
   align-items: flex-start;
   justify-content: flex-start;
   margin-left: 0.5rem;
+  margin-right: 15px;
 }
 ._18eQ4 {
   display: flex;
@@ -455,24 +475,12 @@
   margin-top: 0.5rem;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
-
-._1jNTa {
-  display: inline-flex;
-  font-family: "Inter";
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid transparent;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  font-size: 15px;
-  font-weight: 500;
-  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+/** Rules for mobiles */
+@media (max-width: 600px) {
+  ._3EuST {
+    min-width: 250px;
+    max-width: 90%;
+  }
 }
 
 ._OdJjS {
@@ -500,8 +508,6 @@
   width: 100%;
   text-transform: uppercase;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._3glYN {
   position: relative;
@@ -624,10 +630,22 @@
   border-radius: 0.375rem;
   padding: 0.25rem;
 }
+._1r63_ {
+  display: none;
+}
+._3OkEg {
+  display: flex;
+}
 
 /** Rules for mobiles */
-@container (max-width: 600px) {
+@media (max-width: 600px) {
   ._2PH81 {
+    display: none;
+  }
+  ._1r63_ {
+    display: flex;
+  }
+  ._3OkEg {
     display: none;
   }
 }
@@ -679,8 +697,6 @@
   flex-direction: row;
   margin-top: 0.5rem;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
 
 ._3_x9y {
   display: flex;
@@ -750,7 +766,6 @@
 }
 ._lajK0 p {
   margin: 0px;
-  font-size: 15px;
   line-height: inherit !important;
 }
 ._1d8-E {
@@ -1467,4 +1482,158 @@
 ._1gCaM:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+
+._373Vc {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  bottom: 0px;
+  right: 5rem;
+  width: 335px;
+  max-height: 77%;
+  border-width: 1px;
+  border-style: solid;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+._33Dkm {
+  font-family: "Inter";
+  display: flex;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFF;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+._1DpfW {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+._1DpfW p {
+  margin: 0;
+  margin-left: 5px;
+}
+
+._1dSUE {
+  background: #FFF;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: scroll;
+}
+._2yYqJ {
+  padding: 2rem;
+}
+
+/** Conversations */
+._2Tjlx {
+  width: 100%;
+  padding-left: 0;
+  margin-top: 5px;
+}
+._3niTo {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  border-width: 0px;
+  border-bottom-width: 1px;
+  border-style: solid;
+}
+._86TS3 {
+  display: flex;
+  align-items: center;
+}
+._3lQ8s {
+  margin-right: 0.75rem;
+  width: 43px;
+}
+._1BzR5 {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+._1BzR5 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+}
+._3tFdy {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+._3tFdy p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+._3-uYJ {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+._3-lS9 {
+  margin-left: 0rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+._3kZHJ {
+  width: 38px;
+}
+._3rx8N {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+._3vL-q {
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1;
+  padding: 0.5rem;
+  overflow: scroll;
+}
+._247na {
+  display: flex;
+  width: 100%;
+  padding-bottom: 0.5rem;
+}
+._1LhGk {
+  border-radius: 1.8rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+  min-width:60%;
+  max-width: 70%;
+}
+._1LhGk p {
+  margin: 0;
+}
+._1W1rX {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0.5rem;
+  border-top: 1px solid;
 }
