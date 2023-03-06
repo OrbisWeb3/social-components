@@ -15,7 +15,7 @@ function App() {
       </div>
       <div className="w-full justify-center flex">
         <div className="flex" style={{paddingTop: 40, maxWidth: 950}}>
-          <Discussion context="kjzl6cwe1jw14bisozx249bjt26nyiz1326ani4s8gnfklj0fbedyy8avb06tld" theme="kjzl6cwe1jw149wbqi4g5wrcc7dynyidmz2bvokqxc3r90l1g6mhslqjtpehqac" options={{node: "https://node2.orbis.club", useLit: true}} />
+          <Discussion context="kjzl6cwe1jw146lrrwfwc56epyxa1z3xxs95sfl5xi3luzux2jvi1arcw7onbpp" options={{node: "https://node2.orbis.club", useLit: true}} />
         </div>
       </div>
     </div>

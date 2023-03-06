@@ -7,7 +7,7 @@ import { GlobalContext } from "../../contexts/GlobalContext";
 import { CommentsContext } from "../../contexts/CommentsContext";
 import OrbisProvider from "../OrbisProvider";
 import useOrbis from "../../hooks/useOrbis";
-import { Logo, EmptyStateComments } from "../../icons";
+import { Logo, EmptyStateComments, NotificationIcon } from "../../icons";
 import { defaultTheme, getThemeValue } from "../../utils/themes"
 
 /** Import CSS */
@@ -26,7 +26,7 @@ export default function Comments({context, theme = defaultTheme, options, charac
 }*/
 
 const CommentsContent = ({characterLimit}) => {
-  const { user, setUser, orbis, theme, context, accessRules } = useOrbis();
+  const { user, setUser, orbis, theme, context, accessRules, setAuthorizationsModalVis } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -85,13 +85,20 @@ const CommentsContent = ({characterLimit}) => {
 
   return(
     <CommentsContext.Provider value={{ comments, setComments }}>
-      <div className={styles.commentsGlobalContainer} style={{background: theme?.bg?.main ? theme.bg.main : defaultTheme.bg.main, borderColor: getThemeValue("border", theme, "main") }}>
+      <div className={styles.commentsGlobalContainer} style={{background: getThemeValue("bg", theme, "main"), borderColor: getThemeValue("border", theme, "main") }}>
         <div style={{padding: "1rem"}}>
           <Postbox context={context} handleSubmit={handleSubmit} />
         </div>
 
-        {/** Loop comments and display them */}
-        <div className={styles.commentsContainer} style={{ borderColor: theme?.border?.secondary ? theme.border.secondary : defaultTheme.border.secondary}}>
+        {/** Alert banner if user hasn't setup notifications authorizations for this context
+        {user &&
+          <div className={styles.notificationsBanner} style={{ borderColor: getThemeValue("border", theme, "main"), borderBottomWidth: 0, background: getThemeValue("button", theme, "main").background, color: getThemeValue("button", theme, "main").color, ...getThemeValue("font", theme, "main")}} onClick={() => setAuthorizationsModalVis(true)}>
+            <div className={styles.notificationsBannerText}><NotificationIcon style={{marginRight: 8}} /> Setup your notifications authorizations for this app.</div>
+          </div>
+        }*/}
+
+        {/** Show loading state or list of comments */}
+        <div className={styles.commentsContainer} style={{ borderColor: getThemeValue("border", theme, "secondary")}}>
           {loading ?
             <div className={styles.loadingContainer} style={{ color: getThemeValue("color", theme, "main") }}>
               <LoadingCircle />
@@ -127,7 +134,7 @@ function LoopComments({comments, characterLimit}) {
   return comments.map((comment, key) => {
     if((!comment.content.reply_to || comment.content.reply_to == "") && !comment.content.master || comment.content.master == "") {
       return(
-        <Comment comments={comments} comment={comment} master={comment.content.master} characterLimit={characterLimit} key={key} />
+        <Comment comments={comments} comment={comment} master={comment.content.master} characterLimit={characterLimit} key={comment.stream_id} />
       )
     } else {
       return null

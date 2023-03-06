@@ -22,7 +22,7 @@ if (typeof window !== "undefined") {
 };
 
 let _orbis = new Orbis({
-  node: "https://node1.orbis.club/"
+  node: "https://node2.orbis.club/"
 });
 
 export default function OrbisProvider({ context, children, theme = defaultTheme, options }) {
@@ -64,6 +64,8 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
 
     if(data && data.length > 0) {
       setCredentials(data);
+    } else {
+      setCredentials([]);
     }
   }
 
@@ -206,7 +208,7 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
     <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
       {children}
 
-      {/** Show ConnectModal */}
+      {/** Show Connect Modal */}
       {connectModalVis &&
         <ConnectModal lit={false} hide={() => setConnectModalVis(false)} />
       }

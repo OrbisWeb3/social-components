@@ -20,6 +20,22 @@
   margin-top: calc(1.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.75rem * var(--tw-space-y-reverse));
 }
+
+.notificationsBanner {
+  cursor: pointer;
+  display: flex;
+  padding: 0.65rem;
+  border-width: 1px;
+  border-style: solid;
+}
+.notificationsBanner:hover {
+  text-decoration: underline;
+}
+.notificationsBannerText {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+}
 .loadingContainer {
   width: 100%;
   justify-content: center;

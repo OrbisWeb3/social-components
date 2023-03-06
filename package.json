@@ -1,6 +1,6 @@
 {
   "name": "@orbisclub/components",
-  "version": "0.1.52",
+  "version": "0.1.57",
   "description": "A library of social components powered by Orbis. Integrate decentralized discussion feeds in your app in one line of code.",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",

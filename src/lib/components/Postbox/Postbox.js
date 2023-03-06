@@ -260,15 +260,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
                 {/** Display access rules details if any */}
                 {(accessRules && accessRules.length > 0) &&
-                  <div className={styles.accessRulesContainer} style={{color: getThemeValue("color", theme, "secondary")}}>
-                    {hasAccess ?
-                      <UnlockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}}  />
-                    :
-                      <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
-                    }
-                    <span className={styles.postboxGatingTextMobile} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Discussion is gated. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View rules</span></span>
-                    <span className={styles.postboxGatingTextDesktop} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
-                  </div>
+                  <AccessRulesDetails setAccessRulesModalVis={setAccessRulesModalVis} />
                 }
 
                 {sharing ?
@@ -316,7 +308,17 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
       <div className={styles.postboxConnectContainer}>
         <div style={{width: "60%"}}>
           <ConnectButton orbis={orbis} />
+          {(accessRules && accessRules.length > 0) &&
+            <div style={{marginTop: 10}}>
+              <AccessRulesDetails setAccessRulesModalVis={setAccessRulesModalVis} style={{justifyContent: "center"}} />
+            </div>
+          }
         </div>
+
+        {/** Show access rules modal */}
+        {accessRulesModalVis &&
+          <AccessRulesModal hide={() => setAccessRulesModalVis(false)} />
+        }
       </div>
     );
   }
@@ -388,6 +390,21 @@ const MentionsBox = ({add}) => {
       :
         <p className={styles.mentionsBoxEmptyState} style={{color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>Search by username to mention someone.</p>
       }
+    </div>
+  )
+}
+
+const AccessRulesDetails = ({setAccessRulesModalVis, style}) => {
+  const { user, setUser, orbis, theme, context, accessRules, hasAccess } = useOrbis();
+  return(
+    <div className={styles.accessRulesContainer} style={{color: getThemeValue("color", theme, "secondary"), ...style}}>
+      {(user && hasAccess) ?
+        <UnlockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}}  />
+      :
+        <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
+      }
+      <span className={styles.postboxGatingTextMobile} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Discussion is gated. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View rules</span></span>
+      <span className={styles.postboxGatingTextDesktop} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
     </div>
   )
 }

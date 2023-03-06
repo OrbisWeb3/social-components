@@ -763,7 +763,7 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
         <Input type="text" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
         <div style={{alignItems: "center", marginTop: 7, display: "flex", ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: getThemeValue("color", theme, "secondary") }}>
           <LockIcon style={{marginRight: 7}} />
-          <p style={{margin: 0, flex: 1}}>Email address will be encrypted and attached to your profile. {user.hasLit == false && <span style={{display: "inline-block"}}><ConnectButton icon={null} title="Setup private account" litOnly={true} style={{fontSize: 13, background: "transparent", boxShadow: "none", padding: 0,color: getThemeValue("color", theme, "active")}} /></span> }</p>
+          <p style={{margin: 0, flex: 1}}>Your email address will be encrypted. Only your account and Orbis software can decrypt it to use for notifications for example. {user.hasLit == false && <span style={{display: "inline-block"}}><ConnectButton icon={null} title="Setup private account" litOnly={true} style={{fontSize: 13, background: "transparent", boxShadow: "none", padding: 0,color: getThemeValue("color", theme, "active")}} /></span> }</p>
         </div>
       </div>
       <div className={styles.userFieldsSaveContainer}>

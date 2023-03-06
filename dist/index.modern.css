@@ -576,7 +576,6 @@
   color: #A9AFB7;
 }
 ._38Oc2 {
-  font-family: "Inter";
   margin-bottom: -10px;
   display: flex;
   flex: 1;
@@ -1444,6 +1443,22 @@
   --tw-space-y-reverse: 0;
   margin-top: calc(1.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.75rem * var(--tw-space-y-reverse));
+}
+
+._LU5eU {
+  cursor: pointer;
+  display: flex;
+  padding: 0.65rem;
+  border-width: 1px;
+  border-style: solid;
+}
+._LU5eU:hover {
+  text-decoration: underline;
+}
+._3Fvcj {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
 }
 ._2mFCC {
   width: 100%;

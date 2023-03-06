@@ -3011,7 +3011,7 @@ function UserEditProfile({
       margin: 0,
       flex: 1
     }
-  }, "Email address will be encrypted and attached to your profile. ", user.hasLit == false && /*#__PURE__*/React.createElement("span", {
+  }, "Your email address will be encrypted. Only your account and Orbis software can decrypt it to use for notifications for example. ", user.hasLit == false && /*#__PURE__*/React.createElement("span", {
     style: {
       display: "inline-block"
     }
@@ -3360,48 +3360,9 @@ function Postbox({
       onInput: e => handleInput(e)
     }), /*#__PURE__*/React.createElement("div", {
       className: styles$a.postboxShareContainer
-    }, accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement("div", {
-      className: styles$a.accessRulesContainer,
-      style: {
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }, hasAccess ? /*#__PURE__*/React.createElement(UnlockIcon, {
-      style: {
-        marginRight: 5,
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }) : /*#__PURE__*/React.createElement(LockIcon, {
-      style: {
-        marginRight: 5,
-        color: getThemeValue("color", theme, "secondary")
-      }
-    }), /*#__PURE__*/React.createElement("span", {
-      className: styles$a.postboxGatingTextMobile,
-      style: {
-        color: getThemeValue("color", theme, "secondary"),
-        ...getThemeValue("font", theme, "secondary")
-      }
-    }, "Discussion is gated. ", /*#__PURE__*/React.createElement("span", {
-      className: styles$a.hoverLink,
-      style: {
-        fontWeight: 500,
-        color: getThemeValue("color", theme, "active")
-      },
-      onClick: () => setAccessRulesModalVis(true)
-    }, "View rules")), /*#__PURE__*/React.createElement("span", {
-      className: styles$a.postboxGatingTextDesktop,
-      style: {
-        color: getThemeValue("color", theme, "secondary"),
-        ...getThemeValue("font", theme, "secondary")
-      }
-    }, "Gated to specific credentials holders. ", /*#__PURE__*/React.createElement("span", {
-      className: styles$a.hoverLink,
-      style: {
-        fontWeight: 500,
-        color: getThemeValue("color", theme, "active")
-      },
-      onClick: () => setAccessRulesModalVis(true)
-    }, "View"))), sharing ? /*#__PURE__*/React.createElement("button", {
+    }, accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement(AccessRulesDetails, {
+      setAccessRulesModalVis: setAccessRulesModalVis
+    }), sharing ? /*#__PURE__*/React.createElement("button", {
       type: "submit",
       className: ctaStyle,
       style: {
@@ -3450,7 +3411,18 @@ function Postbox({
       }
     }, /*#__PURE__*/React.createElement(ConnectButton, {
       orbis: orbis
-    })));
+    }), accessRules && accessRules.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 10
+      }
+    }, /*#__PURE__*/React.createElement(AccessRulesDetails, {
+      setAccessRulesModalVis: setAccessRulesModalVis,
+      style: {
+        justifyContent: "center"
+      }
+    }))), accessRulesModalVis && /*#__PURE__*/React.createElement(AccessRulesModal, {
+      hide: () => setAccessRulesModalVis(false)
+    }));
   }
 }
 const MentionsBox = ({
@@ -3553,6 +3525,63 @@ const MentionsBox = ({
       color: theme !== null && theme !== void 0 && (_theme$color3 = theme.color) !== null && _theme$color3 !== void 0 && _theme$color3.secondary ? theme.color.secondary : defaultTheme.color.secondary
     }
   }, "Search by username to mention someone."));
+};
+const AccessRulesDetails = ({
+  setAccessRulesModalVis,
+  style
+}) => {
+  const {
+    user,
+    setUser,
+    orbis,
+    theme,
+    context,
+    accessRules,
+    hasAccess
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$a.accessRulesContainer,
+    style: {
+      color: getThemeValue("color", theme, "secondary"),
+      ...style
+    }
+  }, user && hasAccess ? /*#__PURE__*/React.createElement(UnlockIcon, {
+    style: {
+      marginRight: 5,
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }) : /*#__PURE__*/React.createElement(LockIcon, {
+    style: {
+      marginRight: 5,
+      color: getThemeValue("color", theme, "secondary")
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    className: styles$a.postboxGatingTextMobile,
+    style: {
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "secondary")
+    }
+  }, "Discussion is gated. ", /*#__PURE__*/React.createElement("span", {
+    className: styles$a.hoverLink,
+    style: {
+      fontWeight: 500,
+      color: getThemeValue("color", theme, "active")
+    },
+    onClick: () => setAccessRulesModalVis(true)
+  }, "View rules")), /*#__PURE__*/React.createElement("span", {
+    className: styles$a.postboxGatingTextDesktop,
+    style: {
+      color: getThemeValue("color", theme, "secondary"),
+      ...getThemeValue("font", theme, "secondary")
+    }
+  }, "Gated to specific credentials holders. ", /*#__PURE__*/React.createElement("span", {
+    className: styles$a.hoverLink,
+    style: {
+      fontWeight: 500,
+      color: getThemeValue("color", theme, "active")
+    },
+    onClick: () => setAccessRulesModalVis(true)
+  }, "View")));
 };
 
 var styles$b = {"postContainer":"_3_x9y","postDetailsContainer":"_3lHql","postDetailsContainerMetadata":"_24K_v","postDetailsContainerUser":"_3Quh-","postDetailsContainerUsername":"_2AqE9","postDetailsContainerTimestamp":"_fC7lP","postReplyCta":"_1LQro","postContent":"_lajK0","postViewMoreCtaContainer":"_1d8-E","postActionsContainer":"_2kUJi","postActionButton":"_tFyW_","postUrlMetadataContainer":"_1GVYT","postUrlMetadataImage":"_1WVVA","postUrlMetadataDetails":"_3TElm","postMenuContainer":"_1V9U6","hideMobile":"_2_Z8P"};
@@ -4293,7 +4322,7 @@ if (typeof window !== "undefined") {
   web3 = new Web3(magic.rpcProvider);
 }
 let _orbis = new Orbis({
-  node: "https://node1.orbis.club/"
+  node: "https://node2.orbis.club/"
 });
 function OrbisProvider({
   context,
@@ -4337,6 +4366,8 @@ function OrbisProvider({
     });
     if (data && data.length > 0) {
       setCredentials(data);
+    } else {
+      setCredentials([]);
     }
   }
   useEffect(() => {
@@ -4464,7 +4495,7 @@ function cleanContext(context) {
   }
 }
 
-var styles$c = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
+var styles$c = {"commentsGlobalContainer":"_MBDTd","commentsContainer":"_3vbCv","notificationsBanner":"_LU5eU","notificationsBannerText":"_3Fvcj","loadingContainer":"_2mFCC","commentsEmptyStateContainer":"_1LQjG","greyLine":"_1YFCn","footerContainer":"_3k7Bt","footerOpenSocialContainer":"_1gCaM"};
 
 function Comments({
   context,
@@ -4483,14 +4514,14 @@ function Comments({
 const CommentsContent = ({
   characterLimit
 }) => {
-  var _theme$bg, _theme$border;
   const {
     user,
     setUser,
     orbis,
     theme,
     context,
-    accessRules
+    accessRules,
+    setAuthorizationsModalVis
   } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -4542,7 +4573,7 @@ const CommentsContent = ({
   }, /*#__PURE__*/React.createElement("div", {
     className: styles$c.commentsGlobalContainer,
     style: {
-      background: theme !== null && theme !== void 0 && (_theme$bg = theme.bg) !== null && _theme$bg !== void 0 && _theme$bg.main ? theme.bg.main : defaultTheme.bg.main,
+      background: getThemeValue("bg", theme, "main"),
       borderColor: getThemeValue("border", theme, "main")
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -4555,7 +4586,7 @@ const CommentsContent = ({
   })), /*#__PURE__*/React.createElement("div", {
     className: styles$c.commentsContainer,
     style: {
-      borderColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.secondary ? theme.border.secondary : defaultTheme.border.secondary
+      borderColor: getThemeValue("border", theme, "secondary")
     }
   }, loading ? /*#__PURE__*/React.createElement("div", {
     className: styles$c.loadingContainer,
@@ -4619,7 +4650,7 @@ function Comment({
   characterLimit,
   z
 }) {
-  var _theme$border2;
+  var _theme$border;
   const {
     theme
   } = useOrbis();
@@ -4646,7 +4677,7 @@ function Comment({
       bottom: 20,
       left: 22,
       width: 1,
-      backgroundColor: theme !== null && theme !== void 0 && (_theme$border2 = theme.border) !== null && _theme$border2 !== void 0 && _theme$border2.main ? theme.border.main : defaultTheme.border.main
+      backgroundColor: theme !== null && theme !== void 0 && (_theme$border = theme.border) !== null && _theme$border !== void 0 && _theme$border.main ? theme.border.main : defaultTheme.border.main
     },
     "aria-hidden": "true"
   }), /*#__PURE__*/React.createElement(Post, {
