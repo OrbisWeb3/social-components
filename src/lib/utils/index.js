@@ -124,3 +124,25 @@ export function checkCredentialOwnership(user_credentials, cred_identifier) {
   /** Return result */
   return has_vc;
 }
+
+/** Check if user has the required amount of tokens using the Orbis API */
+export async function getTokenBalance(token, account, successCallback) {
+  let res = await fetch('https://api.orbis.club/get-balance', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      account: account
+    })
+  });
+  let balanceResult = await res.json();
+  if(balanceResult && balanceResult.balance && token.minBalance) {
+    console.log("balanceResult.balance:", balanceResult.balance);
+    console.log("token.minBalance:", token.minBalance);
+    if(balanceResult.balance >= parseFloat(token.minBalance)) {
+      successCallback();
+    }
+  }
+}

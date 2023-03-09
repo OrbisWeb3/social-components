@@ -141,7 +141,7 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
 
   /** Will query our API to fetch credentials for this did */
   async function fetchCredentials(did) {
-    console.log("Fetching credentials for di")
+    console.log("Fetching credentials for a did.")
     let res = await fetch("https://api.orbis.club/mint-credentials/" + did, {
       method: 'GET'
     });

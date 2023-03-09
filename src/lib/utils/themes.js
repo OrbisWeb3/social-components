@@ -132,6 +132,10 @@ export const defaultTheme = {
     looksrare: {
       bg: "#EFFFF6",
       color: "#000000"
+    },
+    email: {
+      bg: "#F5F1CA",
+      color: "#2A150F"
     }
   }
 };
@@ -270,6 +274,10 @@ export const darkTheme = {
     looksrare: {
       bg: "#EFFFF6",
       color: "#000000"
+    },
+    email: {
+      bg: "#F5F1CA",
+      color: "#2A150F"
     }
   }
 };

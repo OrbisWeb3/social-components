@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { shortAddress, sleep } from "../../utils";
-import { encryptString, decryptString, generateAccessControlConditionsForDMs } from "@orbisclub/orbis-sdk";
+import { decryptString, generateAccessControlConditionsForDMs } from "@orbisclub/orbis-sdk";
 
 /** Internal components */
 import LoadingCircle from "../LoadingCircle";
@@ -34,7 +34,8 @@ import {
   ArbitrumIcon,
   OptimismIcon,
   X2Y2Icon,
-  LooksRareIcon
+  LooksRareIcon,
+  EmailCredentialIcon
 } from "../../icons";
 import useHover from "../../hooks/useHover";
 import useDidToAddress from "../../hooks/useDidToAddress";
@@ -76,7 +77,7 @@ export const UserPfp = ({details, height = 44, showBadge = true, hover = false, 
       }
 
       <div style={{ top: -4, right: -5, position: "absolute", display:"flex", flexDirection: "col" }}>
-        {(showEmailCta && user && user.did == details.did && !details.profile?.encryptedEmail) &&
+        {(showEmailCta && user && user.did == details.did && !details?.encrypted_email) &&
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" clipRule="evenodd" d="M0.25 10C0.25 4.61522 4.61522 0.25 10 0.25C15.3848 0.25 19.75 4.61522 19.75 10C19.75 15.3848 15.3848 19.75 10 19.75C4.61522 19.75 0.25 15.3848 0.25 10ZM10 6.25C10.4142 6.25 10.75 6.58579 10.75 7V10.75C10.75 11.1642 10.4142 11.5 10 11.5C9.58579 11.5 9.25 11.1642 9.25 10.75V7C9.25 6.58579 9.58579 6.25 10 6.25ZM10 14.5C10.4142 14.5 10.75 14.1642 10.75 13.75C10.75 13.3358 10.4142 13 10 13C9.58579 13 9.25 13.3358 9.25 13.75C9.25 14.1642 9.58579 14.5 10 14.5Z" fill="#FF3162"/>
           </svg>
@@ -200,8 +201,11 @@ export const UserPopup = ({details, visible}) => {
               </div>
             </div>
 
-            {(user && user.did == details.did && !details.profile?.encryptedEmail) &&
-              <Alert title="Edit your profile to verify your email address." icon={<ErrorIcon style={{marginRight: 5}} />} style={{backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main"), borderColor: "#FF3162", marginTop: 12}} />
+            {/** Show alert if user never added email address */}
+            {(user && user.did == details.did && !user.encrypted_email) &&
+              <Alert
+                title={<AddEmailAddress />}
+                style={{backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main"), borderColor: "#FF3162", marginTop: 12}} />
             }
 
             {/** Display description if available part */}
@@ -236,6 +240,45 @@ export const UserPopup = ({details, visible}) => {
       {showProfileModal &&
         <UpdateProfileModal hide={() => setShowProfileModal(false)} callbackNftUpdate={callbackNftUpdate} />
       }
+    </div>
+  )
+}
+
+/** Component with the email address field and respective loading state */
+const AddEmailAddress = () => {
+  const { orbis, user, setUser, theme } = useOrbis();
+  const [email, setEmail] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+
+  /** Will encrypt the email and save in Ceramic */
+  async function saveEmail() {
+    if(!email || email == "") {
+      alert("Email is required.");
+      return;
+    }
+    setSavingEmail(true);
+    let res = await orbis.setEmail(email);
+    console.log("res:", res);
+    if(res.status == 200) {
+      let _user = {...user};
+      _user.encrypted_email = res.encryptedEmail;
+      console.log("_user:", _user);
+      setUser(_user);
+      setSavingEmail(false);
+    }
+  }
+
+  return(
+    <div style={{display: "flex", flexDirection: "column"}}>
+      <p style={{...getThemeValue("font", theme, "secondary"), fontSize: 13, marginTop: 0, marginBottom: 8, textAlign: "center", color: getThemeValue("color", theme, "secondary")}}>Add your email address to receive notifications for replies and mentions.</p>
+      <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+        <Input type="text" name="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={savingEmail} placeholder="Your email address" style={{...getStyle("input", theme, savingEmail), marginTop: "0rem", width: "auto", flex: 1, marginRight: 8}} />
+        {savingEmail ?
+          <Button color="secondary"><LoadingCircle /></Button>
+        :
+          <Button color="secondary" onClick={() => saveEmail()}>Save</Button>
+        }
+      </div>
     </div>
   )
 }
@@ -329,6 +372,8 @@ export function UserCredential({credential, showTooltip = true}) {
           return <X2Y2Icon />;
         case "looksrare":
           return <LooksRareIcon />;
+        case "email":
+          return <EmailCredentialIcon />
         case "nonces":
           switch (credential.content?.credentialSubject?.type) {
             case "active-wallet-mainnet":
@@ -644,12 +689,12 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
   const [status, setStatus] = useState(0);
 
   useEffect(() => {
-    if(user?.profile?.encryptedEmail) {
+    if(user?.encrypted_email) {
       decryptEmail();
     }
     async function decryptEmail() {
       try {
-        let _email = await decryptString(user.profile.encryptedEmail, "ethereum", localStorage);
+        let _email = await decryptString(user.encrypted_email, "ethereum", localStorage);
         if(_email) {
           setEmail(_email.result);
         }
@@ -674,19 +719,6 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
     profile.username = username;
     profile.description = description;
     profile.pfp = pfp ? pfp : null;
-
-    /** Check if user added email, if yes encrypt using Lit and store the object */
-    if(email && email != "") {
-      /** If email == placeholder we don't save as this probably means that the user hasn't setup it's private account with Lit */
-      if(email != "•••••••••••••") {
-        let { accessControlConditions } = generateAccessControlConditionsForDMs([user.did, "did:pkh:eip155:1:0xdbcf111ca51572e2f924587faeab857f1e3b824f"]);
-        let encryptedEmail = await encryptString(email, "ethereum", accessControlConditions);
-        profile.encryptedEmail = encryptedEmail;
-      }
-    } else {
-      /** Reset email if field is empty */
-      profile.encryptedEmail = null;
-    }
 
     /** Add pfp nft details if any */
     if(pfpNftDetails) {
@@ -760,11 +792,10 @@ function UserEditProfile({setIsEditing, setShowProfileModal, pfp, pfpNftDetails}
       <div className={styles.userFieldsContainer}>
         <Input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Your username" style={getStyle("input", theme, status == 1)} />
         <Input type="textarea" name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter your description" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
-        <Input type="text" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" style={{...getStyle("input", theme, status == 1), marginTop: "0.5rem"}} />
-        <div style={{alignItems: "center", marginTop: 7, display: "flex", ...getThemeValue("font", theme, "main"), fontWeight: 400, fontSize: 13, color: getThemeValue("color", theme, "secondary") }}>
-          <LockIcon style={{marginRight: 7}} />
-          <p style={{margin: 0, flex: 1}}>Your email address will be encrypted. Only your account and Orbis software can decrypt it to use for notifications for example. {user.hasLit == false && <span style={{display: "inline-block"}}><ConnectButton icon={null} title="Setup private account" litOnly={true} style={{fontSize: 13, background: "transparent", boxShadow: "none", padding: 0,color: getThemeValue("color", theme, "active")}} /></span> }</p>
-        </div>
+        {/** Display encrypted email if any */}
+        {user.encrypted_email &&
+          <p style={{...getThemeValue("font", theme, "secondary"), textAlign: "left", fontSize: 13, marginTop: 8, color: getThemeValue("color", theme, "secondary")}}><b>Email</b>: {email} {user.hasLit == false && <span style={{display: "inline-block"}}><ConnectButton icon={null} title="Decrypt email" litOnly={true} style={{fontSize: 13, background: "transparent", boxShadow: "none", padding: 0,color: getThemeValue("color", theme, "active")}} /></span> }</p>
+        }
       </div>
       <div className={styles.userFieldsSaveContainer}>
         <SaveButton />

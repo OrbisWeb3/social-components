@@ -118,7 +118,7 @@
   display: none;
 }
 .postboxGatingTextDesktop {
-  display: flex;
+  display: inline-block;
 }
 
 /** Rules for mobiles */
@@ -127,7 +127,7 @@
     display: none;
   }
   .postboxGatingTextMobile {
-    display: flex;
+    display: inline-block;
   }
   .postboxGatingTextDesktop {
     display: none;

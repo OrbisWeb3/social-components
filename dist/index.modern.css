@@ -498,6 +498,12 @@
   align-items: center;
   border-radius: 0.5rem;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  ._1ZmCf {
+    flex-direction: column;
+  }
 }
 ._1XO9C {
   font-family: "Inter";
@@ -633,7 +639,7 @@
   display: none;
 }
 ._3OkEg {
-  display: flex;
+  display: inline-block;
 }
 
 /** Rules for mobiles */
@@ -642,7 +648,7 @@
     display: none;
   }
   ._1r63_ {
-    display: flex;
+    display: inline-block;
   }
   ._3OkEg {
     display: none;

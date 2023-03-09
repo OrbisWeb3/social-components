@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Orbis } from "@orbisclub/orbis-sdk";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
-import { checkCredentialOwnership } from "../../utils";
+import { checkCredentialOwnership, getTokenBalance } from "../../utils";
 import ConnectModal from "../ConnectModal";
+import useDidToAddress from "../../hooks/useDidToAddress";
 
 /** For Magic */
 import Web3 from 'web3';
@@ -30,7 +31,7 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   const [user, setUser] = useState();
   const [connecting, setConnecting] = useState();
   const [credentials, setCredentials] = useState([]);
-  const [hasAccess, setHasAccess] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
   const [activeTheme, setActiveTheme] = useState(theme);
   const [contextDetails, setContextDetails] = useState();
   const [accessRules, setAccessRules] = useState([]);
@@ -142,35 +143,32 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   }, [context]);
 
   useEffect(() => {
-    let countUserCredentials = credentials ? credentials.length : 0;
-    let countAccessRules = accessRules ? accessRules.length : 0;
-    let _hasAccess = false;
+    checkAccess();
+    async function checkAccess() {
+      let countUserCredentials = credentials ? credentials.length : 0;
+      let countAccessRules = accessRules ? accessRules.length : 0;
 
-    /** Option 1: There isn't any access rules: User has access */
-    if(countAccessRules == 0) {
-      _hasAccess = true;
+      /** Option 1: There isn't any access rules: User has access */
+      if(countAccessRules == 0) {
+        if(contextDetails) {
+          setHasAccess(true);
+        }
+      }
+
+      /** Option 2: There are access rules */
+      else if(countAccessRules > 0) {
+        if(user) {
+          checkContextAccess(credentials, accessRules);
+        }
+      }
     }
-
-    /** Option 2: User doesn't have any credentials but there are some access rules */
-    else if(countAccessRules > 0 && countUserCredentials == 0) {
-      _hasAccess = false;
-    }
-
-    /** Option 3: User has credentials and there are some access rules: Check if user has access */
-    else if(countUserCredentials > 0 && countAccessRules > 0) {
-      _hasAccess = checkContextAccess(credentials, accessRules);
-    }
-
-    /** Save result in state */
-    setHasAccess(_hasAccess);
   }, [credentials, accessRules]);
 
   /** Will loop through rules and user credentials to check if the user has access to this context */
-  function checkContextAccess(_userCredentials, _accessRules) {
-    let _hasAccess = false;
+  async function checkContextAccess(_userCredentials, _accessRules) {
 
     /** Loop through all rules assigned to this context */
-    _accessRules.forEach((_rule, i) => {
+    _accessRules.forEach(async (_rule, i) => {
       /** Handle operators function */
       if(_rule.operator) {
         //console.log("_rule.operator:", _rule.operator);
@@ -183,25 +181,28 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
           _rule.requiredCredentials.forEach((cred, i) => {
             let _hasVc = checkCredentialOwnership(_userCredentials, cred.identifier);
             if(_hasVc) {
-              _hasAccess = true;
+              setHasAccess(true);
             }
           });
 
           break;
         case "did":
-          /** Loop through all credentials required in this rule */
+          /** Loop through all authorized users authorized in this rule */
           _rule.authorizedUsers.forEach((_user, i) => {
             if(_user.did == user.did) {
-              _hasAccess = true;
+              setHasAccess(true);
             }
           });
           break;
-        default:
+        case "token":
+          const { address } = useDidToAddress(user.did);
 
+          /** Check if user owns requested balance for the token */
+          getTokenBalance(_rule.requiredToken, address, () => setHasAccess(true));
+          break;
+        default:
       }
     });
-
-    return _hasAccess;
   }
 
   return(

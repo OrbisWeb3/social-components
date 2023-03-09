@@ -389,6 +389,14 @@ export const LooksRareIcon = () => {
   )
 }
 
+export const EmailCredentialIcon = () => {
+  return(
+    <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 3}}>
+      <path d="M12 2.35V8.65C12 9.39558 11.4317 10 10.7308 10H2.26923C1.56825 10 1 9.39558 1 8.65V2.35M12 2.35C12 1.60442 11.4317 1 10.7308 1H2.26923C1.56825 1 1 1.60442 1 2.35M12 2.35V2.49563C12 2.96443 11.7713 3.39967 11.396 3.64537L7.1652 6.4146C6.75726 6.68161 6.24274 6.68161 5.8348 6.4146L1.60403 3.64537C1.22866 3.39967 1 2.96443 1 2.49563V2.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  )
+}
+
 export const SendIcon = ({style}) => {
   return(
     <svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginLeft: "0.25rem"}}>

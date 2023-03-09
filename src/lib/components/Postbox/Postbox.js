@@ -396,6 +396,60 @@ const MentionsBox = ({add}) => {
 
 const AccessRulesDetails = ({setAccessRulesModalVis, style}) => {
   const { user, setUser, orbis, theme, context, accessRules, hasAccess } = useOrbis();
+
+  useEffect(() => {
+    getLabel();
+  }, [])
+
+  function getLabel(type) {
+    let labelDesktop = "This discussion feed is gated. ";
+    let labelMobile = "Discussion is gated. ";
+    let countCredentialsRules = 0;
+    let countDidRules = 0;
+    let countTokenRules = 0;
+
+    accessRules.forEach((rule, i) => {
+      switch (rule.type) {
+        case "credentials":
+          countCredentialsRules++;
+          break;
+        case "did":
+          countDidRules++;
+          break;
+        case "token":
+          countTokenRules++;
+          break;
+        default:
+      }
+    });
+
+
+    /** Token only gating */
+    if(countTokenRules > 0 && countCredentialsRules == 0 && countDidRules == 0) {
+      labelDesktop = "Discussion feed is token gated. ";
+      labelMobile = "Discussion gated. ";
+    }
+
+    /** Credentials gated */
+    if(countTokenRules == 0 && countCredentialsRules > 0 && countDidRules == 0) {
+      labelDesktop = "Discussion feed is gated using credentials. ";
+      labelMobile = "Discussion gated. ";
+    }
+
+    /** Users gated */
+    if(countTokenRules == 0 && countCredentialsRules == 0 && countDidRules > 0) {
+      labelDesktop = "Discussion feed is restricted to some users. ";
+      labelMobile = "Discussion gated. ";
+    }
+
+    if(type == "mobile") {
+      return labelMobile;
+    }
+    if(type == "desktop") {
+      return labelDesktop;
+    }
+  }
+
   return(
     <div className={styles.accessRulesContainer} style={{color: getThemeValue("color", theme, "secondary"), ...style}}>
       {(user && hasAccess) ?
@@ -403,8 +457,23 @@ const AccessRulesDetails = ({setAccessRulesModalVis, style}) => {
       :
         <LockIcon style={{marginRight: 5, color: getThemeValue("color", theme, "secondary")}} />
       }
-      <span className={styles.postboxGatingTextMobile} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Discussion is gated. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View rules</span></span>
-      <span className={styles.postboxGatingTextDesktop} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>Gated to specific credentials holders. <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
+      <span className={styles.postboxGatingTextMobile} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>{getLabel("mobile")} <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View rules</span></span>
+      <span className={styles.postboxGatingTextDesktop} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "secondary")}}>{getLabel("desktop")}  <span className={styles.hoverLink} style={{fontWeight: 500, color: getThemeValue("color", theme, "active")}} onClick={() => setAccessRulesModalVis(true)}>View</span></span>
     </div>
+  )
+}
+
+const KeyIcon = ({style}) => {
+  return(
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
+    <g clip-path="url(#clip0_615_22)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M22.0763 7.22703C19.4402 4.59099 15.1664 4.59099 12.5303 7.22703C12.2519 7.50543 12.0026 7.80258 11.7825 8.11458C11.555 8.43707 11.2535 8.59835 10.986 8.59835L1.79505 8.59835C0.9994 8.59835 0.236339 8.91442 -0.326271 9.47703L-2.31891 11.4697C-2.61181 11.7626 -2.61181 12.2374 -2.31891 12.5303L0.332738 15.182C0.625632 15.4749 1.10051 15.4749 1.3934 15.182L2.45406 12.1213L3.51472 15.182C3.80761 15.4749 4.28249 15.4749 4.57538 15.182L5.63604 12.1213L6.6967 15.182C6.83735 15.3226 7.02812 15.4016 7.22703 15.4016H10.986C11.2535 15.4016 11.555 15.5629 11.7825 15.8854C12.0026 16.1974 12.2519 16.4946 12.5303 16.773C15.1664 19.409 19.4402 19.409 22.0763 16.773C24.7123 14.1369 24.7123 9.86307 22.0763 7.22703ZM19.955 9.34835C19.6621 9.05546 19.1872 9.05546 18.8943 9.34835C18.6014 9.64124 18.6014 10.1161 18.8943 10.409C19.773 11.2877 19.773 12.7123 18.8943 13.591C18.6014 13.8839 18.6014 14.3588 18.8943 14.6516C19.1872 14.9445 19.6621 14.9445 19.955 14.6516C21.4194 13.1872 21.4194 10.8128 19.955 9.34835Z" fill="currentColor"/>
+    </g>
+    <defs>
+    <clipPath id="clip0_615_22">
+    <rect width="24" height="24" fill="transparent"/>
+    </clipPath>
+    </defs>
+    </svg>
   )
 }
