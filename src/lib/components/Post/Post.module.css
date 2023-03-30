@@ -2,8 +2,31 @@
   display: flex;
   align-items: flex-start;
   position: relative;
+  flex-direction: column;
 }
-
+.replyToContainer {
+  display: flex;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  margin-left: 10px;
+  align-items: flex-start;
+}
+.replyToContainer:hover {
+  opacity: 1;
+}
+.replyToContainer .postContent p {
+  display: inline-block !important;
+}
+.linkReply {
+  border-top: 2px solid #000;
+  border-left: 2px solid #000;
+  border-radius: 6px 0 0 0;
+  width: 15px;
+  height: 20px;
+  display: flex;
+  align-self: flex-end;
+  margin-left: 19px;
+}
 .postDetailsContainer {
   min-width: 0px;
   flex-direction: column;

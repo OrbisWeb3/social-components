@@ -1,11 +1,10 @@
 .postboxGlobalContainer {
   position: relative;
-  display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: flex-start;
   border-radius: 0.375rem;
   display: flex;
+  flex: 1;
   flex-direction: row;
   font-family: "Inter";
 }
@@ -16,15 +15,18 @@
   flex-direction: column;
   align-items: center;
   padding: 1rem;
+  flex: 1;
 }
 
 .postboxUserContainer {
+  display: flex;
   position: relative;
   flex-shrink: 0;
   margin-right: 0.5rem;
 }
 
 .postboxContainer {
+  display: flex;
   position: relative;
   flex: 1;
   min-width: 0px;
@@ -43,7 +45,6 @@
 .postboxInput {
   display: block;
   border-width: 0px;
-  min-height: 50px;
   resize: none;
   background: transparent;
   padding: 12px;
@@ -52,7 +53,9 @@
   outline: none;
   outline-style: none;
 }
-
+.postbox:focus-within {
+  border-color: #0ea5e9 !important
+}
 .postboxInput::placeholder {
   color: #A9AFB7;
 }

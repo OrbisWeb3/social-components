@@ -20,7 +20,7 @@ import styles from './Postbox.module.css';
 let mentions = [];
 
 /** Display postbox or connect CTA */
-export default function Postbox({ showPfp = true, connecting, reply = null, callback, rows = "2", defaultPost, setEditPost, ctaTitle = "Comment", ctaStyle = styles.postboxShareContainerBtn, placeholder = "Add your comment..." }) {
+export default function Postbox({ showPfp = true, connecting, reply = null, callback, minInputHeight = 50, defaultPost, setEditPost, ctaTitle = "Comment", ctaStyle = styles.postboxShareContainerBtn, placeholder = "Add your comment...", master, ascending = false }) {
   const { user, setUser, orbis, theme, context, accessRules, hasAccess } = useOrbis();
   const { comments, setComments } = useContext(CommentsContext);
   const [sharing, setSharing] = useState(false);
@@ -34,7 +34,6 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
   const [focusOffset, setFocusOffset] = useState(null);
   const [focusNode, setFocusNode] = useState(null);
 
-
   /** If user is editing a post we use the content as the default post */
   useEffect(() => {
     if(defaultPost) {
@@ -45,6 +44,13 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
     }
   }, [defaultPost, postbox])
 
+  /** Will autofocus the textarea if user is replying to a post */
+  useEffect(() => {
+    if(reply && postbox) {
+      postbox.current.focus();
+    }
+  }, [reply])
+
   /** Will cancel the edit post action using the `setEditPost` function passed as a parameter */
   function cancelEdit() {
     setEditPost(false);
@@ -52,7 +58,6 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
   /** Share a post on orbis */
   const handleSubmit = async (event) => {
-    console.log("Submitting form.");
     event.preventDefault();
 
     if(sharing) {
@@ -63,23 +68,21 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
     // Get the form data from the event object
     const formData = new FormData(event.target);
-    //let body = formData.get("body");
 
-    /** Create a post on Orbis */
-    let master = null;
-    if(reply && reply.content.master) {
-      master = reply.content.master;
-    } else if(reply) {
-      master = reply.stream_id;
+    /** Decide which `master` and `reply_to` we should use */
+    if(!master) {
+      if(reply && reply.content.master) {
+        master = reply.content.master;
+      } else if(reply) {
+        master = reply.stream_id;
+      }
     }
-
 
     /** Create new post or edit existing post */
     if(defaultPost) {
       let _contentEdit = {...defaultPost.content}
       _contentEdit.body = body;
       let res = await orbis.editPost(defaultPost.stream_id, _contentEdit);
-      console.log("res:", res);
 
       if(callback) {
         callback(_contentEdit);
@@ -89,7 +92,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
         body: body,
         context: context ? context : null,
         master: master,
-        reply_to: reply ? reply.stream_id : null,
+        reply_to: reply ? reply.stream_id : master,
         mentions: mentions
       }
 
@@ -98,19 +101,40 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
       /** Return results */
       if(res.status == 200) {
         if(comments) {
-          setComments(
-            [
-              {
-                timestamp: getTimestamp(),
-                creator_details: user,
-                creator: user.did,
-                stream_id: res.doc,
-                content: _contentCreate,
-                count_likes: 0
-              },
-              ...comments
-            ]
-          );
+          /** Add new comment on the top or bottom based on `ascending` parameter passed */
+          if(ascending == false) {
+            setComments(
+              [
+                {
+                  timestamp: getTimestamp(),
+                  creator_details: user,
+                  creator: user.did,
+                  stream_id: res.doc,
+                  content: _contentCreate,
+                  count_likes: 0,
+                  reply_to: _contentCreate.reply,
+                  reply_to_details: reply ? reply.content : null,
+                  reply_to_creator_details: reply ? reply.creator_details : null
+                },
+                ...comments
+              ]
+            );
+          } else {
+            setComments(
+              [
+                ...comments,
+                {
+                  timestamp: getTimestamp(),
+                  creator_details: user,
+                  creator: user.did,
+                  stream_id: res.doc,
+                  content: _contentCreate,
+                  count_likes: 0
+                }
+              ]
+            );
+          }
+
         }
       } else {
         console.log("Error submitting form:", res);
@@ -244,13 +268,12 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
                   autoFocus={true}
                   data-placeholder={placeholder}
                   ref={postbox}
-                  rows={rows}
                   name="body"
                   id="postbox-area"
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   className={styles.postboxInput}
-                  style={{ fontSize: 15, color: getThemeValue("input", theme, sharing).color, ...getThemeValue("font", theme, "secondary")}}
+                  style={{ minHeight: minInputHeight, fontSize: 15, color: getThemeValue("input", theme, sharing).color, ...getThemeValue("font", theme, "secondary")}}
                   placeholder={placeholder}
                   disabled={sharing}
                   onInput={(e) => handleInput(e)}></div>
@@ -260,7 +283,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
                 {/** Display access rules details if any */}
                 {(accessRules && accessRules.length > 0) &&
-                  <AccessRulesDetails setAccessRulesModalVis={setAccessRulesModalVis} />
+                  <AccessRulesDetails accessRules={accessRules} setAccessRulesModalVis={setAccessRulesModalVis} hasAccess={hasAccess} />
                 }
 
                 {sharing ?
@@ -299,7 +322,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 
         {/** Show access rules modal */}
         {accessRulesModalVis &&
-          <AccessRulesModal hide={() => setAccessRulesModalVis(false)} />
+          <AccessRulesModal accessRules={accessRules} hide={() => setAccessRulesModalVis(false)} />
         }
       </div>
     )
@@ -310,14 +333,14 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
           <ConnectButton orbis={orbis} />
           {(accessRules && accessRules.length > 0) &&
             <div style={{marginTop: 10}}>
-              <AccessRulesDetails setAccessRulesModalVis={setAccessRulesModalVis} style={{justifyContent: "center"}} />
+              <AccessRulesDetails accessRules={accessRules} setAccessRulesModalVis={setAccessRulesModalVis} hasAccess={hasAccess} style={{justifyContent: "center"}} />
             </div>
           }
         </div>
 
         {/** Show access rules modal */}
         {accessRulesModalVis &&
-          <AccessRulesModal hide={() => setAccessRulesModalVis(false)} />
+          <AccessRulesModal accessRules={accessRules} hide={() => setAccessRulesModalVis(false)} />
         }
       </div>
     );
@@ -325,7 +348,7 @@ export default function Postbox({ showPfp = true, connecting, reply = null, call
 }
 
 /** Mentions Box Container */
-const MentionsBox = ({add}) => {
+export const MentionsBox = ({add}) => {
   const { orbis, user, theme } = useOrbis();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -394,8 +417,9 @@ const MentionsBox = ({add}) => {
   )
 }
 
-const AccessRulesDetails = ({setAccessRulesModalVis, style}) => {
-  const { user, setUser, orbis, theme, context, accessRules, hasAccess } = useOrbis();
+/** This will display the gating details if any */
+export const AccessRulesDetails = ({accessRules, setAccessRulesModalVis, style, hasAccess}) => {
+  const { user, setUser, orbis, theme, context } = useOrbis();
 
   useEffect(() => {
     getLabel();

@@ -338,7 +338,6 @@
   margin-bottom: 15px !important;
 }
 ._3mkOx {
-  position: absolute;
   padding: 30px;
   left: -10px;
   top: -10px;
@@ -517,12 +516,11 @@
 
 ._3glYN {
   position: relative;
-  display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: flex-start;
   border-radius: 0.375rem;
   display: flex;
+  flex: 1;
   flex-direction: row;
   font-family: "Inter";
 }
@@ -533,15 +531,18 @@
   flex-direction: column;
   align-items: center;
   padding: 1rem;
+  flex: 1;
 }
 
 ._2PH81 {
+  display: flex;
   position: relative;
   flex-shrink: 0;
   margin-right: 0.5rem;
 }
 
 ._3G9kY {
+  display: flex;
   position: relative;
   flex: 1;
   min-width: 0px;
@@ -560,7 +561,6 @@
 ._beLGF {
   display: block;
   border-width: 0px;
-  min-height: 50px;
   resize: none;
   background: transparent;
   padding: 12px;
@@ -569,11 +569,12 @@
   outline: none;
   outline-style: none;
 }
-
+._1Y2r9:focus-within {
+  border-color: #0ea5e9 !important
+}
 ._beLGF::-webkit-input-placeholder {
   color: #A9AFB7;
 }
-
 ._beLGF::placeholder {
   color: #A9AFB7;
 }
@@ -707,8 +708,31 @@
   display: flex;
   align-items: flex-start;
   position: relative;
+  flex-direction: column;
 }
-
+._1e5B4 {
+  display: flex;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  margin-left: 10px;
+  align-items: flex-start;
+}
+._1e5B4:hover {
+  opacity: 1;
+}
+._1e5B4 ._lajK0 p {
+  display: inline-block !important;
+}
+._FyUR7 {
+  border-top: 2px solid #000;
+  border-left: 2px solid #000;
+  border-radius: 6px 0 0 0;
+  width: 15px;
+  height: 20px;
+  display: flex;
+  align-self: flex-end;
+  margin-left: 19px;
+}
 ._3lHql {
   min-width: 0px;
   flex-direction: column;
@@ -1428,10 +1452,98 @@
   margin-bottom: 0;
 }
 
+._3-Hv7 {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.375rem;
+  width: 100%;
+  border-width: 1px;
+  height: 100%;
+}
+
+._1W-Vm {
+  display: flex;
+  flex-direction: column-reverse;
+  flex: 1;
+  border-style: solid;
+  border-top-width: 0px;
+  border-bottom-width: 1px;
+  border-left-width: 0;
+  border-right-width: 0px;
+  padding: 1.5rem;
+  container-type: inline-size;
+  overflow-y: scroll;
+}
+._1W-Vm > :not([hidden]):first-child {
+  margin-top: 1.75rem;
+}
+._1W-Vm > :not([hidden]) ~ :not([hidden]):last-child {
+  margin-top: 0px;
+}
+._1W-Vm > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1.75rem * var(--tw-space-y-reverse));
+}
+._1PYmg {
+  display: flex;
+  padding: 1rem;
+}
+._1f7lf {
+  cursor: pointer;
+  display: flex;
+  padding: 0.65rem;
+  border-width: 1px;
+  border-style: solid;
+}
+._1f7lf:hover {
+  text-decoration: underline;
+}
+._2QGqh {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+}
+._16drg {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  padding: 2rem;
+}
+
+._qTtAc {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+._2hd13 {
+  position: absolute;
+  margin-left: -1px;
+  border-radius: 0.375rem;
+}
+
+._21j0d {
+  padding: 1.5rem;
+  width: 100%;
+}
+
+._3o_Za {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+  cursor: pointer;
+}
+._3o_Za:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 ._MBDTd {
-  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   border-radius: 0.375rem;
   width: 100%;
   border-width: 1px;

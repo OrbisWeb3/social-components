@@ -3,29 +3,28 @@ import { GlobalContext } from "../../contexts/GlobalContext";
 import LoadingCircle from "../LoadingCircle";
 import Modal from "../Modal";
 import User, { UserCredential } from "../User";
-import { defaultTheme, getThemeValue } from "../../utils/themes";
+import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import useOrbis from "../../hooks/useOrbis";
 import { EditIcon } from "../../icons"
+import Badge from "../Badge";
 
 /** Import CSS */
 import styles from './AccessRulesModal.module.css';
 
-export default function AccessRulesModal({ hide, callbackNftUpdate }) {
+export default function AccessRulesModal({ hide, callbackNftUpdate, accessRules }) {
   const { user, theme } = useOrbis();
   return(
     <Modal hide={() => hide()} width={500} title="Access Rules" description="This feed is gated with the following rules:">
       <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
         <div className={styles.accessRulesContainer}>
-          <LoopAccessRules />
+          <LoopAccessRules accessRules={accessRules} />
         </div>
       </div>
     </Modal>
   )
 }
 
-const LoopAccessRules = () => {
-  const { accessRules } = useOrbis();
-
+const LoopAccessRules = ({accessRules}) => {
   return accessRules.map((accessRule, key) => {
     return(
       <OneAccessRule accessRule={accessRule} key={key} />
@@ -62,8 +61,20 @@ const OneAccessRule = ({accessRule}) => {
     case "token":
       return(
         <div className={styles.accessRuleContainer} style={{borderColor: getThemeValue("border", theme, "main")}}>
-          <span style={{ fontSize: 13, color: getThemeValue("color", theme, "secondary"), marginRight: 7}}>Requires ownership of:</span>
-          <AccessRuleToken requiredToken={accessRule.requiredToken} />
+          <div style={{display: "flex", flexDirection:"column", alignItems: "center"}}>
+            <span style={{ fontSize: 13, color: getThemeValue("color", theme, "secondary"), marginBottom: 4}}>Requires ownership of:</span>
+
+            {/** Display token details */}
+            <AccessRuleToken requiredToken={accessRule.requiredToken} />
+
+            {/** Show attibutes required if any */}
+            {(accessRule.requiredToken && accessRule.requiredToken.attributes_required && accessRule.requiredToken.attributes_required.length > 0) &&
+              <>
+                <span style={{ fontSize: 13, color: getThemeValue("color", theme, "secondary"), marginBottom: 7, marginTop: 7}}>With attributes:</span>
+                <AccessRuleTokenAttributes attributes_required={accessRule.requiredToken.attributes_required} />
+              </>
+            }
+          </div>
         </div>
       );
     default:
@@ -75,8 +86,17 @@ const OneAccessRule = ({accessRule}) => {
 const AccessRuleToken = ({requiredToken}) => {
   const { theme } = useOrbis();
   return(
-    <span style={{ ...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main"), alignItems: "center", display: "flex"}}>{requiredToken?.minBalance} {requiredToken?.symbol} {requiredToken?.token_id && <small style={{marginLeft: 4, marginRight: 4}}>(ID: {requiredToken.token_id})</small>} on <ChainLogo chain={requiredToken?.chain} address={requiredToken?.address} /></span>
+    <div style={{ ...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main"), alignItems: "center", justifyContent: "center", display: "flex"}}>{requiredToken?.minBalance} {requiredToken?.symbol} {requiredToken?.token_id && <small style={{marginLeft: 4, marginRight: 4}}>(ID: {requiredToken.token_id})</small>} on <ChainLogo chain={requiredToken?.chain} address={requiredToken?.address} /></div>
   )
+}
+
+const AccessRuleTokenAttributes = ({attributes_required}) => {
+  const { theme } = useOrbis();
+  return attributes_required.map((attr, key) => {
+    return(
+      <Badge key={key} style={{ ...getStyle("badge", theme, "opensea"), ...getThemeValue("font", theme, "badges") }}>{attr.key} : {attr.value}</Badge>
+    )
+  });
 }
 
 /** Will display details for the credentials required */

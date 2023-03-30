@@ -5,6 +5,9 @@ import { GlobalContext } from "../../contexts/GlobalContext";
 import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import useOrbis from "../../hooks/useOrbis";
 
+/** Manage WalletConnect */
+import WalletConnectProvider from "@walletconnect/web3-provider";
+
 /** Import CSS */
 import styles from './ConnectButton.module.css';
 

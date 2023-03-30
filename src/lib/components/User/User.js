@@ -51,10 +51,12 @@ const User = ({details, connected = false, height = 44, hover = false}) => {
   const { user, theme } = useOrbis();
   return(
     <div className={styles.userContainer}>
-        <UserPfp height={height} details={connected ? user : details} hover={hover} />
-        <div className={styles.userUsernameContainer}>
-          <span style={{display: "flex"}}><Username details={connected ? user : details} /></span>
+      <UserPfp height={height} details={connected ? user : details} hover={hover} />
+      <div className={styles.userUsernameContainer}>
+        <div style={{display: "flex"}}>
+          <Username details={connected ? user : details} />
         </div>
+      </div>
     </div>
   )
 }
@@ -102,9 +104,7 @@ export const Username = ({details}) => {
   const { address, chain } = useDidToAddress(details?.did);
   const username = useGetUsername(details?.profile, address, details?.did);
 
-  return(
-    <>{username}</>
-  )
+  return username;
 }
 
 /** Export only the Badge */
@@ -121,7 +121,7 @@ export const UserBadge = ({details}) => {
 }
 
 /** Modal appearing on request with more details about a specific user */
-export const UserPopup = ({details, visible}) => {
+export const UserPopup = ({details, visible, position = "absolute"}) => {
   const { orbis, user, setUser, theme } = useOrbis();
   const [locked, setLocked] = useState(false);
   const [vis, setVis] = useState(false);
@@ -156,7 +156,7 @@ export const UserPopup = ({details, visible}) => {
   }
 
   return(
-    <div className={styles.userPopupContainer}>
+    <div className={styles.userPopupContainer} style={{position: position}}>
       <div className={styles.userPopupContent} style={{background: theme?.bg?.secondary ? theme.bg.secondary : defaultTheme.bg.secondary, borderColor: theme?.border?.main ? theme.border.main : defaultTheme.border.main }}>
 
         {/** Show form if editing or profile details */}

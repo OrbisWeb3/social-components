@@ -1,1 +1,1 @@
-export { default } from "./Postbox";
+export { default, MentionsBox, AccessRulesDetails } from "./Postbox";

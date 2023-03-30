@@ -1,5 +1,6 @@
 import React from "react";
 import reactStringReplace from 'react-string-replace';
+import useDidToAddress from "../hooks/useDidToAddress";
 
 /** Returns current timestamp */
 export function getTimestamp() {
@@ -83,21 +84,24 @@ export function cleanBody(post, characterLimit) {
 
 /** Retrieve NFTs for a user and network */
 export async function getNFTs(address, page, network) {
-  let res = await fetch('https://app.orbis.club/api/nfts/get', {
+  let res = await fetch('https://api.orbis.club/get-nfts', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
-      address: address,
+      account: address,
       page: page,
       network: network
     })
   });
-  let nfts = await res.json();
-  if(nfts && nfts.results && nfts.results.length > 0) {
-    return nfts.results;
+  let result = await res.json();
+  console.log("result nfts:", result);
+  if(result && result.nfts && result.nfts.length > 0) {
+    return result.nfts;
   } else {
     return [];
   }
-
 }
 
 /** Replace mentions in post */
@@ -108,6 +112,47 @@ function replaceMentions(post) {
 
   /** Return result */
   return _body
+}
+
+/** Will loop through rules and user credentials to check if the user has access to this context */
+export async function checkContextAccess(user, credentials, _accessRules, callback) {
+
+  /** Loop through all rules assigned to this context */
+  _accessRules.forEach(async (_rule, i) => {
+    /** Handle operators function */
+    if(_rule.operator) {
+      //console.log("_rule.operator:", _rule.operator);
+    }
+
+    /** Manage verifications based on rules type */
+    switch (_rule.type) {
+      case "credential":
+        /** Loop through all credentials required in this rule */
+        _rule.requiredCredentials.forEach((cred, i) => {
+          let _hasVc = checkCredentialOwnership(credentials, cred.identifier);
+          if(_hasVc) {
+            callback(true);
+          }
+        });
+
+        break;
+      case "did":
+        /** Loop through all authorized users authorized in this rule */
+        _rule.authorizedUsers.forEach((_user, i) => {
+          if(_user.did == user.did) {
+            callback(true);
+          }
+        });
+        break;
+      case "token":
+        const { address } = useDidToAddress(user.did);
+
+        /** Check if user owns requested balance for the token */
+        getTokenBalance(_rule.requiredToken, address, () => callback(true));
+        break;
+      default:
+    }
+  });
 }
 
 /** Check if the user owns the required credential */
@@ -127,22 +172,26 @@ export function checkCredentialOwnership(user_credentials, cred_identifier) {
 
 /** Check if user has the required amount of tokens using the Orbis API */
 export async function getTokenBalance(token, account, successCallback) {
-  let res = await fetch('https://api.orbis.club/get-balance', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      token: token,
-      account: account
-    })
-  });
-  let balanceResult = await res.json();
-  if(balanceResult && balanceResult.balance && token.minBalance) {
-    console.log("balanceResult.balance:", balanceResult.balance);
-    console.log("token.minBalance:", token.minBalance);
-    if(balanceResult.balance >= parseFloat(token.minBalance)) {
-      successCallback();
+  try {
+    let res = await fetch('https://api.orbis.club/get-balance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: token,
+        account: account
+      })
+    });
+    let balanceResult = await res.json();
+    if(balanceResult && balanceResult.balance && token.minBalance) {
+      if(balanceResult.balance >= parseFloat(token.minBalance)) {
+        successCallback();
+      }
     }
+  } catch(e) {
+    console.log("Error retrieving user's balance for this token:", e);
+    return 0;
   }
+
 }

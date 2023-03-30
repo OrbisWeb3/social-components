@@ -13,10 +13,10 @@ import { defaultTheme, getThemeValue } from "../../utils/themes"
 /** Import CSS */
 import styles from './Comments.module.css';
 
-export default function Comments({context, theme = defaultTheme, options, characterLimit = null}) {
+export default function Comments({context, theme = defaultTheme, options, characterLimit = null, master = null}) {
   return(
     <OrbisProvider context={context} theme={theme} options={options} >
-      <CommentsContent characterLimit={characterLimit} />
+      <CommentsContent characterLimit={characterLimit} master={master} />
     </OrbisProvider>
   )
 }
@@ -25,7 +25,7 @@ export default function Comments({context, theme = defaultTheme, options, charac
   label: string;
 }*/
 
-const CommentsContent = ({characterLimit}) => {
+const CommentsContent = ({characterLimit, master}) => {
   const { user, setUser, orbis, theme, context, accessRules, setAuthorizationsModalVis } = useOrbis();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,49 +36,24 @@ const CommentsContent = ({characterLimit}) => {
     loadPosts();
   }, [context])
 
-  /** Share a post on orbis */
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if(sharing) {
-      console.log("A request is already being processed.");
-      return;
-    }
-    setSharing(true);
-
-    // Get the form data from the event object
-    const formData = new FormData(event.target);
-    let body = formData.get("body");
-
-    /** Create a post on Orbis */
-    let res = await orbis.createPost({body: body, context: context});
-
-    if(res.status == 200) {
-      setComments(
-        [
-          {
-            creator_details: user,
-            stream_id: res.doc,
-            content: {
-              body: body,
-              context: context
-            }
-          },
-          ...comments
-        ]
-      );
-
-    } else {
-
-    }
-
-    setSharing(false);
-  }
-
   /** Retrieve posts from Orbis for this context */
   async function loadPosts() {
     setLoading(true);
-    let { data, error } = await orbis.getPosts({context: context}, 0);
+    let queryParams;
+    if(master) {
+      queryParams = {master: master};
+    } else {
+      queryParams = {context: context};
+    }
+    console.log("queryParams:", queryParams);
+    let { data, error } = await orbis.getPosts(queryParams, 0);
+
+    /** Store last message timestamp in localStorage to check if user has unread message */
+    if(localStorage && data) {
+      localStorage.setItem(context + "-last-read", data[0].timestamp)
+    }
+
+    /** Save in state */
     setComments(data);
     setLoading(false);
   }
@@ -87,7 +62,7 @@ const CommentsContent = ({characterLimit}) => {
     <CommentsContext.Provider value={{ comments, setComments }}>
       <div className={styles.commentsGlobalContainer} style={{background: getThemeValue("bg", theme, "main"), borderColor: getThemeValue("border", theme, "main") }}>
         <div style={{padding: "1rem"}}>
-          <Postbox context={context} handleSubmit={handleSubmit} />
+          <Postbox context={context} master={master} />
         </div>
 
         {/** Alert banner if user hasn't setup notifications authorizations for this context
@@ -111,7 +86,7 @@ const CommentsContent = ({characterLimit}) => {
                   <EmptyStateComments />
                 </div>
               :
-                <LoopComments comments={comments} characterLimit={characterLimit} />
+                <LoopComments comments={comments} characterLimit={characterLimit} master={master} />
               }
             </>
           }
@@ -130,9 +105,9 @@ const CommentsContent = ({characterLimit}) => {
 };
 
 /** Loop through all posts and display them one by one */
-function LoopComments({comments, characterLimit}) {
+function LoopComments({comments, characterLimit, master}) {
   return comments.map((comment, key) => {
-    if((!comment.content.reply_to || comment.content.reply_to == "") && !comment.content.master || comment.content.master == "") {
+    if((comment.content.reply_to == master) || ((!comment.content.reply_to || comment.content.reply_to == "") && (!comment.content.master || comment.content.master == ""))) {
       return(
         <Comment comments={comments} comment={comment} master={comment.content.master} characterLimit={characterLimit} key={comment.stream_id} />
       )

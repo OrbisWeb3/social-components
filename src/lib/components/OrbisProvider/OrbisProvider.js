@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Orbis } from "@orbisclub/orbis-sdk";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
-import { checkCredentialOwnership, getTokenBalance } from "../../utils";
+import { checkContextAccess } from "../../utils";
 import ConnectModal from "../ConnectModal";
-import useDidToAddress from "../../hooks/useDidToAddress";
 
 /** For Magic */
 import Web3 from 'web3';
@@ -26,8 +25,8 @@ let _orbis = new Orbis({
   node: "https://node2.orbis.club/"
 });
 
-export default function OrbisProvider({ context, children, theme = defaultTheme, options }) {
-  const [orbis, setOrbis] = useState(_orbis);
+export default function OrbisProvider({ context, children, theme = defaultTheme, options, defaultOrbis }) {
+  const [orbis, setOrbis] = useState(defaultOrbis ? defaultOrbis : _orbis);
   const [user, setUser] = useState();
   const [connecting, setConnecting] = useState();
   const [credentials, setCredentials] = useState([]);
@@ -37,6 +36,7 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   const [accessRules, setAccessRules] = useState([]);
   const [connectModalVis, setConnectModalVis] = useState(false);
 
+  /** Check if user has an existing session in localStorage, if yes re-connect automatically */
   useEffect(() => {
     if(!user) {
       checkOrbisConnected();
@@ -131,12 +131,17 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
           /** Save access rules */
           if(_contextDetails.content?.accessRules && _contextDetails.content.accessRules.length > 0) {
             setAccessRules(_contextDetails.content.accessRules);
+          } else {
+            setHasAccess(true);
           }
 
           /** Save in localStorage */
           localStorage.setItem(_context, JSON.stringify(_contextDetails.content));
+        } else {
+          setHasAccess(true);
         }
       } catch(e) {
+        setHasAccess(true);
         console.log("Can't load context details:", e);
       }
     }
@@ -148,62 +153,14 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
       let countUserCredentials = credentials ? credentials.length : 0;
       let countAccessRules = accessRules ? accessRules.length : 0;
 
-      /** Option 1: There isn't any access rules: User has access */
-      if(countAccessRules == 0) {
-        if(contextDetails) {
-          setHasAccess(true);
-        }
-      }
-
       /** Option 2: There are access rules */
-      else if(countAccessRules > 0) {
+      if(countAccessRules > 0) {
         if(user) {
-          checkContextAccess(credentials, accessRules);
+          checkContextAccess(user, credentials, accessRules, setHasAccess);
         }
       }
     }
   }, [credentials, accessRules]);
-
-  /** Will loop through rules and user credentials to check if the user has access to this context */
-  async function checkContextAccess(_userCredentials, _accessRules) {
-
-    /** Loop through all rules assigned to this context */
-    _accessRules.forEach(async (_rule, i) => {
-      /** Handle operators function */
-      if(_rule.operator) {
-        //console.log("_rule.operator:", _rule.operator);
-      }
-
-      /** Manage verifications based on rules type */
-      switch (_rule.type) {
-        case "credential":
-          /** Loop through all credentials required in this rule */
-          _rule.requiredCredentials.forEach((cred, i) => {
-            let _hasVc = checkCredentialOwnership(_userCredentials, cred.identifier);
-            if(_hasVc) {
-              setHasAccess(true);
-            }
-          });
-
-          break;
-        case "did":
-          /** Loop through all authorized users authorized in this rule */
-          _rule.authorizedUsers.forEach((_user, i) => {
-            if(_user.did == user.did) {
-              setHasAccess(true);
-            }
-          });
-          break;
-        case "token":
-          const { address } = useDidToAddress(user.did);
-
-          /** Check if user owns requested balance for the token */
-          getTokenBalance(_rule.requiredToken, address, () => setHasAccess(true));
-          break;
-        default:
-      }
-    });
-  }
 
   return(
     <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
