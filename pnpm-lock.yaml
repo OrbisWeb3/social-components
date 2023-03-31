@@ -7,7 +7,7 @@ specifiers:
   '@babel/preset-react': ^7.18.6
   '@babel/runtime': ^7.20.13
   '@magic-ext/connect': ^4.0.0
-  '@orbisclub/orbis-sdk': 0.4.43
+  '@orbisclub/orbis-sdk': 0.4.46
   '@testing-library/jest-dom': ^5.16.5
   '@testing-library/react': ^13.4.0
   '@testing-library/user-event': ^13.5.0
@@ -33,7 +33,7 @@ dependencies:
   '@babel/preset-react': 7.18.6_@babel+core@7.20.12
   '@babel/runtime': 7.20.13
   '@magic-ext/connect': 4.0.0
-  '@orbisclub/orbis-sdk': 0.4.43_encoding@0.1.13
+  '@orbisclub/orbis-sdk': 0.4.46_encoding@0.1.13
   '@testing-library/jest-dom': 5.16.5
   '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
   '@testing-library/user-event': 13.5.0
@@ -2493,8 +2493,8 @@ packages:
       rimraf: 3.0.2
     dev: false
 
-  /@orbisclub/orbis-sdk/0.4.43_encoding@0.1.13:
-    resolution: {integrity: sha512-uzUrscLkPKW9f9xNlmpBsCg55xDQGrdjdY5o3ru6YB4OfwidPolGt0uSlOy3HdkmtwZtX0FhoZvRwz4Wu7UeBg==}
+  /@orbisclub/orbis-sdk/0.4.46_encoding@0.1.13:
+    resolution: {integrity: sha512-vtH+qAFopVTbeBlwpxNAigAAmcr9synE40Lz8MtBIu3pOjb4+xz7YNfqeAISko1nFLc1ndW4adAMLjzjSzghdw==}
     dependencies:
       '@ceramicnetwork/http-client': 2.15.0_encoding@0.1.13
       '@ceramicnetwork/stream-tile': 2.14.0_encoding@0.1.13

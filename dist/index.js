@@ -3991,6 +3991,8 @@ var styles$b = {"postContainer":"_3_x9y","replyToContainer":"_1e5B4","postConten
 
 function Post({
   post,
+  showPfp = true,
+  showCta = true,
   characterLimit = null,
   showReplyTo = false,
   setReply = null,
@@ -4016,7 +4018,6 @@ function Post({
     }
   }, [user]);
   useEffect(() => {
-    console.log("defaultReply:", defaultReply);
     _setReply(defaultReply);
   }, [defaultReply]);
   function replyToPost(post) {
@@ -4056,7 +4057,6 @@ function Post({
     replyToPost(false);
   }
   function callbackEdit(content) {
-    console.log("Enter callbackShared()");
     setEditPost(false);
     post.content = content;
   }
@@ -4098,7 +4098,7 @@ function Post({
       flexDirection: "row",
       width: "100%"
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, showPfp && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative"
     },
@@ -4111,7 +4111,7 @@ function Post({
     details: post.creator_details
   })), /*#__PURE__*/React.createElement("div", {
     className: styles$b.postDetailsContainer
-  }, /*#__PURE__*/React.createElement("div", {
+  }, showPfp && /*#__PURE__*/React.createElement("div", {
     className: styles$b.postDetailsContainerMetadata
   }, /*#__PURE__*/React.createElement("div", {
     className: styles$b.postDetailsContainerUser
@@ -4130,7 +4130,7 @@ function Post({
     }
   }, /*#__PURE__*/React.createElement(UserBadge, {
     details: post.creator_details
-  }))), /*#__PURE__*/React.createElement("p", {
+  }))), /*#__PURE__*/React.createElement("div", {
     className: styles$b.postDetailsContainerTimestamp,
     style: {
       fontSize: 12,
@@ -4206,7 +4206,7 @@ function Post({
   }, /*#__PURE__*/React.createElement(PostBody, {
     post: post,
     characterLimit: characterLimit
-  })), /*#__PURE__*/React.createElement("div", {
+  })), showCta && /*#__PURE__*/React.createElement("div", {
     className: styles$b.postActionsContainer
   }, reply && reply.stream_id == post.stream_id ? /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -4275,7 +4275,7 @@ const PostBody = ({
     theme
   } = useOrbis();
   const [charLimit, setCharLimit] = useState(characterLimit);
-  const [body, setBody] = useState(post === null || post === void 0 ? void 0 : (_post$content = post.content) === null || _post$content === void 0 ? void 0 : _post$content.body);
+  const [body, setBody] = useState(post !== null && post !== void 0 && (_post$content = post.content) !== null && _post$content !== void 0 && _post$content.body ? post.content.body : "");
   useEffect(() => {
     let _body = post.content.body;
     let mentions = post.content.mentions;
@@ -4376,7 +4376,6 @@ const PostMenu = ({
   async function _delete() {
     setDeletingStatus(1);
     let res = await orbis.deletePost(stream_id);
-    console.log("res delete:", res);
     setDeletingStatus(2);
   }
   function edit() {
@@ -4984,7 +4983,7 @@ const ChatContent = ({
       data,
       error
     } = await orbis.getPosts(queryParams, 0);
-    if (localStorage && data) {
+    if (localStorage && data && data.length > 0) {
       localStorage.setItem(context + "-last-read", data[0].timestamp);
     }
     setComments(data);
@@ -5111,7 +5110,7 @@ const CommentsContent = ({
       data,
       error
     } = await orbis.getPosts(queryParams, 0);
-    if (localStorage && data) {
+    if (localStorage && data && data.length > 0) {
       localStorage.setItem(context + "-last-read", data[0].timestamp);
     }
     setComments(data);

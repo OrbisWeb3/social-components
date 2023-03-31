@@ -20,7 +20,7 @@ import styles from './Post.module.css';
 import { marked } from 'marked';
 
 /** Display the post details */
-export default function Post({post, characterLimit = null, showReplyTo = false, setReply = null, defaultReply = null}) {
+export default function Post({post, showPfp = true, showCta = true, characterLimit = null, showReplyTo = false, setReply = null, defaultReply = null}) {
   const { user, setUser, orbis, theme, hasAccess } = useOrbis();
   const [editPost, setEditPost] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
@@ -37,7 +37,6 @@ export default function Post({post, characterLimit = null, showReplyTo = false, 
 
   /** Will update the reply status based on the forced parent parameters */
   useEffect(() => {
-    console.log("defaultReply:", defaultReply);
     _setReply(defaultReply);
   }, [defaultReply])
 
@@ -92,7 +91,6 @@ export default function Post({post, characterLimit = null, showReplyTo = false, 
 
   /** Called when a post is being edited with success */
   function callbackEdit(content){
-    console.log("Enter callbackShared()")
     setEditPost(false);
     post.content = content;
   }
@@ -125,42 +123,49 @@ export default function Post({post, characterLimit = null, showReplyTo = false, 
 
       {/** Post content */}
       <div style={{display: "flex", flexDirection: "row", width: "100%"}}>
-        <div style={{position: "relative"}} ref={hoverRef}>
-          <UserPfp details={post.creator_details} hover={false} />
-          <UserPopup visible={isHovered} details={post.creator_details} />
-        </div>
-        <div className={styles.postDetailsContainer}>
-          <div className={styles.postDetailsContainerMetadata}>
-            <div className={styles.postDetailsContainerUser}>
-              <span className={styles.postDetailsContainerUsername} style={{...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main")}}><Username details={post.creator_details} /></span>
-              <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={post.creator_details} /></div>
-            </div>
-            <p className={styles.postDetailsContainerTimestamp} style={{fontSize: 12, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>
-              <ReactTimeAgo style={{display: "flex", fontSize: 12, ...getThemeValue("font", theme, "actions")}} date={post.timestamp * 1000} locale="en-US" />
-              <div className={styles.hideMobile}>
-                <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}}>·</span>
-                <a style={{textDecoration: "none", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} href={"https://cerscan.com/mainnet/stream/" + post.stream_id} rel="noreferrer" target="_blank">Proof</a>
-              </div>
-              {/** Show action if user is connected */}
-              {user && user.did == post.creator &&
-                <>
-                  <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary")}}>·</span>
-                  <div style={{alignItems: "center", display: "flex"}}>
-                    {/** Button to edit a post */}
-                    <div style={{display: "flex", cursor: "pointer", color: getThemeValue("color", theme, "secondary")}} onClick={() => setPostMenuVis(true)}>
-                      <MenuHorizontal />
-                    </div>
-
-                    {/** Show postmenu for user */}
-                    {postMenuVis &&
-                      <PostMenu stream_id={post.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
-                    }
-                  </div>
-                </>
-              }
-            </p>
+        {/** Show PFP based on component paramaters */}
+        {showPfp &&
+          <div style={{position: "relative"}} ref={hoverRef}>
+            <UserPfp details={post.creator_details} hover={false} />
+            <UserPopup visible={isHovered} details={post.creator_details} />
           </div>
+        }
 
+        {/** Post details */}
+        <div className={styles.postDetailsContainer}>
+          {/** We don't show the post metadata if user decided to hide the pfp */}
+          {showPfp &&
+            <div className={styles.postDetailsContainerMetadata}>
+              <div className={styles.postDetailsContainerUser}>
+                <span className={styles.postDetailsContainerUsername} style={{...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main")}}><Username details={post.creator_details} /></span>
+                <div className={styles.hideMobile} style={{marginLeft: "0.5rem"}}><UserBadge details={post.creator_details} /></div>
+              </div>
+              <div className={styles.postDetailsContainerTimestamp} style={{fontSize: 12, color: theme?.color?.secondary ? theme.color.secondary : defaultTheme.color.secondary}}>
+                <ReactTimeAgo style={{display: "flex", fontSize: 12, ...getThemeValue("font", theme, "actions")}} date={post.timestamp * 1000} locale="en-US" />
+                <div className={styles.hideMobile}>
+                  <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}}>·</span>
+                  <a style={{textDecoration: "none", color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} href={"https://cerscan.com/mainnet/stream/" + post.stream_id} rel="noreferrer" target="_blank">Proof</a>
+                </div>
+                {/** Show action if user is connected */}
+                {user && user.did == post.creator &&
+                  <>
+                    <span style={{marginLeft: "0.5rem", marginRight: "0.5rem", color: getThemeValue("color", theme, "secondary")}}>·</span>
+                    <div style={{alignItems: "center", display: "flex"}}>
+                      {/** Button to edit a post */}
+                      <div style={{display: "flex", cursor: "pointer", color: getThemeValue("color", theme, "secondary")}} onClick={() => setPostMenuVis(true)}>
+                        <MenuHorizontal />
+                      </div>
+
+                      {/** Show postmenu for user */}
+                      {postMenuVis &&
+                        <PostMenu stream_id={post.stream_id} setPostMenuVis={setPostMenuVis} setEditPost={setEditPost} setIsDeleted={setIsDeleted} />
+                      }
+                    </div>
+                  </>
+                }
+              </div>
+            </div>
+          }
           {/** Post content */}
           {editPost ?
             <div style={{ marginTop: "0.5rem" }}>
@@ -172,50 +177,52 @@ export default function Post({post, characterLimit = null, showReplyTo = false, 
             </div>
           }
 
-          {/** post CTAs */}
-          <div className={styles.postActionsContainer}>
-            {/** Reply button */}
-            {(reply && reply.stream_id == post.stream_id) ?
-              <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => replyToPost(null)}>
-                <ReplyIcon type="full" />
-                Reply
-              </button>
-            :
-              <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => replyToPost(post)}>
-                <ReplyIcon type="line" />
-                Reply
-              </button>
-            }
-
-
-            {/** Like button */}
-            <span style={{marginLeft: "0.75rem", flexDirection: "row", display: "flex"}}>
-              {userReaction == "like" ?
-                <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => like(null)}>
-                  <LikeIcon type="full" />
-                  Liked
+          {/** Show post CTAs based on component parameters */}
+          {showCta &&
+            <div className={styles.postActionsContainer}>
+              {/** Reply button */}
+              {(reply && reply.stream_id == post.stream_id) ?
+                <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => replyToPost(null)}>
+                  <ReplyIcon type="full" />
+                  Reply
                 </button>
               :
-                <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => like("like")}>
-                  <LikeIcon type="line" />
-                  Like
+                <button type="button" className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => replyToPost(post)}>
+                  <ReplyIcon type="line" />
+                  Reply
                 </button>
               }
-            </span>
 
-            {/** Like count
-            {(userReaction == "like" || post.count_likes > 0) &&
-              <span style={{marginRight: 2}}>{userReaction == "like" ? post.count_likes + 1 : post.count_likes}</span>
-            }
-            */}
-            {/** Downvote button
-            <button type="button" className="inline-flex items-center rounded-md border border-transparent bg-transaprent px-2 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none text-[#798496] ml-4">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                <path d="M11 8L6 13M6 13L1 8M6 13L6 1" stroke="#4d5562" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Downvote
-            </button>*/}
-          </div>
+
+              {/** Like button */}
+              <span style={{marginLeft: "0.75rem", flexDirection: "row", display: "flex"}}>
+                {userReaction == "like" ?
+                  <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "active"), ...getThemeValue("font", theme, "actions")}} onClick={() => like(null)}>
+                    <LikeIcon type="full" />
+                    Liked
+                  </button>
+                :
+                  <button className={styles.postActionButton} style={{color: getThemeValue("color", theme, "secondary"), ...getThemeValue("font", theme, "actions")}} onClick={() => like("like")}>
+                    <LikeIcon type="line" />
+                    Like
+                  </button>
+                }
+              </span>
+
+              {/** Like count
+              {(userReaction == "like" || post.count_likes > 0) &&
+                <span style={{marginRight: 2}}>{userReaction == "like" ? post.count_likes + 1 : post.count_likes}</span>
+              }
+              */}
+              {/** Downvote button
+              <button type="button" className="inline-flex items-center rounded-md border border-transparent bg-transaprent px-2 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50 focus:outline-none text-[#798496] ml-4">
+                <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
+                  <path d="M11 8L6 13M6 13L1 8M6 13L6 1" stroke="#4d5562" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Downvote
+              </button>*/}
+            </div>
+          }
 
           {/** Show postbox */}
           {(reply && reply.stream_id == post.stream_id && !defaultReply) &&
@@ -233,7 +240,7 @@ export default function Post({post, characterLimit = null, showReplyTo = false, 
 const PostBody = ({post, characterLimit, showViewMore = true}) => {
   const { theme } = useOrbis();
   const [charLimit, setCharLimit] = useState(characterLimit);
-  const [body, setBody] = useState(post?.content?.body);
+  const [body, setBody] = useState(post?.content?.body ? post.content.body : "");
 
   useEffect(() => {
     let _body = post.content.body;
@@ -325,7 +332,6 @@ const PostMenu = ({ stream_id, setPostMenuVis, setEditPost, setIsDeleted }) => {
   async function _delete() {
     setDeletingStatus(1);
     let res = await orbis.deletePost(stream_id);
-    console.log("res delete:", res);
     setDeletingStatus(2);
   }
 

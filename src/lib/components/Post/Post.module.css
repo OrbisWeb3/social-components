@@ -83,8 +83,6 @@
 }
 .postContent {
   overflow-wrap: break-word;
-  padding-right: 5rem;
-  max-width: 70ch;
   margin: 0px;
 }
 .postContent p {

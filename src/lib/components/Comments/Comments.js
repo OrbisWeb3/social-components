@@ -49,7 +49,7 @@ const CommentsContent = ({characterLimit, master}) => {
     let { data, error } = await orbis.getPosts(queryParams, 0);
 
     /** Store last message timestamp in localStorage to check if user has unread message */
-    if(localStorage && data) {
+    if(localStorage && data && data.length > 0) {
       localStorage.setItem(context + "-last-read", data[0].timestamp)
     }
 
