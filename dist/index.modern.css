@@ -144,7 +144,7 @@
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   background: rgba(66,74,82,.5);
-  z-index: 9999;
+  z-index: 87;
 }
 
 ._3DR1S {
@@ -154,6 +154,7 @@
   right: 0px;
   bottom: 0px;
   left: 0px;
+  z-index: 88;
   overflow-y: auto;
 }
 
@@ -498,6 +499,18 @@
   border-radius: 0.5rem;
   margin-bottom: 10px;
   flex-wrap: wrap;
+}
+._36gg7 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 5px;
+}
+._3WHS5 {
+  height: 50px;
+  width: 50px;
+  border-radius: 999px;
+  margin-right: 8px;
 }
 @media (max-width: 600px) {
   ._1ZmCf {

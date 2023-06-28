@@ -25,7 +25,7 @@ let _orbis = new Orbis({
   node: "https://node2.orbis.club/"
 });
 
-export default function OrbisProvider({ context, children, theme = defaultTheme, options, defaultOrbis }) {
+export default function OrbisProvider({ context, children, theme = defaultTheme, options, defaultOrbis, authMethods = ["metamask", "wallet-connect", "phantom", "email"] }) {
   const [orbis, setOrbis] = useState(defaultOrbis ? defaultOrbis : _orbis);
   const [user, setUser] = useState();
   const [connecting, setConnecting] = useState();
@@ -163,12 +163,12 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   }, [credentials, accessRules]);
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis }}>
+    <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis, authMethods }}>
       {children}
 
       {/** Show Connect Modal */}
       {connectModalVis &&
-        <ConnectModal lit={false} hide={() => setConnectModalVis(false)} />
+        <ConnectModal lit={false} hide={() => setConnectModalVis(false)} authMethods={authMethods} />
       }
     </GlobalContext.Provider>
   )

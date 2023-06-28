@@ -9,10 +9,10 @@ import { defaultTheme, getThemeValue } from "../../utils/themes";
 import { sleep } from "../../utils";
 
 /** Manage WalletConnect */
-import WalletConnectProvider from "@walletconnect/web3-provider";
+import { EthereumProvider } from '@walletconnect/ethereum-provider';
 
 /** Modal for users to connect: Options displayed can be enabled / disabled with the parameters */
-export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide }) {
+export default function ConnectModal({ lit = false, title = "Connect to join the discussion", description = "You must be connected to share posts or reactions.", hide, authMethods }) {
   const { orbis, theme } = useOrbis();
   const wrapperRef = useRef(null);
 
@@ -22,17 +22,25 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
   return(
     <Modal hide={() => hide()} title={title} description={description} width={370}>
       <div style={{display: "flex", flexDirection: "column"}}>
-        {/** Connect with Metamask */}
-        <WalletButton lit={lit} type="metamask" label={<><MetamaskIcon className="mr-2" /> Metamask</>} bg="#F18F62" hoverColor="#F48552" callback={hide} />
+        {/** Connect with Metamask (only if window.ethereum is available) */}
+        {authMethods.includes("metamask") &&
+          <WalletButton lit={lit} type="metamask" label={<><MetamaskIcon className="mr-2" /> Metamask</>} bg="#F18F62" hoverColor="#F48552" callback={hide} />
+        }
 
         {/** Connect with WalletConnect */}
-        <WalletButton lit={lit} type="wallet-connect" label={<><WalletConnectIcon className="mr-2" /> WalletConnect</>} bg="#468DEE" hoverColor="#3280EB" callback={hide} />
+        {authMethods.includes("wallet-connect") &&
+          <WalletButton lit={lit} type="wallet-connect" label={<><WalletConnectIcon className="mr-2" /> WalletConnect</>} bg="#468DEE" hoverColor="#3280EB" callback={hide} />
+        }
 
         {/** Connect with Phantom */}
-        <WalletButton lit={lit} type="phantom" label={<><PhantomIcon className="mr-2" /> Phantom</>} bg="#6450E3" hoverColor="#4B34DD" callback={hide} />
+        {authMethods.includes("phantom") &&
+          <WalletButton lit={lit} type="phantom" label={<><PhantomIcon className="mr-2" /> Phantom</>} bg="#6450E3" hoverColor="#4B34DD" callback={hide} />
+        }
 
         {/** Connect with Email */}
-        <WalletButton lit={lit} type="email" label={<><EmailIcon className="mr-2" /> Email</>} bg="#000" hoverColor="#F48552" callback={hide} />
+        {authMethods.includes("email") &&
+          <WalletButton lit={lit} type="email" label={<><EmailIcon className="mr-2" /> Email</>} bg="#000" hoverColor="#F48552" callback={hide} />
+        }
       </div>
     </Modal>
   )
@@ -59,14 +67,13 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
 
       /** Wallet Connect */
       case "wallet-connect":
-        /** Enable session (triggers QR Code modal) *//** Create WalletConnect Provider
-        const wc_provider = await EthereumProvider.init({
-          projectId:"9fe6eef52f4985e5849a5c1e2c80fabb",
-          chains: ["1"]
-        });*/
+        /** Enable session (triggers QR Code modal) *//** Create WalletConnect Provider */
+
         /** Initiate the WC provider */
-        let wc_provider = new WalletConnectProvider({
-          infuraId: "9bf71860bc6c4560904d84cd241ab0a0",
+        const wc_provider = await EthereumProvider.init({
+          projectId: '9fe6eef52f4985e5849a5c1e2c80fabb', // required
+          chains: [1], // required
+          showQrModal: true // requires @walletconnect/modal
         });
         await wc_provider.enable();
 

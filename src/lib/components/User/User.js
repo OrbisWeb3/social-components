@@ -47,14 +47,28 @@ import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import styles from './User.module.css';
 
 /** Full component for a user */
-const User = ({details, connected = false, height = 44, hover = false}) => {
-  const { user, theme } = useOrbis();
+const User = ({did, details, connected = false, height = 44, hover = false}) => {
+  const [userDetails, setUserDetails] = useState(details);
+  const { user, theme, orbis } = useOrbis();
+
+  /** This will retrieve user details in case a did is passed instead of the full user details */
+  useEffect(() => {
+    if(did) {
+      loadProfile();
+    }
+
+    async function loadProfile() {
+      let { data, error } = await orbis.getProfile(did);
+      setUserDetails(data?.details);
+    }
+  }, [did])
+
   return(
     <div className={styles.userContainer}>
-      <UserPfp height={height} details={connected ? user : details} hover={hover} />
+      <UserPfp height={height} details={connected ? user : userDetails} hover={hover} />
       <div className={styles.userUsernameContainer}>
         <div style={{display: "flex"}}>
-          <Username details={connected ? user : details} />
+          <Username details={connected ? user : userDetails} />
         </div>
       </div>
     </div>
@@ -196,7 +210,7 @@ export const UserPopup = ({details, visible, position = "absolute"}) => {
                     </span>
                   </>
                 :
-                  <Follow did={details.did} />
+                  <FollowButton did={details.did} />
                 }
               </div>
             </div>
@@ -610,12 +624,13 @@ const GitcoinProvider = ({credential}) => {
 }
 
 /** Follow button component */
-function Follow({did}) {
+export function FollowButton({did}) {
   const { orbis, user, theme } = useOrbis();
   const [loading, setLoading] = useState(false);
   const [following, setFollowing] = useState(false);
   const [followHoverRef, isFollowHovered] = useHover();
 
+  /** Will check if user connected is already following this did */
   useEffect(() => {
     if(user) {
       getFollowing();
@@ -630,7 +645,7 @@ function Follow({did}) {
     }
   }, [user, did]);
 
-  /** Join group function */
+  /** Will follow / unfollow the user  */
   async function follow(active) {
     setLoading(true);
     let res = await orbis.setFollow(did, active);

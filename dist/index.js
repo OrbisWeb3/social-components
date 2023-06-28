@@ -3,7 +3,7 @@ import { decryptString, Orbis } from '@orbisclub/orbis-sdk';
 export { Orbis } from '@orbisclub/orbis-sdk';
 import 'react-string-replace';
 import { getAddressFromDid } from '@orbisclub/orbis-sdk/utils/index.js';
-import WalletConnectProvider from '@walletconnect/web3-provider';
+import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import ReactTimeAgo from 'react-time-ago';
 import { marked } from 'marked';
 import Web3 from 'web3';
@@ -581,6 +581,9 @@ async function getNFTs(address, page, network) {
   }
 }
 async function checkContextAccess(user, credentials, _accessRules, callback) {
+  const {
+    address
+  } = useDidToAddress(user.did);
   _accessRules.forEach(async (_rule, i) => {
     switch (_rule.type) {
       case "credential":
@@ -593,16 +596,16 @@ async function checkContextAccess(user, credentials, _accessRules, callback) {
         break;
       case "did":
         _rule.authorizedUsers.forEach((_user, i) => {
-          if (_user.did == user.did) {
+          if (_user.did.toLowerCase() == user.did.toLowerCase()) {
             callback(true);
           }
         });
         break;
       case "token":
-        const {
-          address
-        } = useDidToAddress(user.did);
         getTokenBalance(_rule.requiredToken, address, () => callback(true));
+        break;
+      case "poap":
+        getPoapOwnership(_rule.requiredPoap.event_id, address, () => callback(true));
         break;
     }
   });
@@ -633,6 +636,27 @@ async function getTokenBalance(token, account, successCallback) {
       if (balanceResult.balance >= parseFloat(token.minBalance)) {
         successCallback();
       }
+    }
+  } catch (e) {
+    console.log("Error retrieving user's balance for this token:", e);
+    return 0;
+  }
+}
+async function getPoapOwnership(event_id, account, successCallback) {
+  try {
+    let res = await fetch('https://api.orbis.club/get-poap-ownership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        event_id: event_id,
+        account: account
+      })
+    });
+    let owns = await res.json();
+    if (owns.result == true) {
+      successCallback();
     }
   } catch (e) {
     console.log("Error retrieving user's balance for this token:", e);
@@ -1668,10 +1692,12 @@ function ConnectButton({
         provider = magic.rpcProvider;
         break;
       case "wallet-connect":
-        provider = new WalletConnectProvider({
-          infuraId: "9bf71860bc6c4560904d84cd241ab0a0"
+        const wc_provider = await EthereumProvider.init({
+          projectId: '9fe6eef52f4985e5849a5c1e2c80fabb',
+          chains: [1],
+          showQrModal: true
         });
-        await provider.enable();
+        await wc_provider.enable();
         break;
       case "phantom":
         provider = (_window$phantom = window.phantom) === null || _window$phantom === void 0 ? void 0 : _window$phantom.solana;
@@ -2122,20 +2148,35 @@ function useGetUsername(details, address, did) {
 var styles$8 = {"userContainer":"_2o7KL","userUsernameContainer":"_1Xs_-","userPfpContainer":"_MC4Lq","userPfpContainerImg":"_1FZoV","userPfpContainerImgEmpty":"_164UE","userBadge":"_3tVDt","loadingContainer":"_3JjLt","userPopupContainer":"_3mkOx","userPopupContent":"_3EuST","userPopupTopDetailsContainer":"_8up-o","userPopupDetailsContainer":"_2ioaU","userPopupDetailsUsername":"_18eQ4","userPopupDetailsBadgeContainer":"_2siDY","userPopupDetailsActionsContainer":"_WjB9N","userPopupCredentialsContainer":"_179TI","userPopupFooterContainer":"_3sTma","userPopupFooterFollowers":"_2XlLk","userPopupFooterFollowing":"_1Xdku","userPopupFooterFollowTitle":"_PDHd1","userPopupFooterFollowCount":"_DskLZ","userEditContainer":"_2C8TD","userEditPfpContainer":"_3Ehbv","userEditPfpOverlay":"_1LJ5X","userEditButtonContainer":"_2OSys","userFieldsContainer":"_2ymLO","userFieldsSaveContainer":"_I1aJ0"};
 
 const User = ({
+  did,
   details,
   connected: _connected = false,
   height: _height = 44,
   hover: _hover = false
 }) => {
+  const [userDetails, setUserDetails] = useState(details);
   const {
     user,
-    theme
+    theme,
+    orbis
   } = useOrbis();
+  useEffect(() => {
+    if (did) {
+      loadProfile();
+    }
+    async function loadProfile() {
+      let {
+        data,
+        error
+      } = await orbis.getProfile(did);
+      setUserDetails(data === null || data === void 0 ? void 0 : data.details);
+    }
+  }, [did]);
   return /*#__PURE__*/React.createElement("div", {
     className: styles$8.userContainer
   }, /*#__PURE__*/React.createElement(UserPfp, {
     height: _height,
-    details: _connected ? user : details,
+    details: _connected ? user : userDetails,
     hover: _hover
   }), /*#__PURE__*/React.createElement("div", {
     className: styles$8.userUsernameContainer
@@ -2144,7 +2185,7 @@ const User = ({
       display: "flex"
     }
   }, /*#__PURE__*/React.createElement(Username, {
-    details: _connected ? user : details
+    details: _connected ? user : userDetails
   }))));
 };
 const UserPfp = ({
@@ -2336,7 +2377,7 @@ const UserPopup = ({
       color: getThemeValue("color", theme, "main")
     },
     onClick: () => logout()
-  }, /*#__PURE__*/React.createElement(LogoutIcon, null))) : /*#__PURE__*/React.createElement(Follow, {
+  }, /*#__PURE__*/React.createElement(LogoutIcon, null))) : /*#__PURE__*/React.createElement(FollowButton, {
     did: details.did
   }))), user && user.did == details.did && !user.encrypted_email && /*#__PURE__*/React.createElement(Alert, {
     title: /*#__PURE__*/React.createElement(AddEmailAddress, null),
@@ -2894,7 +2935,7 @@ const GitcoinProvider = ({
   }
   return provider;
 };
-function Follow({
+function FollowButton({
   did
 }) {
   const {
@@ -3124,7 +3165,7 @@ function UserEditProfile({
   }, /*#__PURE__*/React.createElement(SaveButton, null)));
 }
 
-var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","operator":"_1XO9C"};
+var styles$9 = {"accessRulesContainer":"_OdJjS","accessRuleContainer":"_1ZmCf","poapDetailsContainer":"_36gg7","poapDetailsContainerLogo":"_3WHS5","operator":"_1XO9C"};
 
 function AccessRulesModal({
   hide,
@@ -3237,9 +3278,48 @@ const OneAccessRule = ({
       }, "With attributes:"), /*#__PURE__*/React.createElement(AccessRuleTokenAttributes, {
         attributes_required: accessRule.requiredToken.attributes_required
       }))));
+    case "poap":
+      return /*#__PURE__*/React.createElement("div", {
+        className: styles$9.accessRuleContainer,
+        style: {
+          borderColor: getThemeValue("border", theme, "main")
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 13,
+          color: getThemeValue("color", theme, "secondary"),
+          marginBottom: 4
+        }
+      }, "Requires POAP:"), /*#__PURE__*/React.createElement(PoapDetails, {
+        requiredPoap: accessRule.requiredPoap
+      })));
     default:
       return null;
   }
+};
+const PoapDetails = ({
+  requiredPoap
+}) => {
+  const {
+    theme
+  } = useOrbis();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles$9.poapDetailsContainer
+  }, /*#__PURE__*/React.createElement("img", {
+    className: styles$9.poapDetailsContainerLogo,
+    src: requiredPoap.details.image_url
+  }), /*#__PURE__*/React.createElement("p", {
+    style: {
+      ...getThemeValue("font", theme, "main"),
+      color: getThemeValue("color", theme, "main")
+    }
+  }, requiredPoap.details.name));
 };
 const AccessRuleToken = ({
   requiredToken
@@ -3304,6 +3384,7 @@ const LoopUsers = ({
         fontSize: 15
       }
     }, /*#__PURE__*/React.createElement(User, {
+      did: _user.did,
       details: _user.details,
       key: key
     }));
@@ -4433,7 +4514,8 @@ function ConnectModal({
   lit = false,
   title = "Connect to join the discussion",
   description = "You must be connected to share posts or reactions.",
-  hide
+  hide,
+  authMethods
 }) {
   const {
     orbis,
@@ -4451,7 +4533,7 @@ function ConnectModal({
       display: "flex",
       flexDirection: "column"
     }
-  }, /*#__PURE__*/React.createElement(WalletButton, {
+  }, authMethods.includes("metamask") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
     type: "metamask",
     label: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(MetamaskIcon, {
@@ -4460,7 +4542,7 @@ function ConnectModal({
     bg: "#F18F62",
     hoverColor: "#F48552",
     callback: hide
-  }), /*#__PURE__*/React.createElement(WalletButton, {
+  }), authMethods.includes("wallet-connect") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
     type: "wallet-connect",
     label: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(WalletConnectIcon, {
@@ -4469,7 +4551,7 @@ function ConnectModal({
     bg: "#468DEE",
     hoverColor: "#3280EB",
     callback: hide
-  }), /*#__PURE__*/React.createElement(WalletButton, {
+  }), authMethods.includes("phantom") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
     type: "phantom",
     label: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(PhantomIcon, {
@@ -4478,7 +4560,7 @@ function ConnectModal({
     bg: "#6450E3",
     hoverColor: "#4B34DD",
     callback: hide
-  }), /*#__PURE__*/React.createElement(WalletButton, {
+  }), authMethods.includes("email") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
     type: "email",
     label: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(EmailIcon, {
@@ -4521,8 +4603,10 @@ const WalletButton = ({
         });
         break;
       case "wallet-connect":
-        let wc_provider = new WalletConnectProvider({
-          infuraId: "9bf71860bc6c4560904d84cd241ab0a0"
+        const wc_provider = await EthereumProvider.init({
+          projectId: '9fe6eef52f4985e5849a5c1e2c80fabb',
+          chains: [1],
+          showQrModal: true
         });
         await wc_provider.enable();
         res = await orbis.connect(wc_provider, false);
@@ -4779,7 +4863,8 @@ function OrbisProvider({
   children,
   theme = defaultTheme,
   options,
-  defaultOrbis
+  defaultOrbis,
+  authMethods = ["metamask", "wallet-connect", "phantom", "email"]
 }) {
   const [orbis, setOrbis] = useState(defaultOrbis ? defaultOrbis : _orbis);
   const [user, setUser] = useState();
@@ -4910,11 +4995,13 @@ function OrbisProvider({
       credentials,
       setCredentials,
       connectModalVis,
-      setConnectModalVis
+      setConnectModalVis,
+      authMethods
     }
   }, children, connectModalVis && /*#__PURE__*/React.createElement(ConnectModal, {
     lit: false,
-    hide: () => setConnectModalVis(false)
+    hide: () => setConnectModalVis(false),
+    authMethods: authMethods
   }));
 }
 function cleanContext(context) {
@@ -4933,7 +5020,8 @@ function Chat({
   theme = defaultTheme,
   options,
   characterLimit = null,
-  master = null
+  master = null,
+  authMethods
 }) {
   const {
     orbis
@@ -4941,7 +5029,8 @@ function Chat({
   return /*#__PURE__*/React.createElement(OrbisProvider, {
     context: context,
     theme: theme,
-    options: options
+    options: options,
+    authMethods: authMethods
   }, /*#__PURE__*/React.createElement(ChatContent, {
     characterLimit: characterLimit,
     master: master
@@ -5972,5 +6061,5 @@ en.long.minute = {
 };
 TimeAgo.addDefaultLocale(en);
 
-export { AccessRulesDetails, AccessRulesModal, Article, Button, Chat, Comments, ConnectButton, Comments as Discussion, Inbox, MentionsBox, OrbisProvider, Post, Postbox, User, UserBadge, UserCredential, UserPfp, UserPopup, Username, checkContextAccess, darkTheme, defaultTheme, useOrbis };
+export { AccessRulesDetails, AccessRulesModal, Article, Button, Chat, Comments, ConnectButton, Comments as Discussion, FollowButton, Inbox, MentionsBox, OrbisProvider, Post, Postbox, User, UserBadge, UserCredential, UserPfp, UserPopup, Username, checkContextAccess, darkTheme, defaultTheme, useOrbis };
 //# sourceMappingURL=index.js.map

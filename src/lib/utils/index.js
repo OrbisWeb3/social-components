@@ -116,6 +116,7 @@ function replaceMentions(post) {
 
 /** Will loop through rules and user credentials to check if the user has access to this context */
 export async function checkContextAccess(user, credentials, _accessRules, callback) {
+  const { address } = useDidToAddress(user.did);
 
   /** Loop through all rules assigned to this context */
   _accessRules.forEach(async (_rule, i) => {
@@ -139,16 +140,20 @@ export async function checkContextAccess(user, credentials, _accessRules, callba
       case "did":
         /** Loop through all authorized users authorized in this rule */
         _rule.authorizedUsers.forEach((_user, i) => {
-          if(_user.did == user.did) {
+          if(_user.did.toLowerCase() == user.did.toLowerCase()) {
             callback(true);
           }
         });
         break;
       case "token":
-        const { address } = useDidToAddress(user.did);
-
         /** Check if user owns requested balance for the token */
         getTokenBalance(_rule.requiredToken, address, () => callback(true));
+        break;
+
+      /** Check POAP ownership */
+      case "poap":
+        /** Check if user owns requested balance for the token */
+        getPoapOwnership(_rule.requiredPoap.event_id, address, () => callback(true));
         break;
       default:
     }
@@ -194,4 +199,27 @@ export async function getTokenBalance(token, account, successCallback) {
     return 0;
   }
 
+}
+
+/** Will call our API to verify if user owns the required POAP */
+export async function getPoapOwnership(event_id, account, successCallback) {
+  try {
+    let res = await fetch('https://api.orbis.club/get-poap-ownership', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        event_id: event_id,
+        account: account
+      })
+    });
+    let owns = await res.json();
+    if(owns.result == true) {
+      successCallback();
+    }
+  } catch(e) {
+    console.log("Error retrieving user's balance for this token:", e);
+    return 0;
+  }
 }

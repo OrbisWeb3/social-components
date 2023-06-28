@@ -6,7 +6,7 @@ import { defaultTheme, getThemeValue, getStyle } from "../../utils/themes";
 import useOrbis from "../../hooks/useOrbis";
 
 /** Manage WalletConnect */
-import WalletConnectProvider from "@walletconnect/web3-provider";
+import { EthereumProvider } from '@walletconnect/ethereum-provider';
 
 /** Import CSS */
 import styles from './ConnectButton.module.css';
@@ -39,12 +39,14 @@ export default function ConnectButton({ icon = <BoltIcon style={{marginRight: "0
       /** Wallet Connect */
       case "wallet-connect":
         /** Create WalletConnect Provider */
-        provider = new WalletConnectProvider({
-          infuraId: "9bf71860bc6c4560904d84cd241ab0a0",
+        const wc_provider = await EthereumProvider.init({
+          projectId: '9fe6eef52f4985e5849a5c1e2c80fabb', // required
+          chains: [1], // required
+          showQrModal: true // requires @walletconnect/modal
         });
+        await wc_provider.enable();
 
         /** Enable session (triggers QR Code modal) */
-        await provider.enable();
         break;
 
       /** Phantom */

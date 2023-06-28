@@ -13,7 +13,7 @@ import { defaultTheme, getThemeValue } from "../../utils/themes"
 /** Import CSS */
 import styles from './Chat.module.css';
 
-export default function Chat({context, theme = defaultTheme, options, characterLimit = null, master = null}) {
+export default function Chat({context, theme = defaultTheme, options, characterLimit = null, master = null, authMethods}) {
   const { orbis } = useOrbis();
   /** Will finalize later, the goal is to have the context not be part of the OrbisProvider to be able to use it independently in the modules
   if(orbis) {
@@ -28,7 +28,7 @@ export default function Chat({context, theme = defaultTheme, options, characterL
     )
   }*/
   return(
-    <OrbisProvider context={context} theme={theme} options={options} >
+    <OrbisProvider context={context} theme={theme} options={options} authMethods={authMethods} >
       <ChatContent characterLimit={characterLimit} master={master} />
     </OrbisProvider>
   )

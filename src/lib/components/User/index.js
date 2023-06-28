@@ -1,1 +1,1 @@
-export { default, UserPfp, Username, UserBadge, UserPopup, UserCredential } from "./User";
+export { default, UserPfp, Username, UserBadge, UserPopup, UserCredential, FollowButton } from "./User";

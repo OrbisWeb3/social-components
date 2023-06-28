@@ -3,7 +3,6 @@ import Postbox from "../Postbox";
 import Post from "../Post";
 import User from "../User";
 import LoadingCircle from "../LoadingCircle";
-import { GlobalContext } from "../../contexts/GlobalContext";
 import { CommentsContext } from "../../contexts/CommentsContext";
 import OrbisProvider from "../OrbisProvider";
 import useOrbis from "../../hooks/useOrbis";

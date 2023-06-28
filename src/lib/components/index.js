@@ -4,7 +4,7 @@ import { Orbis } from "@orbisclub/orbis-sdk";
 
 //import Comments from "./Comments";
 import Button from "./Button";
-import User, { UserPfp, Username, UserCredential, UserBadge, UserPopup } from "./User";
+import User, { UserPfp, Username, UserCredential, UserBadge, UserPopup, FollowButton } from "./User";
 import Chat from "./Chat";
 import Comments from "./Comments";
 import Discussion from "./Comments";
@@ -29,4 +29,4 @@ en.long.minute = {
 }
 TimeAgo.addDefaultLocale(en);
 
-export { TimeAgo, Button, Postbox, MentionsBox, AccessRulesDetails, AccessRulesModal, User, UserPfp, UserBadge, UserPopup, Username, UserCredential, Chat, Comments, Discussion, Post, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme, checkContextAccess };
+export { TimeAgo, Button, Postbox, MentionsBox, AccessRulesDetails, AccessRulesModal, User, UserPfp, UserBadge, UserPopup, Username, UserCredential, FollowButton, Chat, Comments, Discussion, Post, Inbox, ConnectButton, Article, Orbis, OrbisProvider, useOrbis, defaultTheme, darkTheme, checkContextAccess };

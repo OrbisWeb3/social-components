@@ -77,9 +77,31 @@ const OneAccessRule = ({accessRule}) => {
           </div>
         </div>
       );
+    case "poap":
+      return(
+        <div className={styles.accessRuleContainer} style={{borderColor: getThemeValue("border", theme, "main")}}>
+          <div style={{display: "flex", flexDirection:"column", alignItems: "center"}}>
+            <span style={{ fontSize: 13, color: getThemeValue("color", theme, "secondary"), marginBottom: 4}}>Requires POAP:</span>
+
+            {/** Display token details */}
+            <PoapDetails requiredPoap={accessRule.requiredPoap} />
+          </div>
+        </div>
+      );
     default:
       return null;
   }
+}
+
+/** Will dispaly the details of a POAP */
+const PoapDetails = ({requiredPoap}) => {
+  const { theme } = useOrbis();
+  return(
+    <div className={styles.poapDetailsContainer}>
+      <img className={styles.poapDetailsContainerLogo} src={requiredPoap.details.image_url} />
+      <p style={{ ...getThemeValue("font", theme, "main"), color: getThemeValue("color", theme, "main")}}>{requiredPoap.details.name}</p>
+    </div>
+  )
 }
 
 /** Will display details for the token required */
@@ -114,7 +136,7 @@ const LoopUsers = ({users}) => {
   return users.map((_user, key) => {
     return(
       <div style={{color: getThemeValue("color", theme, "main"), fontSize: 15}}>
-        <User details={_user.details} key={key} />
+        <User did={_user.did} details={_user.details} key={key} />
       </div>
     )
   });
