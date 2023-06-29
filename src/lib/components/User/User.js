@@ -185,20 +185,6 @@ export const UserPopup = ({details, visible, position = "absolute"}) => {
                 <span className={styles.userPopupDetailsUsername} style={{color: getThemeValue("color", theme, "main"), ...getThemeValue("font", theme, "main")}}><Username details={details} /></span>
                 <span className={styles.userPopupDetailsBadgeContainer}>
                   <UserBadge details={details} />
-
-                  {/** Show Twitter & GitHub Badges
-                  {details?.twitter_details &&
-                    <a href={"https://twitter.com/" + details?.twitter_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
-                      <TwitterIcon />
-                    </a>
-                  }
-
-                  {details?.github_details &&
-                    <a href={"https://github.com/" + details?.github_details.username} target="_blank" rel="noreferrer" style={{marginLeft: 10, color: theme?.badges?.main?.color ? theme.badges.main.color : defaultTheme.badges.main.color}}>
-                      <GithubIcon />
-                    </a>
-                  }
-                  */}
                 </span>
               </div>
               <div className={styles.userPopupDetailsActionsContainer}>
@@ -329,7 +315,7 @@ function UserCredentials({details}) {
     } else {
       return(
         <>
-          <Alert title="User doesn't have any credentials yet." style={{backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main")}} />
+          <Alert title="User doesn't have any credentials yet." style={{width: "100%", backgroundColor: getThemeValue("bg", theme, "main"), color: getThemeValue("color", theme, "main")}} />
         </>
       )
     }

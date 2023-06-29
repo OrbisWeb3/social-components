@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GlobalContext } from "../../contexts/GlobalContext";
 import { Orbis } from "@orbisclub/orbis-sdk";
 import { defaultTheme, getThemeValue } from "../../utils/themes";
@@ -163,14 +164,16 @@ export default function OrbisProvider({ context, children, theme = defaultTheme,
   }, [credentials, accessRules]);
 
   return(
-    <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis, authMethods }}>
-      {children}
+    <GoogleOAuthProvider clientId="728282649612-nh0qhf05g8q3alo12p301o9jbls015mk.apps.googleusercontent.com">
+      <GlobalContext.Provider value={{ user, setUser, connecting, setConnecting, orbis, magic, context, theme: activeTheme, accessRules: accessRules, hasAccess, credentials, setCredentials, connectModalVis, setConnectModalVis, authMethods }}>
+        {children}
 
-      {/** Show Connect Modal */}
-      {connectModalVis &&
-        <ConnectModal lit={false} hide={() => setConnectModalVis(false)} authMethods={authMethods} />
-      }
-    </GlobalContext.Provider>
+        {/** Show Connect Modal */}
+        {connectModalVis &&
+          <ConnectModal lit={false} hide={() => setConnectModalVis(false)} authMethods={authMethods} />
+        }
+      </GlobalContext.Provider>
+    </GoogleOAuthProvider>
   )
 }
 

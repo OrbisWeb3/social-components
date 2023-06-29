@@ -6,6 +6,7 @@ import { getAddressFromDid } from '@orbisclub/orbis-sdk/utils/index.js';
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import ReactTimeAgo from 'react-time-ago';
 import { marked } from 'marked';
+import { useGoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import Web3 from 'web3';
 import { Magic } from 'magic-sdk';
 import { ConnectExtension } from '@magic-ext/connect';
@@ -2550,6 +2551,7 @@ function UserCredentials({
       return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Alert, {
         title: "User doesn't have any credentials yet.",
         style: {
+          width: "100%",
           backgroundColor: getThemeValue("bg", theme, "main"),
           color: getThemeValue("color", theme, "main")
         }
@@ -4541,6 +4543,7 @@ function ConnectModal({
     }), " Metamask"),
     bg: "#F18F62",
     hoverColor: "#F48552",
+    textColor: "#fff",
     callback: hide
   }), authMethods.includes("wallet-connect") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
@@ -4550,6 +4553,7 @@ function ConnectModal({
     }), " WalletConnect"),
     bg: "#468DEE",
     hoverColor: "#3280EB",
+    textColor: "#fff",
     callback: hide
   }), authMethods.includes("phantom") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
@@ -4559,6 +4563,7 @@ function ConnectModal({
     }), " Phantom"),
     bg: "#6450E3",
     hoverColor: "#4B34DD",
+    textColor: "#fff",
     callback: hide
   }), authMethods.includes("email") && /*#__PURE__*/React.createElement(WalletButton, {
     lit: lit,
@@ -4568,6 +4573,17 @@ function ConnectModal({
     }), " Email"),
     bg: "#000",
     hoverColor: "#F48552",
+    textColor: "#fff",
+    callback: hide
+  }), authMethods.includes("google") && /*#__PURE__*/React.createElement(WalletButton, {
+    lit: lit,
+    type: "google",
+    label: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(GoogleIcon$1, {
+      className: "mr-2"
+    }), " Google"),
+    bg: "#F2F2F2",
+    hoverColor: "#FFFFFF",
+    textColor: "#000",
     callback: hide
   })));
 }
@@ -4577,7 +4593,8 @@ const WalletButton = ({
   type,
   label,
   bg,
-  hoverColor
+  hoverColor,
+  textColor
 }) => {
   const {
     orbis,
@@ -4587,6 +4604,39 @@ const WalletButton = ({
     setCredentials
   } = useOrbis();
   const [status, setStatus] = useState(0);
+  const googleLogin = useGoogleLogin({
+    flow: 'auth-code',
+    onSuccess: async codeResponse => {
+      let res = await orbis.connect_v2({
+        provider: "oauth",
+        oauth: {
+          type: "google",
+          code: codeResponse.code
+        }
+      });
+      if (res.status == 200) {
+        successLogin(res);
+      } else {
+        errorLogin();
+      }
+    },
+    onError: async errorResponse => {
+      errorLogin();
+    }
+  });
+  function successLogin(res) {
+    setUser(res.details);
+    setStatus(2);
+    loadCredentials(res.details.did);
+    localStorage.setItem("provider-type", type);
+    callback();
+  }
+  async function errorLogin() {
+    alert("Error connecting to Orbis");
+    setStatus(3);
+    await sleep(1500);
+    setStatus(0);
+  }
   async function connect() {
     var _window$phantom, _window$phantom$solan, _window$phantom2;
     setStatus(1);
@@ -4601,6 +4651,11 @@ const WalletButton = ({
           chain: chain,
           lit: lit
         });
+        if (res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin();
+        }
         break;
       case "wallet-connect":
         const wc_provider = await EthereumProvider.init({
@@ -4610,6 +4665,11 @@ const WalletButton = ({
         });
         await wc_provider.enable();
         res = await orbis.connect(wc_provider, false);
+        if (res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin();
+        }
         break;
       case "phantom":
         const isPhantomInstalled = (_window$phantom = window.phantom) === null || _window$phantom === void 0 ? void 0 : (_window$phantom$solan = _window$phantom.solana) === null || _window$phantom$solan === void 0 ? void 0 : _window$phantom$solan.isPhantom;
@@ -4627,6 +4687,11 @@ const WalletButton = ({
           chain: chain,
           lit: lit
         });
+        if (res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin();
+        }
         break;
       case "email":
         res = await orbis.connect_v2({
@@ -4634,24 +4699,15 @@ const WalletButton = ({
           chain: "ethereum",
           lit: lit
         });
+        if (res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin();
+        }
         break;
-    }
-    try {
-      if (res.status == 200) {
-        setUser(res.details);
-        setStatus(2);
-        loadCredentials(res.details.did);
-        localStorage.setItem("provider-type", type);
-        callback();
-      } else {
-        alert("Error connecting to Orbis");
-        console.log("Error connecting to Orbis: ", res);
-        setStatus(3);
-        await sleep(1500);
-        setStatus(0);
-      }
-    } catch (e) {
-      alert("Error calling Orbis connect function.");
+      case "google":
+        googleLogin();
+        break;
     }
   }
   async function loadCredentials(did) {
@@ -4690,7 +4746,7 @@ const WalletButton = ({
       paddingBottom: "0.75rem",
       fontWeight: "500",
       fontSize: 15,
-      color: "#FFF"
+      color: textColor
     },
     onClick: () => connect()
   }, status == 1 ? /*#__PURE__*/React.createElement(LoadingCircle, null) : label);
@@ -4845,6 +4901,32 @@ const EmailIcon = ({
     fill: "#FFF"
   }));
 };
+const GoogleIcon$1 = ({
+  className
+}) => {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: "25",
+    height: "26",
+    viewBox: "0 0 50 52",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    style: {
+      marginRight: "0.5rem"
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M50 26.1175C50 24.4359 49.851 22.8395 49.5956 21.2856H25.5428V30.8855H39.3146C38.6973 34.0358 36.888 36.6965 34.206 38.5057V44.8914H42.4223C47.2329 40.4427 50 33.8868 50 26.1175Z",
+    fill: "#4285F4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25.5428 51.0856C32.4393 51.0856 38.2078 48.7868 42.4223 44.8915L34.206 38.5058C31.9072 40.0383 28.9911 40.9749 25.5428 40.9749C18.8804 40.9749 13.2397 36.4836 11.2175 30.4172H2.74585V36.9945C6.93912 45.3385 15.5598 51.0856 25.5428 51.0856Z",
+    fill: "#34A853"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M11.2175 30.4172C10.6854 28.8846 10.4087 27.2456 10.4087 25.5427C10.4087 23.8399 10.7067 22.2009 11.2175 20.6683V14.0911H2.74585C1.00042 17.5393 0 21.4133 0 25.5427C0 29.6722 1.00042 33.5461 2.74585 36.9944L11.2175 30.4172Z",
+    fill: "#FBBC05"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M25.5428 10.1107C29.3103 10.1107 32.6735 11.4091 35.3342 13.9421L42.6139 6.66241C38.2077 2.533 32.4393 0 25.5428 0C15.5598 0 6.93912 5.74713 2.74585 14.0911L11.2175 20.6684C13.2397 14.602 18.8804 10.1107 25.5428 10.1107Z",
+    fill: "#EA4335"
+  }));
+};
 
 let magic;
 let web3;
@@ -4980,7 +5062,9 @@ function OrbisProvider({
       }
     }
   }, [credentials, accessRules]);
-  return /*#__PURE__*/React.createElement(GlobalContext.Provider, {
+  return /*#__PURE__*/React.createElement(GoogleOAuthProvider, {
+    clientId: "728282649612-nh0qhf05g8q3alo12p301o9jbls015mk.apps.googleusercontent.com"
+  }, /*#__PURE__*/React.createElement(GlobalContext.Provider, {
     value: {
       user,
       setUser,
@@ -5002,7 +5086,7 @@ function OrbisProvider({
     lit: false,
     hide: () => setConnectModalVis(false),
     authMethods: authMethods
-  }));
+  })));
 }
 function cleanContext(context) {
   if (context.includes(":")) {

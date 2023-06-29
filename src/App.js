@@ -30,7 +30,7 @@ function App() {
       </div>
       <div className="w-full justify-center flex">
         <div className="flex" style={{paddingTop: 40, maxWidth: 950}}>
-          <Chat authMethods={["metamask", "wallet-connect"]} defaultOrbis={_orbis} context="kjzl6cwe1jw14bkmib9zetk3z352cs0gy4km3y7u3bqoi93ffoxg3249nvt1ui3" options={{node: "https://node2.orbis.club", useLit: true}} />
+          <Chat authMethods={["metamask", "wallet-connect", "google"]} defaultOrbis={_orbis} context="kjzl6cwe1jw14bkmib9zetk3z352cs0gy4km3y7u3bqoi93ffoxg3249nvt1ui3" options={{node: "https://node2.orbis.club", useLit: true}} />
         </div>
       </div>
     </div>

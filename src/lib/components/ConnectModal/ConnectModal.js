@@ -1,4 +1,5 @@
 import React, { useRef, useContext, useState } from "react";
+import { useGoogleLogin } from '@react-oauth/google';
 import useOutsideClick from "../../hooks/useOutsideClick";
 import useOrbis from "../../hooks/useOrbis";
 import { GlobalContext } from "../../contexts/GlobalContext";
@@ -24,22 +25,27 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
       <div style={{display: "flex", flexDirection: "column"}}>
         {/** Connect with Metamask (only if window.ethereum is available) */}
         {authMethods.includes("metamask") &&
-          <WalletButton lit={lit} type="metamask" label={<><MetamaskIcon className="mr-2" /> Metamask</>} bg="#F18F62" hoverColor="#F48552" callback={hide} />
+          <WalletButton lit={lit} type="metamask" label={<><MetamaskIcon className="mr-2" /> Metamask</>} bg="#F18F62" hoverColor="#F48552" textColor="#fff" callback={hide} />
         }
 
         {/** Connect with WalletConnect */}
         {authMethods.includes("wallet-connect") &&
-          <WalletButton lit={lit} type="wallet-connect" label={<><WalletConnectIcon className="mr-2" /> WalletConnect</>} bg="#468DEE" hoverColor="#3280EB" callback={hide} />
+          <WalletButton lit={lit} type="wallet-connect" label={<><WalletConnectIcon className="mr-2" /> WalletConnect</>} bg="#468DEE" hoverColor="#3280EB" textColor="#fff" callback={hide} />
         }
 
         {/** Connect with Phantom */}
         {authMethods.includes("phantom") &&
-          <WalletButton lit={lit} type="phantom" label={<><PhantomIcon className="mr-2" /> Phantom</>} bg="#6450E3" hoverColor="#4B34DD" callback={hide} />
+          <WalletButton lit={lit} type="phantom" label={<><PhantomIcon className="mr-2" /> Phantom</>} bg="#6450E3" hoverColor="#4B34DD" textColor="#fff" callback={hide} />
         }
 
         {/** Connect with Email */}
         {authMethods.includes("email") &&
-          <WalletButton lit={lit} type="email" label={<><EmailIcon className="mr-2" /> Email</>} bg="#000" hoverColor="#F48552" callback={hide} />
+          <WalletButton lit={lit} type="email" label={<><EmailIcon className="mr-2" /> Email</>} bg="#000" hoverColor="#F48552" textColor="#fff" callback={hide} />
+        }
+
+        {/** Connect with Google */}
+        {authMethods.includes("google") &&
+          <WalletButton lit={lit} type="google" label={<><GoogleIcon className="mr-2" /> Google</>} bg="#F2F2F2" hoverColor="#FFFFFF" textColor="#000" callback={hide} />
         }
       </div>
     </Modal>
@@ -47,10 +53,55 @@ export default function ConnectModal({ lit = false, title = "Connect to join the
 }
 
 /** Will render one connect button based on its type */
-const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
+const WalletButton = ({ lit, callback, type, label, bg, hoverColor, textColor }) => {
   const { orbis, magic, user, setUser, setCredentials } = useOrbis();
   const [status, setStatus] = useState(0);
 
+  /** Will handle the login with Google */
+  const googleLogin = useGoogleLogin({
+      flow: 'auth-code',
+      onSuccess: async (codeResponse) => {
+          let res = await orbis.connect_v2({
+            provider: "oauth",
+            oauth: {
+              type: "google",
+              code: codeResponse.code
+            }
+          })
+          if(res.status == 200) {
+            successLogin(res);
+          } else {
+            errorLogin(res)
+          }
+      },
+      onError: async (errorResponse) => {
+        errorLogin()
+      }
+  });
+
+  /** Will finalize login if successful */
+  function successLogin(res) {
+    /** Save new user object in state */
+    setUser(res.details);
+    setStatus(2);
+
+    /** Retrieve credentials for this user */
+    loadCredentials(res.details.did);
+
+    /** Save provider type in localStorage */
+    localStorage.setItem("provider-type", type);
+    callback();
+  }
+
+  /** Will return the error if issues logging in */
+  async function errorLogin() {
+    alert("Error connecting to Orbis");
+    setStatus(3);
+    await sleep(1500);
+    setStatus(0);
+  }
+
+  /** Will trigger the connect flow based on the connection type */
   async function connect() {
     setStatus(1);
     let provider;
@@ -62,7 +113,12 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
       /** Metamask */
       case "metamask":
         provider = window.ethereum;
-        res = await orbis.connect_v2({provider: provider, chain: chain, lit: lit});
+        res = await orbis.connect_v2({provider: provider, chain: chain, lit: lit})
+        if(res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin()
+        };
         break;
 
       /** Wallet Connect */
@@ -79,6 +135,11 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
 
         //await wc_provider.enable();
         res = await orbis.connect(wc_provider, false);
+        if(res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin()
+        }
         break;
 
       /** Phantom */
@@ -95,6 +156,11 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
         chain = "solana";
 
         res = await orbis.connect_v2({provider: provider, chain: chain, lit: lit});
+        if(res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin()
+        }
         break;
 
       /** Using Magic to connect */
@@ -104,31 +170,17 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
           chain: "ethereum",
           lit: lit
         });
+        if(res.status == 200) {
+          successLogin(res);
+        } else {
+          errorLogin()
+        }
         break;
-    }
 
-    /** Connect to Orbis */
-    try {
-      if(res.status == 200) {
-        /** Save new user object in state */
-        setUser(res.details);
-        setStatus(2);
-
-        /** Retrieve credentials for this user */
-        loadCredentials(res.details.did);
-
-        /** Save provider type in localStorage */
-        localStorage.setItem("provider-type", type);
-        callback();
-      } else {
-        alert("Error connecting to Orbis");
-        console.log("Error connecting to Orbis: ", res);
-        setStatus(3);
-        await sleep(1500);
-        setStatus(0);
-      }
-    } catch(e) {
-      alert("Error calling Orbis connect function.");
+      /** Google OAuth */
+      case "google":
+        googleLogin();
+        break;
     }
   }
 
@@ -160,7 +212,46 @@ const WalletButton = ({ lit, callback, type, label, bg, hoverColor }) => {
   }
 
   return(
-    <Button style={{width: "100%", justifyContent: "center", backgroundColor: bg, marginTop: "0.75rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", fontWeight: "500", fontSize: 15, color: "#FFF"}} onClick={() => connect()}>{status == 1 ? <LoadingCircle /> : label}</Button>
+    <Button style={{width: "100%", justifyContent: "center", backgroundColor: bg, marginTop: "0.75rem", paddingTop: "0.75rem", paddingBottom: "0.75rem", fontWeight: "500", fontSize: 15, color: textColor}} onClick={() => connect()}>{status == 1 ? <LoadingCircle /> : label}</Button>
+  )
+}
+
+function GoogleLoginCustom({loading, setLoading, setUser, connectWithOrbis}) {
+  const login = useGoogleLogin({
+      flow: 'auth-code',
+      onSuccess: async (codeResponse) => {
+          console.log(codeResponse);
+          setLoading(true);
+          let resUser = await orbis.connect_v2({
+            provider: "oauth",
+            oauth: {
+              type: "google",
+              code: codeResponse.code
+            }
+          })
+          console.log("resUser:", resUser);
+          setUser(resUser.details);
+
+          /** Save session string and authsig in localStorage
+          localStorage.setItem("ceramic-session", res_f.sessionString);
+          localStorage.setItem("lit-auth-signature", res_f.authSig);*/
+
+          /** Connect with Orbis which will use those saved auth to connect to the correct did */
+          //connectWithOrbis();
+      },
+      onError: errorResponse => console.log(errorResponse),
+  });
+
+  return(
+    <div className="flex flex-row cursor-pointer bg-white hover:bg-slate-100 px-5 py-2 rounded-lg shadow">
+      {loading ?
+        <span className={`text-base text-gray-900 font-medium`}>
+          Loading...
+        </span>
+       :
+         <span className={`text-base text-gray-900 font-medium flex flex-row items-center`} onClick={login}><img src="/icons/google.png" className="h-4 mr-2" /><span>Login with Google</span></span>
+       }
+    </div>
   )
 }
 
@@ -228,6 +319,16 @@ const EmailIcon = ({className}) => {
       <path d="M0.5 5.6691V14.25C0.5 15.9069 1.84315 17.25 3.5 17.25H18.5C20.1569 17.25 21.5 15.9069 21.5 14.25V5.6691L12.5723 11.1631C11.6081 11.7564 10.3919 11.7564 9.42771 11.1631L0.5 5.6691Z" fill="#FFF"/>
       <path d="M21.5 3.90783V3.75C21.5 2.09315 20.1569 0.75 18.5 0.75H3.5C1.84315 0.75 0.5 2.09315 0.5 3.75V3.90783L10.2139 9.88558C10.696 10.1823 11.304 10.1823 11.7861 9.88558L21.5 3.90783Z" fill="#FFF"/>
     </svg>
+  )
+}
 
+const GoogleIcon = ({className}) => {
+  return(
+    <svg width="25" height="26" viewBox="0 0 50 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: "0.5rem"}}>
+      <path d="M50 26.1175C50 24.4359 49.851 22.8395 49.5956 21.2856H25.5428V30.8855H39.3146C38.6973 34.0358 36.888 36.6965 34.206 38.5057V44.8914H42.4223C47.2329 40.4427 50 33.8868 50 26.1175Z" fill="#4285F4"/>
+      <path d="M25.5428 51.0856C32.4393 51.0856 38.2078 48.7868 42.4223 44.8915L34.206 38.5058C31.9072 40.0383 28.9911 40.9749 25.5428 40.9749C18.8804 40.9749 13.2397 36.4836 11.2175 30.4172H2.74585V36.9945C6.93912 45.3385 15.5598 51.0856 25.5428 51.0856Z" fill="#34A853"/>
+      <path d="M11.2175 30.4172C10.6854 28.8846 10.4087 27.2456 10.4087 25.5427C10.4087 23.8399 10.7067 22.2009 11.2175 20.6683V14.0911H2.74585C1.00042 17.5393 0 21.4133 0 25.5427C0 29.6722 1.00042 33.5461 2.74585 36.9944L11.2175 30.4172Z" fill="#FBBC05"/>
+      <path d="M25.5428 10.1107C29.3103 10.1107 32.6735 11.4091 35.3342 13.9421L42.6139 6.66241C38.2077 2.533 32.4393 0 25.5428 0C15.5598 0 6.93912 5.74713 2.74585 14.0911L11.2175 20.6684C13.2397 14.602 18.8804 10.1107 25.5428 10.1107Z" fill="#EA4335"/>
+    </svg>
   )
 }
